@@ -19,7 +19,8 @@
     "docs": "typedoc --tsconfig ./tsconfig.build.json --out ./docs src && touch ./docs/.nojekyll"
   },
   "dependencies": {
-    "ts-custom-error": "^3.2.0"
+    "multiformats": "^9.4.8",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/jest": "^26.0.20",
