@@ -49,12 +49,21 @@ describe('IdSortable', () => {
   });
   test('encoded uuids are lexically sortable', () => {
     const id = new IdSortable();
-    const i1 = utils.toUUID(new Uint8Array(id.get()));
-    const i2 = utils.toUUID(new Uint8Array(id.get()));
-    const i3 = utils.toUUID(new Uint8Array(id.get()));
+    const i1 = utils.toUUID(id.get());
+    const i2 = utils.toUUID(id.get());
+    const i3 = utils.toUUID(id.get());
     const uuids = [i3, i2, i1];
     uuids.sort();
     expect(uuids).toStrictEqual([i1, i2, i3]);
+  });
+  test('encoded multibase strings are lexically sortable', () => {
+    const id = new IdSortable();
+    const i1 = utils.toMultibase(id.get(), 'base58btc');
+    const i2 = utils.toMultibase(id.get(), 'base58btc');
+    const i3 = utils.toMultibase(id.get(), 'base58btc');
+    const encodings = [i3, i2, i1];
+    encodings.sort();
+    expect(encodings).toStrictEqual([i1, i2, i3]);
   });
   test('ids are monotonic within the same timestamp', () => {
     // To ensure that we it generates monotonic ids
