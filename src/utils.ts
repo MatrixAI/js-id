@@ -71,11 +71,8 @@ function* take<T>(g: Iterator<T>, l: number): Generator<T> {
   }
 }
 
-/**
- * Encodes Uint8Array as UUID string
- */
-function toUUID(bytes: Uint8Array): string {
-  const uuidHex = bytes2hex(bytes);
+function toUUID(bytes: ArrayBuffer): string {
+  const uuidHex = bytes2hex(new Uint8Array(bytes));
   return [
     uuidHex.substr(0, 8),
     uuidHex.substr(8, 4),
@@ -83,6 +80,14 @@ function toUUID(bytes: Uint8Array): string {
     uuidHex.substr(16, 4),
     uuidHex.substr(20, 12),
   ].join('-');
+}
+
+function fromUUID(uuid: string): ArrayBuffer | undefined {
+  const uuidHex = uuid.split('-').join('');
+  if (uuidHex.length !== 32) {
+    return;
+  }
+  return hex2bytes(uuidHex).buffer;
 }
 
 type MultibaseFormats = keyof typeof bases;
@@ -224,6 +229,7 @@ export {
   timeSource,
   take,
   toUUID,
+  fromUUID,
   toMultibase,
   fromMultibase,
   bytes2hex,

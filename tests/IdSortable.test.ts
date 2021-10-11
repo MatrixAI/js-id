@@ -21,6 +21,14 @@ describe('IdSortable', () => {
     expect(id_).toBeDefined();
     expect(Buffer.from(id).equals(Buffer.from(id_!))).toBe(true);
   });
+  test('ids can be encoded and decoded with uuid', () => {
+    const idGen = new IdSortable();
+    const id = idGen.get();
+    const uuid = utils.toUUID(id);
+    const id_ = utils.fromUUID(uuid);
+    expect(id_).toBeDefined();
+    expect(Buffer.from(id).equals(Buffer.from(id_!))).toBe(true);
+  });
   test('ids are lexically sortable', () => {
     const id = new IdSortable();
     const i1 = Buffer.from(id.get());

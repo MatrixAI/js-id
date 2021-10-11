@@ -8,15 +8,18 @@ describe('utils', () => {
       1, 2,
     ]);
   });
-  test('encoding to UUID', () => {
+  test('encoding & decoding UUID', () => {
     const hex1 = '01858a9e0e5c73edbde194f017ebdb3b';
     const id1 = '01858a9e-0e5c-73ed-bde1-94f017ebdb3b';
     const bytes1 = utils.hex2bytes(hex1);
-    expect(utils.toUUID(bytes1)).toBe(id1);
+    const uuid1 = utils.toUUID(bytes1);
+    expect(uuid1).toBe(id1);
     // Use uuid library to confirm
     const bytes2 = uuid.v4({}, new Uint8Array(16));
     const id2 = uuid.stringify([...bytes2]);
     expect(utils.toUUID(bytes2)).toBe(id2);
+    const bytes1_ = utils.fromUUID(uuid1);
+    expect(Buffer.from(bytes1_!).equals(bytes1)).toBe(true);
   });
   test('encoding and decoding bytes and bit strings', () => {
     // 128 size bit string
