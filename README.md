@@ -7,7 +7,7 @@ ID generation for JavaScript & TypeScript applications.
 Example Usage:
 
 ```ts
-import { IdRandom, IdDeterministic, IdSortable, utils } from './src';
+import { IdRandom, IdDeterministic, IdSortable, utils } from '@matrixai/id';
 
 // Random ids, equivalent to UUIDv4
 
