@@ -4,61 +4,58 @@
 
 ID generation for JavaScript & TypeScript applications.
 
-* UUIDv4
-* UUIDv7 & UUIDv8
-* BYO CSPRNG
-* BYO clock source for monotonic process restarts
-* Source IDs are in binary form which means they are provided as `ArrayBuffer`
-* Can encode IDs using multibase or multihash.
+Example Usage:
 
-Note that multihash means that it is hashed, but not yet encoded.
+```ts
+import { IdRandom, IdDeterministic, IdSortable, utils } from './src';
 
-Multicodec.
+// Random ids, equivalent to UUIDv4
 
-> The first decision is whether or not to use multibase. Multibase enables us to easily upgrade base encodings if we need to (or use different base encodings for the same key material). I think this is a fairly easy decision and we should do this.
+const randGen = new IdRandom();
 
-This will enable multibase header.
+const randIds = [...utils.take(randGen, 3)];
+console.log(randIds.map((b) => utils.toUUID(b)));
 
-> The second decision is whether or not to use multicodec. Using multicodec enables us to identify public key material as either a multihash (e.g. for RSA keys) or raw bytes (e.g. for ed25519 public keys). I think we should do this, but with some reservations which I'll get to at the end of this post.
+// Deterministic ids, equivalent to UUIDv5
 
-> The third decision is whether or not to use multihash. If we want to express hashes for public keys, I think we should do this, but again, with some reservations, which I'll get to at the end of this post.
+const deteGen = new IdDeterministic({
+  namespace: 'foo'
+});
 
-Expressing a `base58btc encoded` `ed25519` cryptographic identifier would look like this:
+const deteId1 = deteGen.get();
+const deteId2 = deteGen.get('bar');
 
+console.log(utils.toUUID(deteId1));
+console.log(utils.toMultibase(deteId2, 'base58btc'));
+
+// Strictly monotonic sortable ids, equivalent to UUIDv7
+
+let lastId = new Uint8Array(
+  [
+    0x06, 0x16, 0x3e, 0xf5, 0x6d, 0x8d, 0x70, 0x00,
+    0x87, 0xc4, 0x65, 0xd5, 0x21, 0x9b, 0x03, 0xd4,
+  ]
+).buffer;
+
+const sortGen = new IdSortable({ lastId });
+
+const sortId1 = sortGen.get();
+const sortId2 = sortGen.get();
+const sortId3 = sortGen.get();
+
+const sortIds = [
+  Buffer.from(sortId2),
+  Buffer.from(sortId3),
+  Buffer.from(sortId1),
+];
+
+sortIds.sort(Buffer.compare);
+
+console.log(sortIds);
+
+// Save the last id to ensure strict monotonicity across process restarts
+lastId = sortGen.lastId;
 ```
-0x7a 0xed01 ED25519_PUBLIC_KEY_BYTES
-```
-
-The `0x7a` is base58btc, and `0xed01` is ed25519. then just raw bytes. When encoded it is just string:
-
-```
-z2DhMLJmV8kNQm6zeWUrXQKtmzoh6YkKHSRxVSibscDQ7nq
-```
-
-The multihash has a hash type, and hash length, and bytes.
-
-* You chooose the key type
-* You choose the hash function (hashes over the raw key bytes) - this is optional
-* You choose the encoding (encodes the bytes, in a mapping that is useful)
-
-Ok so multicodec is ultimately used to select the key type, and thus what the actual data is.
-
-The hash function is also chosen.
-
-Finally the encoding is used.
-
-Which part of this problem is part of ID?
-
-1. multiid - time based, uuid based... etc?
-
-If it is a decentralized id, we have to choose the correct encoding? The id is binary form, then we have to encode it appropriately.
-
-So we have to encode it with UUID style?
-
-128 bits - that's the idea. Which means 16 byte keys. That's standard form.
-
-I think multibase could be used later. So I guess that the UUID forms?
-
 
 ## Installation
 

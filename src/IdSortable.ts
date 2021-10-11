@@ -68,6 +68,7 @@ class IdSortable implements IterableIterator<ArrayBuffer> {
   protected clock: () => number;
   protected nodeBits?: string;
   protected lastTs?: [number, number];
+  protected lastId_?: ArrayBuffer;
   protected seqCounter: number;
 
   public constructor({
@@ -93,6 +94,13 @@ class IdSortable implements IterableIterator<ArrayBuffer> {
     if (nodeId != null) {
       this.nodeBits = utils.nodeBits(nodeId, randSize);
     }
+  }
+
+  get lastId(): ArrayBuffer {
+    if (this.lastId_ == null) {
+      throw new ReferenceError('lastId has not yet been generated');
+    }
+    return this.lastId_;
   }
 
   public get(): ArrayBuffer {
@@ -132,6 +140,7 @@ class IdSortable implements IterableIterator<ArrayBuffer> {
     const idBytes = utils.bin2bytes(idBits);
     // Save the fixed point timestamp
     this.lastTs = [unixts, msec];
+    this.lastId_ = idBytes.buffer;
     return {
       value: idBytes.buffer,
       done: false,

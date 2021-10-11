@@ -29,6 +29,14 @@ describe('IdSortable', () => {
     expect(id_).toBeDefined();
     expect(Buffer.from(id).equals(Buffer.from(id_!))).toBe(true);
   });
+  test('maintains the last id generated', () => {
+    const idGen = new IdSortable();
+    idGen.get();
+    idGen.get();
+    const id = Buffer.from(idGen.get());
+    const id_ = Buffer.from(idGen.lastId);
+    expect(id.equals(id_)).toBe(true);
+  });
   test('ids are lexically sortable', () => {
     const id = new IdSortable();
     const i1 = Buffer.from(id.get());
