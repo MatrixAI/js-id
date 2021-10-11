@@ -13,6 +13,14 @@ describe('IdSortable', () => {
     const ids = [...utils.take(idGen, 10)];
     expect(ids).toHaveLength(10);
   });
+  test('ids can be encoded and decoded with multibase', () => {
+    const idGen = new IdSortable();
+    const id = idGen.get();
+    const encoded = utils.toMultibase(id, 'base58btc');
+    const id_ = utils.fromMultibase(encoded);
+    expect(id_).toBeDefined();
+    expect(Buffer.from(id).equals(Buffer.from(id_!))).toBe(true);
+  });
   test('ids are lexically sortable', () => {
     const id = new IdSortable();
     const i1 = Buffer.from(id.get());

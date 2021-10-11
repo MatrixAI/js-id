@@ -23,7 +23,7 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.20",
+    "@types/jest": "^27.0.2",
     "@types/node": "^14.14.35",
     "@types/node-forge": "^0.10.4",
     "@typescript-eslint/eslint-plugin": "^4.12.0",
@@ -31,9 +31,9 @@
     "eslint": "^7.17.0",
     "eslint-config-prettier": "^7.1.0",
     "eslint-plugin-prettier": "^3.3.1",
-    "jest": "^26.6.3",
+    "jest": "^27.2.5",
     "prettier": "^2.2.1",
-    "ts-jest": "^26.4.4",
+    "ts-jest": "^27.0.5",
     "ts-node": "^9.1.1",
     "tsconfig-paths": "^3.9.0",
     "typedoc": "^0.21.5",

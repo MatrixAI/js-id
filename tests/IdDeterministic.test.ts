@@ -13,6 +13,14 @@ describe('IdDeterministic', () => {
     const ids = [...utils.take(idGen, 10)];
     expect(ids).toHaveLength(10);
   });
+  test('ids can be encoded and decoded with multibase', () => {
+    const idGen = new IdDeterministic();
+    const id = idGen.get();
+    const encoded = utils.toMultibase(id, 'base58btc');
+    const id_ = utils.fromMultibase(encoded);
+    expect(id_).toBeDefined();
+    expect(Buffer.from(id).equals(Buffer.from(id_!))).toBe(true);
+  });
   test('ids are deterministic', () => {
     const id = new IdDeterministic();
     const id1 = Buffer.from(id.get());

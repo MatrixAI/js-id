@@ -1,5 +1,8 @@
+import type { Codec } from 'multiformats/bases/base';
+
 import crypto from 'crypto';
 import { performance } from 'perf_hooks';
+import { bases } from 'multiformats/basics';
 
 /**
  * Gets random bytes as Uint8Array
@@ -80,6 +83,28 @@ function toUUID(bytes: Uint8Array): string {
     uuidHex.substr(16, 4),
     uuidHex.substr(20, 12),
   ].join('-');
+}
+
+type MultibaseFormats = keyof typeof bases;
+
+const basesByPrefix: Record<string, Codec<string, string>> = {};
+for (const k in bases) {
+  const codec = bases[k];
+  basesByPrefix[codec.prefix] = codec;
+}
+
+function toMultibase(idBytes: ArrayBuffer, format: MultibaseFormats): string {
+  const codec = bases[format];
+  return codec.encode(new Uint8Array(idBytes));
+}
+
+function fromMultibase(idString: string): ArrayBuffer | undefined {
+  const prefix = idString[0];
+  const codec = basesByPrefix[prefix];
+  if (codec == null) {
+    return;
+  }
+  return codec.decode(idString).buffer;
 }
 
 /**
@@ -199,6 +224,8 @@ export {
   timeSource,
   take,
   toUUID,
+  toMultibase,
+  fromMultibase,
   bytes2hex,
   hex2bytes,
   bytes2bin,
@@ -210,3 +237,5 @@ export {
   toFixedPoint,
   fromFixedPoint,
 };
+
+export type { MultibaseFormats };

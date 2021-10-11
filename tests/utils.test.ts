@@ -96,4 +96,12 @@ describe('utils', () => {
     expect(utils.toFixedPoint(0, 12, 3)).toStrictEqual([0, 0]);
     expect(utils.fromFixedPoint([0, 0], 12, 3)).toBe(0.0);
   });
+  test('multibase encoding and decoding', () => {
+    const bytes = new Uint8Array([123, 124]).buffer;
+    const encoded = utils.toMultibase(bytes, 'base58btc');
+    expect(encoded).toBe('zAQ3');
+    const bytes_ = utils.fromMultibase(encoded);
+    expect(bytes_).toBeDefined();
+    expect(Buffer.from(bytes_!).equals(Buffer.from(bytes))).toBe(true);
+  });
 });
