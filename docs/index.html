@@ -1,0 +1,199 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>@matrixai/id</title>
+	<meta name="description" content="Documentation for @matrixai/id">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+	<script async src="assets/js/search.js" id="search-script"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.json" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">@matrixai/id</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<h1>@matrixai/id</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<a href="#js-id" id="js-id" style="color: inherit; text-decoration: none;">
+					<h1>js-id</h1>
+				</a>
+				<p><a href="https://gitlab.com/MatrixAI/open-source/js-id/commits/master"><img src="https://gitlab.com/MatrixAI/open-source/js-id/badges/master/pipeline.svg" alt="pipeline status"></a></p>
+				<p>ID generation for JavaScript &amp; TypeScript applications.</p>
+				<ul>
+					<li>UUIDv4</li>
+					<li>UUIDv7 &amp; UUIDv8</li>
+					<li>BYO CSPRNG</li>
+					<li>BYO clock source for monotonic process restarts</li>
+					<li>Source IDs are in binary form which means they are provided as <code>ArrayBuffer</code></li>
+					<li>Can encode IDs using multibase or multihash.</li>
+				</ul>
+				<p>Note that multihash means that it is hashed, but not yet encoded.</p>
+				<p>Multicodec.</p>
+				<blockquote>
+					<p>The first decision is whether or not to use multibase. Multibase enables us to easily upgrade base encodings if we need to (or use different base encodings for the same key material). I think this is a fairly easy decision and we should do this.</p>
+				</blockquote>
+				<p>This will enable multibase header.</p>
+				<blockquote>
+					<p>The second decision is whether or not to use multicodec. Using multicodec enables us to identify public key material as either a multihash (e.g. for RSA keys) or raw bytes (e.g. for ed25519 public keys). I think we should do this, but with some reservations which I&#39;ll get to at the end of this post.</p>
+				</blockquote>
+				<blockquote>
+					<p>The third decision is whether or not to use multihash. If we want to express hashes for public keys, I think we should do this, but again, with some reservations, which I&#39;ll get to at the end of this post.</p>
+				</blockquote>
+				<p>Expressing a <code>base58btc encoded</code> <code>ed25519</code> cryptographic identifier would look like this:</p>
+				<pre><code><span style="color: #098658">0x7a</span><span style="color: #000000"> </span><span style="color: #098658">0xed01</span><span style="color: #000000"> </span><span style="color: #0070C1">ED25519_PUBLIC_KEY_BYTES</span>
+</code></pre>
+				<p>The <code>0x7a</code> is base58btc, and <code>0xed01</code> is ed25519. then just raw bytes. When encoded it is just string:</p>
+				<pre><code><span style="color: #001080">z2DhMLJmV8kNQm6zeWUrXQKtmzoh6YkKHSRxVSibscDQ7nq</span>
+</code></pre>
+				<p>The multihash has a hash type, and hash length, and bytes.</p>
+				<ul>
+					<li>You chooose the key type</li>
+					<li>You choose the hash function (hashes over the raw key bytes) - this is optional</li>
+					<li>You choose the encoding (encodes the bytes, in a mapping that is useful)</li>
+				</ul>
+				<p>Ok so multicodec is ultimately used to select the key type, and thus what the actual data is.</p>
+				<p>The hash function is also chosen.</p>
+				<p>Finally the encoding is used.</p>
+				<p>Which part of this problem is part of ID?</p>
+				<ol>
+					<li>multiid - time based, uuid based... etc?</li>
+				</ol>
+				<p>If it is a decentralized id, we have to choose the correct encoding? The id is binary form, then we have to encode it appropriately.</p>
+				<p>So we have to encode it with UUID style?</p>
+				<p>128 bits - that&#39;s the idea. Which means 16 byte keys. That&#39;s standard form.</p>
+				<p>I think multibase could be used later. So I guess that the UUID forms?</p>
+				<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+					<h2>Installation</h2>
+				</a>
+				<pre><code class="language-sh"><span style="color: #000000">npm install --save @matrixai/id</span>
+</code></pre>
+				<a href="#development" id="development" style="color: inherit; text-decoration: none;">
+					<h2>Development</h2>
+				</a>
+				<p>Run <code>nix-shell</code>, and once you&#39;re inside, you can use:</p>
+				<pre><code class="language-sh"><span style="color: #008000"># install (or reinstall packages from package.json)</span>
+<span style="color: #000000">npm install</span>
+<span style="color: #008000"># build the dist</span>
+<span style="color: #000000">npm run build</span>
+<span style="color: #008000"># run the repl (this allows you to import from ./src)</span>
+<span style="color: #000000">npm run ts-node</span>
+<span style="color: #008000"># run the tests</span>
+<span style="color: #000000">npm run </span><span style="color: #795E26">test</span>
+<span style="color: #008000"># lint the source code</span>
+<span style="color: #000000">npm run lint</span>
+<span style="color: #008000"># automatically fix the source</span>
+<span style="color: #000000">npm run lintfix</span>
+</code></pre>
+				<a href="#docs-generation" id="docs-generation" style="color: inherit; text-decoration: none;">
+					<h3>Docs Generation</h3>
+				</a>
+				<pre><code class="language-sh"><span style="color: #000000">npm run docs</span>
+</code></pre>
+				<p>See the docs at: <a href="https://matrixai.github.io/js-id/">https://matrixai.github.io/js-id/</a></p>
+				<a href="#publishing" id="publishing" style="color: inherit; text-decoration: none;">
+					<h3>Publishing</h3>
+				</a>
+				<pre><code class="language-sh"><span style="color: #008000"># npm login</span>
+<span style="color: #000000">npm version patch </span><span style="color: #008000"># major/minor/patch</span>
+<span style="color: #000000">npm run build</span>
+<span style="color: #000000">npm publish --access public</span>
+<span style="color: #000000">git push</span>
+<span style="color: #000000">git push --tags</span>
+</code></pre>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class=" ">
+						<a href="modules.html">Modules</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/IdDeterministic.html">Id<wbr>Deterministic</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/IdRandom.html">Id<wbr>Random</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/IdSortable.html">Id<wbr>Sortable</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/index.html">index</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/utils.html">utils</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+</body>
+</html>
