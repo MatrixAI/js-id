@@ -1,5 +1,6 @@
 import IdSortable, { extractTs, extractSeq, extractRand } from '@/IdSortable';
 import * as utils from '@/utils';
+import { sleep } from './utils';
 
 describe('IdSortable', () => {
   test('ids are ArrayBuffer', () => {
@@ -41,6 +42,18 @@ describe('IdSortable', () => {
     const id = new IdSortable();
     const i1 = Buffer.from(id.get());
     const i2 = Buffer.from(id.get());
+    const i3 = Buffer.from(id.get());
+    const buffers = [i3, i1, i2];
+    // Comparison is done on the bytes in lexicographic order
+    buffers.sort(Buffer.compare);
+    expect(buffers).toStrictEqual([i1, i2, i3]);
+  });
+  test('ids are lexically sortable with time delay', async () => {
+    const id = new IdSortable();
+    const i1 = Buffer.from(id.get());
+    await sleep(250);
+    const i2 = Buffer.from(id.get());
+    await sleep(500);
     const i3 = Buffer.from(id.get());
     const buffers = [i3, i1, i2];
     // Comparison is done on the bytes in lexicographic order

@@ -98,18 +98,29 @@ for (const k in bases) {
   basesByPrefix[codec.prefix] = codec;
 }
 
+/**
+ * Encodes an multibase ID string
+ */
 function toMultibase(idBytes: ArrayBuffer, format: MultibaseFormats): string {
   const codec = bases[format];
   return codec.encode(new Uint8Array(idBytes));
 }
 
+/**
+ * Decodes a multibase encoded ID
+ * Do not use this for generic multibase strings
+ */
 function fromMultibase(idString: string): ArrayBuffer | undefined {
   const prefix = idString[0];
   const codec = basesByPrefix[prefix];
   if (codec == null) {
     return;
   }
-  return codec.decode(idString).buffer;
+  const buffer = codec.decode(idString).buffer;
+  if (buffer.byteLength !== 16) {
+    return;
+  }
+  return buffer;
 }
 
 /**

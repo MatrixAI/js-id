@@ -100,11 +100,17 @@ describe('utils', () => {
     expect(utils.fromFixedPoint([0, 0], 12, 3)).toBe(0.0);
   });
   test('multibase encoding and decoding', () => {
-    const bytes = new Uint8Array([123, 124]).buffer;
+    const bytes = new Uint8Array([
+      123, 124, 125, 126, 127, 128, 129, 130, 123, 124, 125, 126, 127, 128, 129,
+      130,
+    ]).buffer;
     const encoded = utils.toMultibase(bytes, 'base58btc');
-    expect(encoded).toBe('zAQ3');
+    expect(encoded).toBe('zGFRLUyEszBgw9bRXTeFvu7');
     const bytes_ = utils.fromMultibase(encoded);
     expect(bytes_).toBeDefined();
     expect(Buffer.from(bytes_!).equals(Buffer.from(bytes))).toBe(true);
+    // FromMultibase should only allow 16 byte ids
+    expect(utils.fromMultibase('aAQ3')).toBeUndefined();
+    expect(utils.fromMultibase('aAQ333333333333333AAAAAA')).toBeUndefined();
   });
 });
