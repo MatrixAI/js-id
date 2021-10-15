@@ -1,8 +1,10 @@
 import type { Codec } from 'multiformats/bases/base';
+import type { Id } from './Id';
 
 import crypto from 'crypto';
 import { performance } from 'perf_hooks';
 import { bases } from 'multiformats/basics';
+import IdInternal from './Id';
 
 /**
  * Gets random bytes as Uint8Array
@@ -19,17 +21,16 @@ function randomBits(
   size: number,
 ): string {
   const bytes = randomBytes(Math.ceil(size / 8));
-  const bits = [...bytes].map((n) => dec2bin(n, 8)).join('');
+  const bits = [...bytes].map((n) => dec2bits(n, 8)).join('');
   return bits.substr(0, size);
 }
 
-function nodeBits(nodeBytes: ArrayBuffer, size: number): string {
-  const bytes = new Uint8Array(
-    nodeBytes,
+function nodeBits(nodeBytes: Uint8Array, size: number): string {
+  const bytes = nodeBytes.subarray(
     0,
     Math.min(nodeBytes.byteLength, Math.ceil(size / 8)),
   );
-  const bits = [...bytes].map((n) => dec2bin(n, 8)).join('');
+  const bits = [...bytes].map((n) => dec2bits(n, 8)).join('');
   return bits.substr(0, size);
 }
 
@@ -71,8 +72,24 @@ function* take<T>(g: Iterator<T>, l: number): Generator<T> {
   }
 }
 
-function toUUID(bytes: ArrayBuffer): string {
-  const uuidHex = bytes2hex(new Uint8Array(bytes));
+function toString(id: Uint8Array): string {
+  return String.fromCharCode(...id);
+  // Const b = Buffer.from(id.buffer, id.byteOffset, id.byteLength);
+  // return b.toString('binary');
+}
+
+function fromString(idString: string): Id | undefined {
+  const id = IdInternal.create(16);
+  for (let i = 0; i < 16; i++) {
+    id[i] = idString.charCodeAt(i);
+  }
+  return id;
+  // Const b = Buffer.from(idString, 'binary');
+  // return IdInternal.create(b.buffer, b.byteOffset, b.byteLength);
+}
+
+function toUUID(id: Uint8Array): string {
+  const uuidHex = bytes2hex(id);
   return [
     uuidHex.substr(0, 8),
     uuidHex.substr(8, 4),
@@ -82,12 +99,12 @@ function toUUID(bytes: ArrayBuffer): string {
   ].join('-');
 }
 
-function fromUUID(uuid: string): ArrayBuffer | undefined {
+function fromUUID(uuid: string): Id | undefined {
   const uuidHex = uuid.split('-').join('');
   if (uuidHex.length !== 32) {
     return;
   }
-  return hex2bytes(uuidHex).buffer;
+  return IdInternal.create(hex2bytes(uuidHex).buffer);
 }
 
 type MultibaseFormats = keyof typeof bases;
@@ -101,26 +118,47 @@ for (const k in bases) {
 /**
  * Encodes an multibase ID string
  */
-function toMultibase(idBytes: ArrayBuffer, format: MultibaseFormats): string {
+function toMultibase(id: Uint8Array, format: MultibaseFormats): string {
   const codec = bases[format];
-  return codec.encode(new Uint8Array(idBytes));
+  return codec.encode(id);
 }
 
 /**
  * Decodes a multibase encoded ID
  * Do not use this for generic multibase strings
  */
-function fromMultibase(idString: string): ArrayBuffer | undefined {
+function fromMultibase(idString: string): Id | undefined {
   const prefix = idString[0];
   const codec = basesByPrefix[prefix];
   if (codec == null) {
     return;
   }
-  const buffer = codec.decode(idString).buffer;
+  const buffer = codec.decode(idString);
   if (buffer.byteLength !== 16) {
     return;
   }
-  return buffer;
+  return IdInternal.create(buffer);
+}
+
+/**
+ * Encodes as Buffer zero-copy
+ */
+function toBuffer(id: Uint8Array): Buffer {
+  return Buffer.from(id.buffer, id.byteOffset, id.byteLength);
+}
+
+/**
+ * Decodes as Buffer zero-copy
+ */
+function fromBuffer(idBuffer: Buffer): Id | undefined {
+  if (idBuffer.byteLength !== 16) {
+    return;
+  }
+  return IdInternal.create(
+    idBuffer.buffer,
+    idBuffer.byteOffset,
+    idBuffer.byteLength,
+  );
 }
 
 /**
@@ -138,15 +176,15 @@ function hex2bytes(hex: string): Uint8Array {
 /**
  * Encodes Uint8Array to bit string
  */
-function bytes2bin(bytes: Uint8Array): string {
-  return [...bytes].map((n) => dec2bin(n, 8)).join('');
+function bytes2bits(bytes: Uint8Array): string {
+  return [...bytes].map((n) => dec2bits(n, 8)).join('');
 }
 
 /**
  * Decodes bit string to Uint8Array
  */
-function bin2bytes(bin: string): Uint8Array {
-  const numbers = strChunks(bin, 8).map((b) => parseInt(b, 2));
+function bits2bytes(bits: string): Uint8Array {
+  const numbers = strChunks(bits, 8).map((b) => parseInt(b, 2));
   return new Uint8Array(numbers);
 }
 
@@ -154,7 +192,7 @@ function bin2bytes(bin: string): Uint8Array {
  * Encodes positive base 10 numbers to bit string
  * Will output bits in big-endian order
  */
-function dec2bin(dec: number, size: number): string {
+function dec2bits(dec: number, size: number): string {
   dec %= 2 ** size;
   // `>>>` coerces dec to unsigned integer
   return (dec >>> 0).toString(2).padStart(size, '0');
@@ -239,15 +277,19 @@ export {
   nodeBits,
   timeSource,
   take,
+  toString,
+  fromString,
   toUUID,
   fromUUID,
   toMultibase,
   fromMultibase,
+  toBuffer,
+  fromBuffer,
   bytes2hex,
   hex2bytes,
-  bytes2bin,
-  bin2bytes,
-  dec2bin,
+  bytes2bits,
+  bits2bytes,
+  dec2bits,
   dec2hex,
   strChunks,
   roundPrecise,

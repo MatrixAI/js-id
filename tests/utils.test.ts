@@ -23,15 +23,15 @@ describe('utils', () => {
   });
   test('encoding and decoding bytes and bit strings', () => {
     // 128 size bit string
-    const bin =
+    const bits =
       '00000110000101100010100100001100101001110100010001110000000000001011000111101000111001101100100010110010011110110110110100110011';
     const bytes = new Uint8Array([
       6, 22, 41, 12, 167, 68, 112, 0, 177, 232, 230, 200, 178, 123, 109, 51,
     ]);
-    expect(utils.bin2bytes(bin)).toStrictEqual(bytes);
-    expect(utils.bytes2bin(bytes)).toBe(bin);
-    expect(utils.bytes2bin(utils.bin2bytes(bin))).toBe(bin);
-    expect(utils.bin2bytes(utils.bytes2bin(bytes))).toStrictEqual(bytes);
+    expect(utils.bits2bytes(bits)).toStrictEqual(bytes);
+    expect(utils.bytes2bits(bytes)).toBe(bits);
+    expect(utils.bytes2bits(utils.bits2bytes(bits))).toBe(bits);
+    expect(utils.bits2bytes(utils.bytes2bits(bytes))).toStrictEqual(bytes);
   });
   test('encoding and decoding bytes and hex strings', () => {
     // Uuid hex
@@ -45,13 +45,13 @@ describe('utils', () => {
     expect(utils.hex2bytes(utils.bytes2hex(bytes))).toStrictEqual(bytes);
   });
   test('encoding decimal to bit strings', () => {
-    expect(utils.dec2bin(0, 8)).toBe('00000000');
-    expect(utils.dec2bin(1, 8)).toBe('00000001');
-    expect(utils.dec2bin(2, 8)).toBe('00000010');
-    expect(utils.dec2bin(255, 8)).toBe('11111111');
+    expect(utils.dec2bits(0, 8)).toBe('00000000');
+    expect(utils.dec2bits(1, 8)).toBe('00000001');
+    expect(utils.dec2bits(2, 8)).toBe('00000010');
+    expect(utils.dec2bits(255, 8)).toBe('11111111');
     // This should roll back to the beginning
-    expect(utils.dec2bin(256, 8)).toBe('00000000');
-    expect(utils.dec2bin(257, 8)).toBe('00000001');
+    expect(utils.dec2bits(256, 8)).toBe('00000000');
+    expect(utils.dec2bits(257, 8)).toBe('00000001');
   });
   test('encoding decimal to hex strings', () => {
     expect(utils.dec2hex(0, 2)).toBe('00');
@@ -103,7 +103,7 @@ describe('utils', () => {
     const bytes = new Uint8Array([
       123, 124, 125, 126, 127, 128, 129, 130, 123, 124, 125, 126, 127, 128, 129,
       130,
-    ]).buffer;
+    ]);
     const encoded = utils.toMultibase(bytes, 'base58btc');
     expect(encoded).toBe('zGFRLUyEszBgw9bRXTeFvu7');
     const bytes_ = utils.fromMultibase(encoded);
@@ -112,5 +112,19 @@ describe('utils', () => {
     // FromMultibase should only allow 16 byte ids
     expect(utils.fromMultibase('aAQ3')).toBeUndefined();
     expect(utils.fromMultibase('aAQ333333333333333AAAAAA')).toBeUndefined();
+  });
+  test('buffer encoding and decoding is zero copy', () => {
+    const bytes = new Uint8Array([
+      123, 124, 125, 126, 127, 128, 129, 130, 123, 124, 125, 126, 127, 128, 129,
+      130,
+    ]);
+    const buffer = utils.toBuffer(bytes);
+    buffer[0] = 122;
+    expect(bytes[0]).toBe(122);
+    const bytes_ = utils.fromBuffer(buffer);
+    expect(bytes_).toBeDefined();
+    bytes_![0] = 121;
+    expect(bytes[0]).toBe(121);
+    expect(buffer[0]).toBe(121);
   });
 });

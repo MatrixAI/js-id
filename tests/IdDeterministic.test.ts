@@ -2,16 +2,23 @@ import IdDeterministic from '@/IdDeterministic';
 import * as utils from '@/utils';
 
 describe('IdDeterministic', () => {
-  test('ids are ArrayBuffer', () => {
+  test('ids are Uint8Array', () => {
     const idGen = new IdDeterministic();
     const id = idGen.get();
-    const idBuf = Buffer.from(id);
-    expect(idBuf.buffer).toBe(id);
+    expect(id).toBeInstanceOf(Uint8Array);
   });
   test('ids can be generated', () => {
     const idGen = new IdDeterministic();
     const ids = [...utils.take(idGen, 10)];
     expect(ids).toHaveLength(10);
+  });
+  test('ids can be encoded and decoded as binary strings', () => {
+    const idGen = new IdDeterministic();
+    const id = idGen.get();
+    const encoded = id.toString();
+    const id_ = utils.fromString(encoded);
+    expect(id_).toBeDefined();
+    expect(utils.toBuffer(id).equals(utils.toBuffer(id_!))).toBe(true);
   });
   test('ids can be encoded and decoded with multibase', () => {
     const idGen = new IdDeterministic();
@@ -72,5 +79,32 @@ describe('IdDeterministic', () => {
     const idB1 = Buffer.from(idGen1.get('b'));
     const idB2 = Buffer.from(idGen2.get('b'));
     expect(idB1.equals(idB2)).toBe(true);
+  });
+  test('ids can be used as record indexes', () => {
+    const idGen = new IdDeterministic({ namespace: 'foo' });
+    const ids = [
+      idGen.get('a'),
+      idGen.get('b'),
+      idGen.get('c'),
+      idGen.get('d'),
+    ];
+    let counter = 0;
+    const record = {};
+    for (const id of ids) {
+      record[id] = counter;
+      expect(record[id]).toBe(counter);
+      counter++;
+    }
+  });
+  test('ids in strings can be compared for equality', () => {
+    const idGen = new IdDeterministic({ namespace: 'foo' });
+    const id1 = idGen.get('a');
+    const id2 = idGen.get('a');
+    // Objects will be different
+    expect(id1 == id2).toBe(false);
+    // Deterministic ids are the same
+    expect(id1.toString() == id2.toString()).toBe(true);
+    expect(id1.toString()).toBe(id2 + '');
+    expect(id2.toString()).toBe(String(id1));
   });
 });

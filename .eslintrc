@@ -27,7 +27,6 @@
     "no-constant-condition": 0,
     "no-useless-escape": 0,
     "no-console": "error",
-    "eqeqeq": ["error", "smart"],
     "capitalized-comments": [
       "warn",
       "always",
@@ -66,6 +65,7 @@
       {
         "selector": "parameter",
         "format": ["camelCase"],
+        "leadingUnderscore": "allowSingleOrDouble",
         "trailingUnderscore": "allowSingleOrDouble"
       },
       {

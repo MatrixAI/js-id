@@ -1,3 +1,6 @@
+import type { Id } from './Id';
+
+import IdInternal from './Id';
 import * as utils from './utils';
 
 /**
@@ -22,11 +25,12 @@ const msecPrecision = 3;
 const variantBits = '10';
 const versionBits = '0111';
 
-function extractTs(idBytes: ArrayBuffer): number {
+function extractTs(idBytes: Uint8Array): number {
   // Decode the timestamp from the last id
   // the timestamp bits is 48 bits or 6 bytes
-  const idTsBytes = new Uint8Array(idBytes, 0, (unixtsSize + msecSize) / 8);
-  const idTsBits = utils.bytes2bin(idTsBytes);
+  // this creates a new zero-copy view
+  const idTsBytes = idBytes.subarray(0, (unixtsSize + msecSize) / 8);
+  const idTsBits = utils.bytes2bits(idTsBytes);
   const unixtsBits = idTsBits.substr(0, unixtsSize);
   const msecBits = idTsBits.substr(unixtsSize, unixtsSize + msecSize);
   const unixts = parseInt(unixtsBits, 2);
@@ -35,23 +39,21 @@ function extractTs(idBytes: ArrayBuffer): number {
   return utils.fromFixedPoint([unixts, msec], msecSize, msecPrecision);
 }
 
-function extractSeq(idBytes: ArrayBuffer): number {
-  const idSeqBytes = new Uint8Array(
-    idBytes,
+function extractSeq(idBytes: Uint8Array): number {
+  const idSeqBytes = idBytes.subarray(
     (unixtsSize + msecSize) / 8,
     (unixtsSize + msecSize + 4 + seqSize) / 8,
   );
-  const idSeqBits = utils.bytes2bin(idSeqBytes).substr(4, seqSize);
+  const idSeqBits = utils.bytes2bits(idSeqBytes).substr(4, seqSize);
   const seq = parseInt(idSeqBits, 2);
   return seq;
 }
 
-function extractRand(idBytes: ArrayBuffer): string {
-  const idRandBytes = new Uint8Array(
-    idBytes,
+function extractRand(idBytes: Uint8Array): string {
+  const idRandBytes = idBytes.subarray(
     (unixtsSize + msecSize + 4 + seqSize) / 8,
   );
-  const idRandBits = utils.bytes2bin(idRandBytes).substr(2);
+  const idRandBits = utils.bytes2bits(idRandBytes).substr(2);
   return idRandBits;
 }
 
@@ -63,12 +65,12 @@ function extractRand(idBytes: ArrayBuffer): string {
  * 12 bits seq enables 4096 ids per millisecond
  * After 4096, it rolls over
  */
-class IdSortable implements IterableIterator<ArrayBuffer> {
+class IdSortable implements IterableIterator<Id> {
   protected randomSource: (size: number) => Uint8Array;
   protected clock: () => number;
   protected nodeBits?: string;
   protected lastTs?: [number, number];
-  protected lastId_?: ArrayBuffer;
+  protected _lastId?: Id;
   protected seqCounter: number;
 
   public constructor({
@@ -77,8 +79,8 @@ class IdSortable implements IterableIterator<ArrayBuffer> {
     timeSource = utils.timeSource,
     randomSource = utils.randomBytes,
   }: {
-    lastId?: ArrayBuffer;
-    nodeId?: ArrayBuffer;
+    lastId?: Uint8Array;
+    nodeId?: Uint8Array;
     timeSource?: (lastTs?: number) => () => number;
     randomSource?: (size: number) => Uint8Array;
   } = {}) {
@@ -96,24 +98,24 @@ class IdSortable implements IterableIterator<ArrayBuffer> {
     }
   }
 
-  get lastId(): ArrayBuffer {
-    if (this.lastId_ == null) {
+  get lastId(): Id {
+    if (this._lastId == null) {
       throw new ReferenceError('lastId has not yet been generated');
     }
-    return this.lastId_;
+    return this._lastId;
   }
 
-  public get(): ArrayBuffer {
-    return this.next().value as ArrayBuffer;
+  public get(): Id {
+    return this.next().value as Id;
   }
 
-  public next(): IteratorResult<ArrayBuffer, void> {
+  public next(): IteratorResult<Id, void> {
     // Clock returns millisecond precision
     const ts = this.clock() / 10 ** msecPrecision;
     // Converting to seconds and subseconds
     const [unixts, msec] = utils.toFixedPoint(ts, msecSize, msecPrecision);
-    const unixtsBits = utils.dec2bin(unixts, unixtsSize);
-    const msecBits = utils.dec2bin(msec, msecSize);
+    const unixtsBits = utils.dec2bits(unixts, unixtsSize);
+    const msecBits = utils.dec2bits(msec, msecSize);
     if (
       this.lastTs != null &&
       this.lastTs[0] >= unixts &&
@@ -123,7 +125,7 @@ class IdSortable implements IterableIterator<ArrayBuffer> {
     } else {
       this.seqCounter = 0;
     }
-    const seqBits = utils.dec2bin(this.seqCounter, seqSize);
+    const seqBits = utils.dec2bits(this.seqCounter, seqSize);
     // NodeBits can be written to the most significant rand portion
     let randBits: string;
     if (this.nodeBits != null) {
@@ -137,17 +139,18 @@ class IdSortable implements IterableIterator<ArrayBuffer> {
     }
     const idBits =
       unixtsBits + msecBits + versionBits + seqBits + variantBits + randBits;
-    const idBytes = utils.bin2bytes(idBits);
+    const idBytes = utils.bits2bytes(idBits);
+    const id = IdInternal.create(idBytes.buffer);
     // Save the fixed point timestamp
     this.lastTs = [unixts, msec];
-    this.lastId_ = idBytes.buffer;
+    this._lastId = id;
     return {
-      value: idBytes.buffer,
+      value: id,
       done: false,
     };
   }
 
-  public [Symbol.iterator](): IterableIterator<ArrayBuffer> {
+  public [Symbol.iterator](): IterableIterator<Id> {
     return this;
   }
 }
