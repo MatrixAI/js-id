@@ -1,4 +1,7 @@
+import type { Id } from './Id';
+
 import { v5 as uuidv5, NIL } from 'uuid';
+import IdInternal from './Id';
 
 /**
  * This produces deterministic ids based on:
@@ -8,7 +11,7 @@ import { v5 as uuidv5, NIL } from 'uuid';
  *     namespaceUUID is SHA1(NIL UUID + namespace)
  * )
  */
-class IdDeterministic implements IterableIterator<ArrayBuffer> {
+class IdDeterministic implements IterableIterator<Id> {
   protected namespaceData: Uint8Array;
 
   public constructor({
@@ -21,20 +24,20 @@ class IdDeterministic implements IterableIterator<ArrayBuffer> {
     this.namespaceData = namespaceData;
   }
 
-  public get(name?: string): ArrayBuffer {
-    return this.next(name).value as ArrayBuffer;
+  public get(name?: string): Id {
+    return this.next(name).value as Id;
   }
 
-  public next(name: string = ''): IteratorResult<ArrayBuffer, void> {
-    const idData = new ArrayBuffer(16);
-    uuidv5(name, this.namespaceData, new Uint8Array(idData));
+  public next(name: string = ''): IteratorResult<Id, void> {
+    const id = IdInternal.create(16);
+    uuidv5(name, this.namespaceData, id);
     return {
-      value: idData,
+      value: id,
       done: false,
     };
   }
 
-  public [Symbol.iterator](): IterableIterator<ArrayBuffer> {
+  public [Symbol.iterator](): IterableIterator<Id> {
     return this;
   }
 }

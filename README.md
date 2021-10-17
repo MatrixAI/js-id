@@ -24,9 +24,19 @@ const deteGen = new IdDeterministic({
 
 const deteId1 = deteGen.get();
 const deteId2 = deteGen.get('bar');
+const deteId3 = deteGen.get('bar');
 
 console.log(utils.toUUID(deteId1));
 console.log(utils.toMultibase(deteId2, 'base58btc'));
+
+// Will be cast to string index
+const recordOfDeteIds = {};
+recordOfDeteIds[deteId1] = 1;
+recordOfDeteIds[deteId2] = 1;
+console.log(recordOfDeteIds[deteId1]);
+
+// Can be checked for equality
+console.log(deteId2.toString() === deteId3.toString());
 
 // Strictly monotonic sortable ids, equivalent to UUIDv7
 
@@ -35,7 +45,7 @@ let lastId = new Uint8Array(
     0x06, 0x16, 0x3e, 0xf5, 0x6d, 0x8d, 0x70, 0x00,
     0x87, 0xc4, 0x65, 0xd5, 0x21, 0x9b, 0x03, 0xd4,
   ]
-).buffer;
+);
 
 const sortGen = new IdSortable({ lastId });
 
@@ -44,9 +54,9 @@ const sortId2 = sortGen.get();
 const sortId3 = sortGen.get();
 
 const sortIds = [
-  Buffer.from(sortId2),
-  Buffer.from(sortId3),
-  Buffer.from(sortId1),
+  utils.toBuffer(sortId2),
+  utils.toBuffer(sortId3),
+  utils.toBuffer(sortId1),
 ];
 
 sortIds.sort(Buffer.compare);
@@ -55,6 +65,10 @@ console.log(sortIds);
 
 // Save the last id to ensure strict monotonicity across process restarts
 lastId = sortGen.lastId;
+
+// Ids can also be compared in order
+console.log(sortId1 < sortId2);
+console.log(sortId2 < sortId3);
 ```
 
 ## Installation

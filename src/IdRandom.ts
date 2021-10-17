@@ -1,7 +1,10 @@
+import type { Id } from './Id';
+
 import { v4 as uuidv4 } from 'uuid';
 import * as utils from './utils';
+import IdInternal from './Id';
 
-class IdRandom implements IterableIterator<ArrayBuffer> {
+class IdRandom implements IterableIterator<Id> {
   protected randomSource: (size: number) => Uint8Array;
 
   public constructor({
@@ -12,26 +15,26 @@ class IdRandom implements IterableIterator<ArrayBuffer> {
     this.randomSource = randomSource;
   }
 
-  public get(): ArrayBuffer {
-    return this.next().value as ArrayBuffer;
+  public get(): Id {
+    return this.next().value as Id;
   }
 
-  public next(): IteratorResult<ArrayBuffer, void> {
-    const idData = new ArrayBuffer(16);
-    // Uuidv4 does mutate the random data
+  public next(): IteratorResult<Id, void> {
+    const id = IdInternal.create(16);
+    // `uuidv4` mutates the random data
     uuidv4(
       {
         rng: () => this.randomSource(16),
       },
-      new Uint8Array(idData),
+      id,
     );
     return {
-      value: idData,
+      value: id,
       done: false,
     };
   }
 
-  public [Symbol.iterator](): IterableIterator<ArrayBuffer> {
+  public [Symbol.iterator](): IterableIterator<Id> {
     return this;
   }
 }
