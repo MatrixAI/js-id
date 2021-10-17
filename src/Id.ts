@@ -2,7 +2,7 @@ import * as utils from './utils';
 
 /**
  * IdInternal can be used as a string primitive
- * This type hack prevents TS from complaining
+ * This type hack (as a number) prevents TS from complaining
  * See: https://github.com/microsoft/TypeScript/issues/4538
  */
 type Id = IdInternal & number;
