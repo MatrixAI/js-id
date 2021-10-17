@@ -74,8 +74,6 @@ function* take<T>(g: Iterator<T>, l: number): Generator<T> {
 
 function toString(id: Uint8Array): string {
   return String.fromCharCode(...id);
-  // Const b = Buffer.from(id.buffer, id.byteOffset, id.byteLength);
-  // return b.toString('binary');
 }
 
 function fromString(idString: string): Id | undefined {
@@ -84,8 +82,6 @@ function fromString(idString: string): Id | undefined {
     id[i] = idString.charCodeAt(i);
   }
   return id;
-  // Const b = Buffer.from(idString, 'binary');
-  // return IdInternal.create(b.buffer, b.byteOffset, b.byteLength);
 }
 
 function toUUID(id: Uint8Array): string {
