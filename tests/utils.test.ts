@@ -85,19 +85,97 @@ describe('utils', () => {
     // we should expect .102 to be the resulting fractional
     const fp1 = 1633860855.1015312;
     const fixed1 = utils.toFixedPoint(fp1, 12, 3);
-    expect(fixed1[1]).toBe(418);
+    expect(fixed1[1]).toBe(417);
     const fp1_ = utils.fromFixedPoint(fixed1, 12, 3);
     expect(fp1_).toBe(utils.roundPrecise(fp1, 3));
     // Also to 3 decimal places
     // expecting 0.101 now
     const fp2 = 1633860855.1014312;
     const fixed2 = utils.toFixedPoint(fp2, 12, 3);
-    expect(fixed2[1]).toBe(414);
+    expect(fixed2[1]).toBe(413);
     const fp2_ = utils.fromFixedPoint(fixed2, 12, 3);
     expect(fp2_).toBe(utils.roundPrecise(fp2, 3));
     // 0 edge case
     expect(utils.toFixedPoint(0, 12, 3)).toStrictEqual([0, 0]);
     expect(utils.fromFixedPoint([0, 0], 12, 3)).toBe(0.0);
+  });
+  test('fixed point conversion when close to 1', () => {
+    // Highest number 12 digits can represent is 4095
+    // a number of 4096 would result in overflow
+    // here we test when we get close to 4096
+    // the conversion from toFixedPoint and fromFixedPoint will be lossy
+    // this is because toFixedPoint will round off precision and floor any number getting close to 4096
+    let closeTo: number;
+    let fp: [number, number];
+    // Exactly at 3 decimal points
+    closeTo = 0.999;
+    fp = utils.toFixedPoint(closeTo, 12, 3);
+    expect(fp).toStrictEqual([0, 4091]);
+    expect(utils.fromFixedPoint(fp, 12, 3)).toBe(0.999);
+    // Will round below
+    closeTo = 0.9994;
+    fp = utils.toFixedPoint(closeTo, 12, 3);
+    expect(fp).toStrictEqual([0, 4091]);
+    expect(utils.fromFixedPoint(fp, 12, 3)).toBe(0.999);
+    // Will round above to 1
+    closeTo = 0.9995;
+    fp = utils.toFixedPoint(closeTo, 12, 3);
+    expect(fp).toStrictEqual([1, 0]);
+    expect(utils.fromFixedPoint(fp, 12, 3)).toBe(1);
+    // Will round above to 1
+    closeTo = 0.9999;
+    fp = utils.toFixedPoint(closeTo, 12, 3);
+    expect(fp).toStrictEqual([1, 0]);
+    expect(utils.fromFixedPoint(fp, 12, 3)).toBe(1);
+    // Will round above to 1
+    closeTo = 0.99999;
+    fp = utils.toFixedPoint(closeTo, 12, 3);
+    expect(fp).toStrictEqual([1, 0]);
+    expect(utils.fromFixedPoint(fp, 12, 3)).toBe(1);
+    // Exactly at 5 decimal points
+    closeTo = 0.99999;
+    fp = utils.toFixedPoint(closeTo, 12, 5);
+    expect(fp).toStrictEqual([0, 4095]);
+    expect(utils.fromFixedPoint(fp, 12, 5)).toBe(0.99976);
+  });
+  test('fixed point conversion when close to 0', () => {
+    let closeTo: number;
+    let fp: [number, number];
+    // Exactly 3 decimal places
+    closeTo = 0.001;
+    fp = utils.toFixedPoint(closeTo, 12, 3);
+    expect(fp).toStrictEqual([0, 4]);
+    expect(utils.fromFixedPoint(fp, 12, 3)).toBe(0.001);
+    // Will round to 0
+    closeTo = 0.0001;
+    fp = utils.toFixedPoint(closeTo, 12, 3);
+    expect(fp).toStrictEqual([0, 0]);
+    expect(utils.fromFixedPoint(fp, 12, 3)).toBe(0);
+    // Will round to 0
+    closeTo = 0.0004;
+    fp = utils.toFixedPoint(closeTo, 12, 3);
+    expect(fp).toStrictEqual([0, 0]);
+    expect(utils.fromFixedPoint(fp, 12, 3)).toBe(0);
+    // Will round to 0.001
+    closeTo = 0.0005;
+    fp = utils.toFixedPoint(closeTo, 12, 3);
+    expect(fp).toStrictEqual([0, 4]);
+    expect(utils.fromFixedPoint(fp, 12, 3)).toBe(0.001);
+    // Will round to 0.001
+    closeTo = 0.00055;
+    fp = utils.toFixedPoint(closeTo, 12, 3);
+    expect(fp).toStrictEqual([0, 4]);
+    expect(utils.fromFixedPoint(fp, 12, 3)).toBe(0.001);
+    // Will round to 0.001
+    closeTo = 0.0009;
+    fp = utils.toFixedPoint(closeTo, 12, 3);
+    expect(fp).toStrictEqual([0, 4]);
+    expect(utils.fromFixedPoint(fp, 12, 3)).toBe(0.001);
+    // Will round to 0.002
+    closeTo = 0.0015;
+    fp = utils.toFixedPoint(closeTo, 12, 3);
+    expect(fp).toStrictEqual([0, 8]);
+    expect(utils.fromFixedPoint(fp, 12, 3)).toBe(0.002);
   });
   test('multibase encoding and decoding', () => {
     const bytes = new Uint8Array([

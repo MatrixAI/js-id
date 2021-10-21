@@ -46,14 +46,19 @@ describe('IdSortable', () => {
     expect(id.equals(id_)).toBe(true);
   });
   test('ids in bytes are lexically sortable', () => {
-    const id = new IdSortable();
-    const i1 = utils.toBuffer(id.get());
-    const i2 = utils.toBuffer(id.get());
-    const i3 = utils.toBuffer(id.get());
-    const buffers = [i3, i1, i2];
-    // Comparison is done on the bytes in lexicographic order
-    buffers.sort(Buffer.compare);
-    expect(buffers).toStrictEqual([i1, i2, i3]);
+    const idGen = new IdSortable();
+    // This generating over 100,000 ids and checks that they maintain
+    // sort order for each 100 chunk of ids
+    let count = 1000;
+    while (count > 0) {
+      const idBuffers = [...utils.take(idGen, 100)];
+      const idBuffersShuffled = idBuffers.slice();
+      shuffle(idBuffersShuffled);
+      // Comparison is done on the bytes in lexicographic order
+      idBuffersShuffled.sort(Buffer.compare);
+      expect(idBuffersShuffled).toStrictEqual(idBuffers);
+      count--;
+    }
   });
   test('ids in bytes are lexically sortable with time delay', async () => {
     const id = new IdSortable();
@@ -69,29 +74,61 @@ describe('IdSortable', () => {
   });
   test('encoded id strings are lexically sortable', () => {
     const idGen = new IdSortable();
-    const idStrings = [...utils.take(idGen, 100)].map((id) => id.toString());
+    // This generating over 100,000 ids and checks that they maintain
+    // sort order for each 100 chunk of ids
+    let count = 1000;
+    while (count > 0) {
+      const idStrings = [...utils.take(idGen, 100)].map((id) => id.toString());
+      const idStringsShuffled = idStrings.slice();
+      shuffle(idStringsShuffled);
+      idStringsShuffled.sort();
+      expect(idStringsShuffled).toStrictEqual(idStrings);
+      count--;
+    }
+  });
+  test('encoded uuids are lexically sortable', () => {
+    // UUIDs are hex encoding, and the hex alphabet preserves order
+    const idGen = new IdSortable();
+    // This generating over 100,000 ids and checks that they maintain
+    // sort order for each 100 chunk of ids
+    let count = 1000;
+    while (count > 0) {
+      const idUUIDs = [...utils.take(idGen, 100)].map(utils.toUUID);
+      const idUUIDsShuffled = idUUIDs.slice();
+      shuffle(idUUIDsShuffled);
+      idUUIDsShuffled.sort();
+      expect(idUUIDsShuffled).toStrictEqual(idUUIDs);
+      count--;
+    }
+  });
+  test('encoded multibase strings may be lexically sortable (base58btc)', () => {
+    // Base58btc's alphabet preserves sort order
+    const idGen = new IdSortable();
+    // This generating over 100,000 ids and checks that they maintain
+    // sort order for each 100 chunk of ids
+    let count = 1000;
+    while (count > 0) {
+      const idStrings = [...utils.take(idGen, 100)].map((id) =>
+        utils.toMultibase(id, 'base58btc'),
+      );
+      const idStringsShuffled = idStrings.slice();
+      shuffle(idStringsShuffled);
+      idStringsShuffled.sort();
+      expect(idStringsShuffled).toStrictEqual(idStrings);
+      count--;
+    }
+  });
+  test('encoded multibase strings may not be lexically sortable (base64)', async () => {
+    // Base64's alphabet does not preserve sort order
+    const idGen = new IdSortable();
+    const idStrings = [...utils.take(idGen, 100)].map((id) =>
+      utils.toMultibase(id, 'base64'),
+    );
     const idStringsShuffled = idStrings.slice();
     shuffle(idStringsShuffled);
     idStringsShuffled.sort();
-    expect(idStringsShuffled).toStrictEqual(idStrings);
-  });
-  test('encoded uuids are lexically sortable', () => {
-    const id = new IdSortable();
-    const i1 = utils.toUUID(id.get());
-    const i2 = utils.toUUID(id.get());
-    const i3 = utils.toUUID(id.get());
-    const uuids = [i3, i2, i1];
-    uuids.sort();
-    expect(uuids).toStrictEqual([i1, i2, i3]);
-  });
-  test('encoded multibase strings are lexically sortable', () => {
-    const id = new IdSortable();
-    const i1 = utils.toMultibase(id.get(), 'base58btc');
-    const i2 = utils.toMultibase(id.get(), 'base58btc');
-    const i3 = utils.toMultibase(id.get(), 'base58btc');
-    const encodings = [i3, i2, i1];
-    encodings.sort();
-    expect(encodings).toStrictEqual([i1, i2, i3]);
+    // It will not equal
+    expect(idStringsShuffled).not.toStrictEqual(idStrings);
   });
   test('ids are monotonic within the same timestamp', () => {
     // To ensure that we it generates monotonic ids
