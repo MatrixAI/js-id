@@ -237,14 +237,24 @@ function toFixedPoint(
   size: number,
   precision?: number,
 ): [number, number] {
-  const integer = Math.trunc(floating);
+  let integer = Math.trunc(floating);
   let fractional: number;
   if (precision == null) {
     fractional = floating % 1;
   } else {
     fractional = roundPrecise(floating % 1, precision);
   }
-  const fractionalFixed = Math.round(fractional * 2 ** size);
+  // If the fractional is rounded to 1
+  // then it should be added to the integer
+  if (fractional === 1) {
+    integer += fractional;
+    fractional = 0;
+  }
+  // Floor is used to round down to a number that can be represented by the bit size
+  // if ceil or round was used, it's possible to return a number that would overflow the bit size
+  // for example if 12 bits is used, then 4096 would overflow to all zeros
+  // the maximum for 12 bit is 4095
+  const fractionalFixed = Math.floor(fractional * 2 ** size);
   return [integer, fractionalFixed];
 }
 
