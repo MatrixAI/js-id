@@ -102,14 +102,14 @@ describe('IdSortable', () => {
     }
   });
   test('encoded multibase strings may be lexically sortable (base58btc)', () => {
-    // Base58btc's alphabet preserves sort order
+    // `base32hex` preserves sort order
     const idGen = new IdSortable();
     // This generating over 100,000 ids and checks that they maintain
     // sort order for each 100 chunk of ids
     let count = 1000;
     while (count > 0) {
       const idStrings = [...utils.take(idGen, 100)].map((id) =>
-        utils.toMultibase(id, 'base58btc'),
+        utils.toMultibase(id, 'base32hex'),
       );
       const idStringsShuffled = idStrings.slice();
       shuffle(idStringsShuffled);
@@ -119,7 +119,7 @@ describe('IdSortable', () => {
     }
   });
   test('encoded multibase strings may not be lexically sortable (base64)', async () => {
-    // Base64's alphabet does not preserve sort order
+    // `base64` and `base58btc` does not preserve sort order
     const idGen = new IdSortable();
     const idStrings = [...utils.take(idGen, 100)].map((id) =>
       utils.toMultibase(id, 'base64'),
