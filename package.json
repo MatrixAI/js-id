@@ -11,12 +11,12 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc -p ./tsconfig.build.json",
+    "build": "rm -r ./dist || true; tsc -p ./tsconfig.build.json",
     "ts-node": "ts-node -r tsconfig-paths/register",
     "test": "jest",
     "lint": "eslint '{src,tests,benches}/**/*.{js,ts}'",
     "lintfix": "eslint '{src,tests,benches}/**/*.{js,ts}' --fix",
-    "docs": "typedoc --tsconfig ./tsconfig.build.json --out ./docs src && touch ./docs/.nojekyll"
+    "docs": "rm -r ./docs || true; typedoc --gitRevision master --tsconfig ./tsconfig.build.json --out ./docs src && touch ./docs/.nojekyll"
   },
   "dependencies": {
     "multiformats": "^9.4.8",
