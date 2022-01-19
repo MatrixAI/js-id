@@ -101,7 +101,7 @@ describe('IdSortable', () => {
       count--;
     }
   });
-  test('encoded multibase strings may be lexically sortable (base58btc)', () => {
+  test('encoded multibase strings may be lexically sortable (base32hex)', () => {
     // `base32hex` preserves sort order
     const idGen = new IdSortable();
     // This generating over 100,000 ids and checks that they maintain

@@ -20,6 +20,17 @@ describe('utils', () => {
     expect(utils.toUUID(bytes2)).toBe(id2);
     const bytes1_ = utils.fromUUID(uuid1);
     expect(Buffer.from(bytes1_!).equals(bytes1)).toBe(true);
+    // Cannot convert to UUID if the byte length is not 16 bytes
+    const hex3 = '01858a9e0e5c73edbde194f017ebdb3b0185';
+    const bytes3 = utils.hex2bytes(hex3);
+    expect(() => {
+      utils.toUUID(bytes3);
+    }).toThrow(RangeError);
+    const hex4 = '0185';
+    const bytes4 = utils.hex2bytes(hex4);
+    expect(() => {
+      utils.toUUID(bytes4);
+    }).toThrow(RangeError);
   });
   test('encoding and decoding bytes and bit strings', () => {
     // 128 size bit string
