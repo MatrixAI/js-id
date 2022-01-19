@@ -77,14 +77,17 @@ function toString(id: Uint8Array): string {
 }
 
 function fromString(idString: string): Id | undefined {
-  const id = IdInternal.create(16);
-  for (let i = 0; i < 16; i++) {
+  const id = IdInternal.create(idString.length);
+  for (let i = 0; i < idString.length; i++) {
     id[i] = idString.charCodeAt(i);
   }
   return id;
 }
 
 function toUUID(id: Uint8Array): string {
+  if (id.byteLength !== 16) {
+    throw new RangeError('UUID can only be created from buffers with 16 bytes');
+  }
   const uuidHex = bytes2hex(id);
   return [
     uuidHex.substr(0, 8),
@@ -130,9 +133,6 @@ function fromMultibase(idString: string): Id | undefined {
     return;
   }
   const buffer = codec.decode(idString);
-  if (buffer.byteLength !== 16) {
-    return;
-  }
   return IdInternal.create(buffer);
 }
 
@@ -147,9 +147,6 @@ function toBuffer(id: Uint8Array): Buffer {
  * Decodes as Buffer zero-copy
  */
 function fromBuffer(idBuffer: Buffer): Id | undefined {
-  if (idBuffer.byteLength !== 16) {
-    return;
-  }
   return IdInternal.create(
     idBuffer.buffer,
     idBuffer.byteOffset,
