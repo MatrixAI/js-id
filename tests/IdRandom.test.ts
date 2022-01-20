@@ -1,3 +1,5 @@
+import type { Id } from '@';
+
 import IdRandom from '@/IdRandom';
 import * as utils from '@/utils';
 
@@ -9,6 +11,15 @@ describe('IdRandom', () => {
   });
   test('ids can be generated', () => {
     const idGen = new IdRandom();
+    const ids = [...utils.take(idGen, 10)];
+    expect(ids).toHaveLength(10);
+  });
+  test('ids can be generated as OpaqueType', () => {
+    // Can't really check that types are working besides building
+    // This is more of an example
+    type Opaque<K, T> = T & { __TYPE__: K };
+    type OpaqueId = Opaque<'opaque', Id>;
+    const idGen = new IdRandom<OpaqueId>();
     const ids = [...utils.take(idGen, 10)];
     expect(ids).toHaveLength(10);
   });

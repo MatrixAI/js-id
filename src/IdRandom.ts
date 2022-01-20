@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import * as utils from './utils';
 import IdInternal from './Id';
 
-class IdRandom implements IterableIterator<Id> {
+class IdRandom<T extends Id = Id> implements IterableIterator<T> {
   protected randomSource: (size: number) => Uint8Array;
 
   public constructor({
@@ -15,12 +15,12 @@ class IdRandom implements IterableIterator<Id> {
     this.randomSource = randomSource;
   }
 
-  public get(): Id {
-    return this.next().value as Id;
+  public get(): T {
+    return this.next().value as T;
   }
 
-  public next(): IteratorResult<Id, void> {
-    const id = IdInternal.create(16);
+  public next(): IteratorResult<T, void> {
+    const id = IdInternal.create<T>(16);
     // `uuidv4` mutates the random data
     uuidv4(
       {
@@ -34,7 +34,7 @@ class IdRandom implements IterableIterator<Id> {
     };
   }
 
-  public [Symbol.iterator](): IterableIterator<Id> {
+  public [Symbol.iterator](): IterableIterator<T> {
     return this;
   }
 }
