@@ -11,7 +11,7 @@ import IdInternal from './Id';
  *     namespaceUUID is SHA1(NIL UUID + namespace)
  * )
  */
-class IdDeterministic implements IterableIterator<Id> {
+class IdDeterministic<T extends Id = Id> implements IterableIterator<T> {
   protected namespaceData: Uint8Array;
 
   public constructor({
@@ -24,12 +24,12 @@ class IdDeterministic implements IterableIterator<Id> {
     this.namespaceData = namespaceData;
   }
 
-  public get(name?: string): Id {
-    return this.next(name).value as Id;
+  public get(name?: string): T {
+    return this.next(name).value as T;
   }
 
-  public next(name: string = ''): IteratorResult<Id, void> {
-    const id = IdInternal.create(16);
+  public next(name: string = ''): IteratorResult<T, void> {
+    const id = IdInternal.create<T>(16);
     uuidv5(name, this.namespaceData, id);
     return {
       value: id,
@@ -37,7 +37,7 @@ class IdDeterministic implements IterableIterator<Id> {
     };
   }
 
-  public [Symbol.iterator](): IterableIterator<Id> {
+  public [Symbol.iterator](): IterableIterator<T> {
     return this;
   }
 }

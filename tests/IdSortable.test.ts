@@ -1,3 +1,5 @@
+import type { Id } from '@';
+
 import IdSortable, { extractTs, extractSeq, extractRand } from '@/IdSortable';
 import * as utils from '@/utils';
 import { sleep, shuffle } from './utils';
@@ -10,6 +12,15 @@ describe('IdSortable', () => {
   });
   test('ids can be generated', () => {
     const idGen = new IdSortable();
+    const ids = [...utils.take(idGen, 10)];
+    expect(ids).toHaveLength(10);
+  });
+  test('ids can be generated as opaque type', () => {
+    // Can't really check that types are working besides building
+    // This is more of an example
+    type Opaque<K, T> = T & { __TYPE__: K };
+    type OpaqueId = Opaque<'opaque', Id>;
+    const idGen = new IdSortable<OpaqueId>();
     const ids = [...utils.take(idGen, 10)];
     expect(ids).toHaveLength(10);
   });

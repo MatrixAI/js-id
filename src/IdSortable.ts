@@ -65,12 +65,12 @@ function extractRand(idBytes: Uint8Array): string {
  * 12 bits seq enables 4096 ids per millisecond
  * After 4096, it rolls over
  */
-class IdSortable implements IterableIterator<Id> {
+class IdSortable<T extends Id = Id> implements IterableIterator<T> {
   protected randomSource: (size: number) => Uint8Array;
   protected clock: () => number;
   protected nodeBits?: string;
   protected lastTs?: [number, number];
-  protected _lastId?: Id;
+  protected _lastId?: T;
   protected seqCounter: number;
 
   public constructor({
@@ -98,18 +98,18 @@ class IdSortable implements IterableIterator<Id> {
     }
   }
 
-  get lastId(): Id {
+  get lastId(): T {
     if (this._lastId == null) {
       throw new ReferenceError('lastId has not yet been generated');
     }
     return this._lastId;
   }
 
-  public get(): Id {
-    return this.next().value as Id;
+  public get(): T {
+    return this.next().value as T;
   }
 
-  public next(): IteratorResult<Id, void> {
+  public next(): IteratorResult<T, void> {
     // Clock returns millisecond precision
     const ts = this.clock() / 10 ** msecPrecision;
     // Converting to seconds and subseconds
@@ -140,7 +140,7 @@ class IdSortable implements IterableIterator<Id> {
     const idBits =
       unixtsBits + msecBits + versionBits + seqBits + variantBits + randBits;
     const idBytes = utils.bits2bytes(idBits);
-    const id = IdInternal.create(idBytes.buffer);
+    const id = IdInternal.create<T>(idBytes.buffer);
     // Save the fixed point timestamp
     this.lastTs = [unixts, msec];
     this._lastId = id;
@@ -150,7 +150,7 @@ class IdSortable implements IterableIterator<Id> {
     };
   }
 
-  public [Symbol.iterator](): IterableIterator<Id> {
+  public [Symbol.iterator](): IterableIterator<T> {
     return this;
   }
 }
