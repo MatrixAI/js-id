@@ -72,16 +72,50 @@ function* take<T>(g: Iterator<T>, l: number): Generator<T> {
   }
 }
 
+function equals(id1: Uint8Array, id2: Uint8Array): boolean {
+  if (id1.byteLength !== id2.byteLength) return false;
+  return id1.every((byte, i) => byte === id2[i]);
+}
+
 function toString(id: Uint8Array): string {
   return String.fromCharCode(...id);
 }
 
-function fromString(idString: string): Id | undefined {
+function fromString(idString: string): Id {
   const id = IdInternal.create(idString.length);
   for (let i = 0; i < idString.length; i++) {
     id[i] = idString.charCodeAt(i);
   }
   return id;
+}
+
+function toJSON(id: IdInternal): { type: string; data: Array<number> } {
+  return {
+    type: IdInternal.name,
+    data: [...id],
+  };
+}
+
+/**
+ * Converts JSON object as Id
+ * This tries to strictly check that the object is equal to the output of `toJSON`
+ * If the `data` array contains non-numbers, those bytes will become 0
+ */
+function fromJSON(idJSON: any): Id | undefined {
+  if (typeof idJSON !== 'object' || idJSON == null) {
+    return;
+  }
+  const keys = Object.getOwnPropertyNames(idJSON);
+  if (keys.length !== 2 || !keys.includes('type') || !keys.includes('data')) {
+    return;
+  }
+  if (idJSON.type !== IdInternal.name) {
+    return;
+  }
+  if (!Array.isArray(idJSON.data)) {
+    return;
+  }
+  return IdInternal.create(idJSON.data);
 }
 
 function toUUID(id: Uint8Array): string {
@@ -146,7 +180,7 @@ function toBuffer(id: Uint8Array): Buffer {
 /**
  * Decodes as Buffer zero-copy
  */
-function fromBuffer(idBuffer: Buffer): Id | undefined {
+function fromBuffer(idBuffer: Buffer): Id {
   return IdInternal.create(
     idBuffer.buffer,
     idBuffer.byteOffset,
@@ -280,8 +314,11 @@ export {
   nodeBits,
   timeSource,
   take,
+  equals,
   toString,
   fromString,
+  toJSON,
+  fromJSON,
   toUUID,
   fromUUID,
   toMultibase,

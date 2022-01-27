@@ -47,41 +47,59 @@ describe('Id', () => {
     expect(map.get(id)).toBe('foo bar');
     expect(map.get(id.toString())).toBeUndefined();
   });
-
   test('id can be created as a opaque type directly', async () => {
-    // Can't really check that types are working besides building
-    // This is more of an example
     type Opaque<K, T> = T & { __TYPE__: K };
     type OpaqueId = Opaque<'opaque', Id>;
     const buffer = Buffer.from('abcefg');
-
     const id1 = IdInternal.create<OpaqueId>(buffer);
-    // Still functions as an Id.
     expect(id1.toString()).toBe('abcefg');
     expect(id1 + '').toBe('abcefg');
     expect([...id1.valueOf()]).toStrictEqual([...buffer]);
-
     const id2: OpaqueId = IdInternal.create(buffer);
-    // Still functions as an Id.
     expect(id2.toString()).toBe('abcefg');
     expect(id2 + '').toBe('abcefg');
     expect([...id2.valueOf()]).toStrictEqual([...buffer]);
   });
-  test('id can be converted to other types and back', async () => {
-    // Can't really check that types are working besides building
-    // This is more of an example
+  test('id encoding & decoding for multibase, string, uuid and buffer', async () => {
     type Opaque<K, T> = T & { __TYPE__: K };
     type OpaqueId = Opaque<'opaque', Id>;
     const buffer = Buffer.from('0123456789ABCDEF');
-    const id1 = IdInternal.create<OpaqueId>(buffer);
-
-    const test1 = id1.toMultibase('base32hex');
-    expect(IdInternal.fromMultibase<OpaqueId>(test1)).toStrictEqual(id1);
-    const test2 = id1.toString();
-    expect(IdInternal.fromString<OpaqueId>(test2)).toStrictEqual(id1);
-    const test3 = id1.toUUID();
-    expect(IdInternal.fromUUID<OpaqueId>(test3)).toStrictEqual(id1);
-    const test4 = id1.toBuffer();
-    expect(IdInternal.fromBuffer<OpaqueId>(test4)).toStrictEqual(id1);
+    const id = IdInternal.create<OpaqueId>(buffer);
+    const test1 = id.toMultibase('base32hex');
+    expect(IdInternal.fromMultibase<OpaqueId>(test1)).toStrictEqual(id);
+    const test2 = id.toString();
+    expect(IdInternal.fromString<OpaqueId>(test2)).toStrictEqual(id);
+    const test3 = id.toUUID();
+    expect(IdInternal.fromUUID<OpaqueId>(test3)).toStrictEqual(id);
+    const test4 = id.toBuffer();
+    expect(IdInternal.fromBuffer<OpaqueId>(test4)).toStrictEqual(id);
+  });
+  test('id equality', async () => {
+    const id1 = IdInternal.create([97, 98, 99]);
+    const id2 = IdInternal.create([97, 98, 99]);
+    const id3 = IdInternal.create([97, 98, 100]);
+    expect(id1.equals(id2)).toBe(true);
+    expect(id1.equals(id3)).toBe(false);
+  });
+  test('id JSON representation', async () => {
+    const id = IdInternal.create([97, 98, 99]);
+    const json1 = JSON.stringify(id);
+    const id_ = JSON.parse(json1, (k, v) => {
+      return IdInternal.fromJSON(v) ?? v;
+    });
+    expect(id_).toBeInstanceOf(IdInternal);
+    expect(id).toStrictEqual(id_);
+    const json2 = JSON.stringify({
+      id,
+    });
+    const object = JSON.parse(json2, (k, v) => {
+      return IdInternal.fromJSON(v) ?? v;
+    });
+    expect(object.id).toBeInstanceOf(IdInternal);
+    expect(object.id).toStrictEqual(id);
+    // Primitives should return undefined
+    expect(IdInternal.fromJSON(123)).toBeUndefined();
+    expect(IdInternal.fromJSON('abc')).toBeUndefined();
+    expect(IdInternal.fromJSON(undefined)).toBeUndefined();
   });
 });
