@@ -25,18 +25,18 @@ class IdInternal extends Uint8Array {
     return new IdInternal(...args) as T;
   }
 
-  public [Symbol.toPrimitive](_hint: 'string' | 'number' | 'default'): string {
-    return utils.toString(this as unknown as Id);
+  public static fromString<T extends Id = Id>(idString: string): T {
+    return utils.fromString(idString) as T;
   }
 
-  public static fromString<T extends Id = Id>(idString: string): T | undefined {
-    return utils.fromString(idString) as T;
+  public static fromJSON<T extends Id = Id>(json: any): T | undefined {
+    return utils.fromJSON(json) as T;
   }
 
   /**
    * Decodes as Buffer zero-copy
    */
-  public static fromBuffer<T extends Id = Id>(idBuffer: Buffer): T | undefined {
+  public static fromBuffer<T extends Id = Id>(idBuffer: Buffer): T {
     return utils.fromBuffer(idBuffer) as T;
   }
 
@@ -50,8 +50,16 @@ class IdInternal extends Uint8Array {
     return utils.fromMultibase(idString) as T;
   }
 
+  public [Symbol.toPrimitive](_hint: 'string' | 'number' | 'default'): string {
+    return utils.toString(this as unknown as Id);
+  }
+
   public toString(): string {
     return utils.toString(this as unknown as Id);
+  }
+
+  public toJSON(): { type: string; data: Array<number> } {
+    return utils.toJSON(this);
   }
 
   /**
@@ -61,6 +69,10 @@ class IdInternal extends Uint8Array {
     return utils.toBuffer(this);
   }
 
+  /**
+   * Encodes as a 16 byte UUID
+   * This only works when the Id is 16 bytes long
+   */
   public toUUID(): string {
     return utils.toUUID(this);
   }
@@ -70,6 +82,15 @@ class IdInternal extends Uint8Array {
    */
   public toMultibase(format: MultibaseFormats): string {
     return utils.toMultibase(this, format);
+  }
+
+  /**
+   * Efficiently compares for equality
+   * This is faster than comparing by binary string
+   * If you have an ArrayBuffer, wrap it in Uint8Array first
+   */
+  public equals(id: Uint8Array): boolean {
+    return utils.equals(this, id);
   }
 }
 
