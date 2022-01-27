@@ -36,6 +36,8 @@ recordOfDeteIds[deteId2] = 1;
 console.log(recordOfDeteIds[deteId1]);
 
 // Can be checked for equality
+console.log(deteId2.equals(deteId3));
+// Binary string form can be checked for equality
 console.log(deteId2.toString() === deteId3.toString());
 
 // Strictly monotonic sortable ids, equivalent to UUIDv7
