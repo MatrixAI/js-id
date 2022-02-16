@@ -166,7 +166,15 @@ function fromMultibase(idString: string): Id | undefined {
   if (codec == null) {
     return;
   }
-  const buffer = codec.decode(idString);
+  let buffer: Uint8Array;
+  try {
+    buffer = codec.decode(idString);
+  } catch (e) {
+    if (e instanceof SyntaxError) {
+      return;
+    }
+    throw e;
+  }
   return IdInternal.create(buffer);
 }
 
