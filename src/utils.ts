@@ -170,10 +170,7 @@ function fromMultibase(idString: string): Id | undefined {
   try {
     buffer = codec.decode(idString);
   } catch (e) {
-    if (e instanceof SyntaxError) {
-      return;
-    }
-    throw e;
+    return;
   }
   return IdInternal.create(buffer);
 }

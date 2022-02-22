@@ -201,6 +201,10 @@ describe('utils', () => {
     // FromMultibase should only allow 16 byte ids
     expect(utils.fromMultibase('aAQ3')).toBeUndefined();
     expect(utils.fromMultibase('aAQ333333333333333AAAAAA')).toBeUndefined();
+    expect(
+      utils.fromMultibase('zF4VfF3uRhSqgxTOOLONGxTRdVKauV9'),
+    ).toBeUndefined();
+    expect(utils.fromMultibase('zFxTOOSHORTx9')).toBeUndefined();
     expect(utils.fromMultibase('helloworld')).toBeUndefined();
   });
   test('buffer encoding and decoding is zero copy', () => {
