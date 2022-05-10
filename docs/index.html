@@ -1,238 +1,42 @@
-<!doctype html>
-<html class="default no-js">
-<head>
-	<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>@matrixai/id</title>
-	<meta name="description" content="Documentation for @matrixai/id">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" href="assets/css/main.css">
-	<script async src="assets/js/search.js" id="search-script"></script>
-</head>
-<body>
-<header>
-	<div class="tsd-page-toolbar">
-		<div class="container">
-			<div class="table-wrap">
-				<div class="table-cell" id="tsd-search" data-index="assets/js/search.json" data-base=".">
-					<div class="field">
-						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
-						<input id="tsd-search-field" type="text" />
-					</div>
-					<ul class="results">
-						<li class="state loading">Preparing search index...</li>
-						<li class="state failure">The search index is not available</li>
-					</ul>
-					<a href="index.html" class="title">@matrixai/id</a>
-				</div>
-				<div class="table-cell" id="tsd-widgets">
-					<div id="tsd-filter">
-						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
-						<div class="tsd-filter-group">
-							<div class="tsd-select" id="tsd-filter-visibility">
-								<span class="tsd-select-label">All</span>
-								<ul class="tsd-select-list">
-									<li data-value="public">Public</li>
-									<li data-value="protected">Public/Protected</li>
-									<li data-value="private" class="selected">All</li>
-								</ul>
-							</div>
-							<input type="checkbox" id="tsd-filter-inherited" checked />
-							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
-							<input type="checkbox" id="tsd-filter-externals" checked />
-							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
-						</div>
-					</div>
-					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="tsd-page-title">
-		<div class="container">
-			<h1>@matrixai/id</h1>
-		</div>
-	</div>
-</header>
-<div class="container container-main">
-	<div class="row">
-		<div class="col-8 col-content">
-			<div class="tsd-panel tsd-typography">
-				<a href="#js-id" id="js-id" style="color: inherit; text-decoration: none;">
-					<h1>js-id</h1>
-				</a>
-				<p><a href="https://gitlab.com/MatrixAI/open-source/js-id/commits/master"><img src="https://gitlab.com/MatrixAI/open-source/js-id/badges/master/pipeline.svg" alt="pipeline status"></a></p>
-				<p>ID generation for JavaScript &amp; TypeScript applications.</p>
-				<p>Example Usage:</p>
-				<pre><code class="language-ts"><span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">IdRandom</span><span style="color: #000000">, </span><span style="color: #001080">IdDeterministic</span><span style="color: #000000">, </span><span style="color: #001080">IdSortable</span><span style="color: #000000">, </span><span style="color: #001080">utils</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@matrixai/id&#039;</span><span style="color: #000000">;</span>
-
-<span style="color: #008000">// Random ids, equivalent to UUIDv4</span>
-
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">randGen</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">IdRandom</span><span style="color: #000000">();</span>
-
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">randIds</span><span style="color: #000000"> = [...</span><span style="color: #001080">utils</span><span style="color: #000000">.</span><span style="color: #795E26">take</span><span style="color: #000000">(</span><span style="color: #001080">randGen</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">)];</span>
-<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">randIds</span><span style="color: #000000">.</span><span style="color: #795E26">map</span><span style="color: #000000">((</span><span style="color: #001080">b</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">utils</span><span style="color: #000000">.</span><span style="color: #795E26">toUUID</span><span style="color: #000000">(</span><span style="color: #001080">b</span><span style="color: #000000">)));</span>
-
-<span style="color: #008000">// Deterministic ids, equivalent to UUIDv5</span>
-
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">deteGen</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">IdDeterministic</span><span style="color: #000000">({</span>
-<span style="color: #000000">  </span><span style="color: #001080">namespace:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;foo&#039;</span>
-<span style="color: #000000">});</span>
-
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">deteId1</span><span style="color: #000000"> = </span><span style="color: #001080">deteGen</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">();</span>
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">deteId2</span><span style="color: #000000"> = </span><span style="color: #001080">deteGen</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;bar&#039;</span><span style="color: #000000">);</span>
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">deteId3</span><span style="color: #000000"> = </span><span style="color: #001080">deteGen</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;bar&#039;</span><span style="color: #000000">);</span>
-
-<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">utils</span><span style="color: #000000">.</span><span style="color: #795E26">toUUID</span><span style="color: #000000">(</span><span style="color: #001080">deteId1</span><span style="color: #000000">));</span>
-<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">utils</span><span style="color: #000000">.</span><span style="color: #795E26">toMultibase</span><span style="color: #000000">(</span><span style="color: #001080">deteId2</span><span style="color: #000000">, </span><span style="color: #A31515">&#039;base32hex&#039;</span><span style="color: #000000">));</span>
-
-<span style="color: #008000">// Will be cast to string index</span>
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">recordOfDeteIds</span><span style="color: #000000"> = {};</span>
-<span style="color: #001080">recordOfDeteIds</span><span style="color: #000000">[</span><span style="color: #001080">deteId1</span><span style="color: #000000">] = </span><span style="color: #098658">1</span><span style="color: #000000">;</span>
-<span style="color: #001080">recordOfDeteIds</span><span style="color: #000000">[</span><span style="color: #001080">deteId2</span><span style="color: #000000">] = </span><span style="color: #098658">1</span><span style="color: #000000">;</span>
-<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">recordOfDeteIds</span><span style="color: #000000">[</span><span style="color: #001080">deteId1</span><span style="color: #000000">]);</span>
-
-<span style="color: #008000">// Can be checked for equality</span>
-<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">deteId2</span><span style="color: #000000">.</span><span style="color: #795E26">toString</span><span style="color: #000000">() === </span><span style="color: #001080">deteId3</span><span style="color: #000000">.</span><span style="color: #795E26">toString</span><span style="color: #000000">());</span>
-
-<span style="color: #008000">// Strictly monotonic sortable ids, equivalent to UUIDv7</span>
-
-<span style="color: #0000FF">let</span><span style="color: #000000"> </span><span style="color: #001080">lastId</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #267F99">Uint8Array</span><span style="color: #000000">(</span>
-<span style="color: #000000">  [</span>
-<span style="color: #000000">    </span><span style="color: #098658">0x06</span><span style="color: #000000">, </span><span style="color: #098658">0x16</span><span style="color: #000000">, </span><span style="color: #098658">0x3e</span><span style="color: #000000">, </span><span style="color: #098658">0xf5</span><span style="color: #000000">, </span><span style="color: #098658">0x6d</span><span style="color: #000000">, </span><span style="color: #098658">0x8d</span><span style="color: #000000">, </span><span style="color: #098658">0x70</span><span style="color: #000000">, </span><span style="color: #098658">0x00</span><span style="color: #000000">,</span>
-<span style="color: #000000">    </span><span style="color: #098658">0x87</span><span style="color: #000000">, </span><span style="color: #098658">0xc4</span><span style="color: #000000">, </span><span style="color: #098658">0x65</span><span style="color: #000000">, </span><span style="color: #098658">0xd5</span><span style="color: #000000">, </span><span style="color: #098658">0x21</span><span style="color: #000000">, </span><span style="color: #098658">0x9b</span><span style="color: #000000">, </span><span style="color: #098658">0x03</span><span style="color: #000000">, </span><span style="color: #098658">0xd4</span><span style="color: #000000">,</span>
-<span style="color: #000000">  ]</span>
-<span style="color: #000000">);</span>
-
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">sortGen</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">IdSortable</span><span style="color: #000000">({ </span><span style="color: #001080">lastId</span><span style="color: #000000"> });</span>
-
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">sortId1</span><span style="color: #000000"> = </span><span style="color: #001080">sortGen</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">();</span>
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">sortId2</span><span style="color: #000000"> = </span><span style="color: #001080">sortGen</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">();</span>
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">sortId3</span><span style="color: #000000"> = </span><span style="color: #001080">sortGen</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">();</span>
-
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">sortIds</span><span style="color: #000000"> = [</span>
-<span style="color: #000000">  </span><span style="color: #001080">utils</span><span style="color: #000000">.</span><span style="color: #795E26">toBuffer</span><span style="color: #000000">(</span><span style="color: #001080">sortId2</span><span style="color: #000000">),</span>
-<span style="color: #000000">  </span><span style="color: #001080">utils</span><span style="color: #000000">.</span><span style="color: #795E26">toBuffer</span><span style="color: #000000">(</span><span style="color: #001080">sortId3</span><span style="color: #000000">),</span>
-<span style="color: #000000">  </span><span style="color: #001080">utils</span><span style="color: #000000">.</span><span style="color: #795E26">toBuffer</span><span style="color: #000000">(</span><span style="color: #001080">sortId1</span><span style="color: #000000">),</span>
-<span style="color: #000000">];</span>
-
-<span style="color: #001080">sortIds</span><span style="color: #000000">.</span><span style="color: #795E26">sort</span><span style="color: #000000">(</span><span style="color: #001080">Buffer</span><span style="color: #000000">.</span><span style="color: #001080">compare</span><span style="color: #000000">);</span>
-
-<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">sortIds</span><span style="color: #000000">);</span>
-
-<span style="color: #008000">// Save the last id to ensure strict monotonicity across process restarts</span>
-<span style="color: #001080">lastId</span><span style="color: #000000"> = </span><span style="color: #001080">sortGen</span><span style="color: #000000">.</span><span style="color: #001080">lastId</span><span style="color: #000000">;</span>
-
-<span style="color: #008000">// Ids can also be compared in order</span>
-<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">sortId1</span><span style="color: #000000"> &lt; </span><span style="color: #001080">sortId2</span><span style="color: #000000">);</span>
-<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">sortId2</span><span style="color: #000000"> &lt; </span><span style="color: #001080">sortId3</span><span style="color: #000000">);</span>
+<!DOCTYPE html><html class="default"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>@matrixai/id</title><meta name="description" content="Documentation for @matrixai/id"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script async src="assets/search.js" id="search-script"></script></head><body><script>document.body.classList.add(localStorage.getItem("tsd-theme") || "os")</script><header><div class="tsd-page-toolbar"><div class="container"><div class="table-wrap"><div class="table-cell" id="tsd-search" data-base="."><div class="field"><label for="tsd-search-field" class="tsd-widget search no-caption">Search</label><input type="text" id="tsd-search-field"/></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="index.html" class="title">@matrixai/id</a></div><div class="table-cell" id="tsd-widgets"><div id="tsd-filter"><a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a><div class="tsd-filter-group"><div class="tsd-select" id="tsd-filter-visibility"><span class="tsd-select-label">All</span><ul class="tsd-select-list"><li data-value="public">Public</li><li data-value="protected">Public/Protected</li><li data-value="private" class="selected">All</li></ul></div> <input type="checkbox" id="tsd-filter-inherited" checked/><label class="tsd-widget" for="tsd-filter-inherited">Inherited</label><input type="checkbox" id="tsd-filter-externals" checked/><label class="tsd-widget" for="tsd-filter-externals">Externals</label></div></div><a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a></div></div></div></div><div class="tsd-page-title"><div class="container"><h1>@matrixai/id </h1></div></div></header><div class="container container-main"><div class="row"><div class="col-8 col-content"><div class="tsd-panel tsd-typography">
+<a href="#js-id" id="js-id" style="color: inherit; text-decoration: none;">
+  <h1>js-id</h1>
+</a>
+<p><a href="https://gitlab.com/MatrixAI/open-source/js-id/commits/master"><img src="https://gitlab.com/MatrixAI/open-source/js-id/badges/master/pipeline.svg" alt="pipeline status"></a></p>
+<p>ID generation for JavaScript &amp; TypeScript applications.</p>
+<p>Example Usage:</p>
+<pre><code class="language-ts"><span class="hl-0">import</span><span class="hl-1"> { </span><span class="hl-2">IdRandom</span><span class="hl-1">, </span><span class="hl-2">IdDeterministic</span><span class="hl-1">, </span><span class="hl-2">IdSortable</span><span class="hl-1">, </span><span class="hl-2">utils</span><span class="hl-1"> } </span><span class="hl-0">from</span><span class="hl-1"> </span><span class="hl-3">&#39;@matrixai/id&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-4">// Random ids, equivalent to UUIDv4</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">randGen</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-7">IdRandom</span><span class="hl-1">();</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">randIds</span><span class="hl-1"> = [...</span><span class="hl-2">utils</span><span class="hl-1">.</span><span class="hl-7">take</span><span class="hl-1">(</span><span class="hl-2">randGen</span><span class="hl-1">, </span><span class="hl-8">3</span><span class="hl-1">)];</span><br/><span class="hl-2">console</span><span class="hl-1">.</span><span class="hl-7">log</span><span class="hl-1">(</span><span class="hl-2">randIds</span><span class="hl-1">.</span><span class="hl-7">map</span><span class="hl-1">((</span><span class="hl-2">b</span><span class="hl-1">) </span><span class="hl-5">=&gt;</span><span class="hl-1"> </span><span class="hl-2">utils</span><span class="hl-1">.</span><span class="hl-7">toUUID</span><span class="hl-1">(</span><span class="hl-2">b</span><span class="hl-1">)));</span><br/><br/><span class="hl-4">// Deterministic ids, equivalent to UUIDv5</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">deteGen</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-7">IdDeterministic</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-2">namespace:</span><span class="hl-1"> </span><span class="hl-3">&#39;foo&#39;</span><br/><span class="hl-1">});</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">deteId1</span><span class="hl-1"> = </span><span class="hl-2">deteGen</span><span class="hl-1">.</span><span class="hl-7">get</span><span class="hl-1">();</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">deteId2</span><span class="hl-1"> = </span><span class="hl-2">deteGen</span><span class="hl-1">.</span><span class="hl-7">get</span><span class="hl-1">(</span><span class="hl-3">&#39;bar&#39;</span><span class="hl-1">);</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">deteId3</span><span class="hl-1"> = </span><span class="hl-2">deteGen</span><span class="hl-1">.</span><span class="hl-7">get</span><span class="hl-1">(</span><span class="hl-3">&#39;bar&#39;</span><span class="hl-1">);</span><br/><br/><span class="hl-2">console</span><span class="hl-1">.</span><span class="hl-7">log</span><span class="hl-1">(</span><span class="hl-2">utils</span><span class="hl-1">.</span><span class="hl-7">toUUID</span><span class="hl-1">(</span><span class="hl-2">deteId1</span><span class="hl-1">));</span><br/><span class="hl-2">console</span><span class="hl-1">.</span><span class="hl-7">log</span><span class="hl-1">(</span><span class="hl-2">utils</span><span class="hl-1">.</span><span class="hl-7">toMultibase</span><span class="hl-1">(</span><span class="hl-2">deteId2</span><span class="hl-1">, </span><span class="hl-3">&#39;base32hex&#39;</span><span class="hl-1">));</span><br/><br/><span class="hl-4">// Will be cast to string index</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">recordOfDeteIds</span><span class="hl-1"> = {};</span><br/><span class="hl-2">recordOfDeteIds</span><span class="hl-1">[</span><span class="hl-2">deteId1</span><span class="hl-1">] = </span><span class="hl-8">1</span><span class="hl-1">;</span><br/><span class="hl-2">recordOfDeteIds</span><span class="hl-1">[</span><span class="hl-2">deteId2</span><span class="hl-1">] = </span><span class="hl-8">1</span><span class="hl-1">;</span><br/><span class="hl-2">console</span><span class="hl-1">.</span><span class="hl-7">log</span><span class="hl-1">(</span><span class="hl-2">recordOfDeteIds</span><span class="hl-1">[</span><span class="hl-2">deteId1</span><span class="hl-1">]);</span><br/><br/><span class="hl-4">// Can be checked for equality</span><br/><span class="hl-2">console</span><span class="hl-1">.</span><span class="hl-7">log</span><span class="hl-1">(</span><span class="hl-2">deteId2</span><span class="hl-1">.</span><span class="hl-7">equals</span><span class="hl-1">(</span><span class="hl-2">deteId3</span><span class="hl-1">));</span><br/><span class="hl-4">// Binary string form can be checked for equality</span><br/><span class="hl-2">console</span><span class="hl-1">.</span><span class="hl-7">log</span><span class="hl-1">(</span><span class="hl-2">deteId2</span><span class="hl-1">.</span><span class="hl-7">toString</span><span class="hl-1">() === </span><span class="hl-2">deteId3</span><span class="hl-1">.</span><span class="hl-7">toString</span><span class="hl-1">());</span><br/><br/><span class="hl-4">// Strictly monotonic sortable ids, equivalent to UUIDv7</span><br/><br/><span class="hl-5">let</span><span class="hl-1"> </span><span class="hl-2">lastId</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-9">Uint8Array</span><span class="hl-1">(</span><br/><span class="hl-1">  [</span><br/><span class="hl-1">    </span><span class="hl-8">0x06</span><span class="hl-1">, </span><span class="hl-8">0x16</span><span class="hl-1">, </span><span class="hl-8">0x3e</span><span class="hl-1">, </span><span class="hl-8">0xf5</span><span class="hl-1">, </span><span class="hl-8">0x6d</span><span class="hl-1">, </span><span class="hl-8">0x8d</span><span class="hl-1">, </span><span class="hl-8">0x70</span><span class="hl-1">, </span><span class="hl-8">0x00</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-8">0x87</span><span class="hl-1">, </span><span class="hl-8">0xc4</span><span class="hl-1">, </span><span class="hl-8">0x65</span><span class="hl-1">, </span><span class="hl-8">0xd5</span><span class="hl-1">, </span><span class="hl-8">0x21</span><span class="hl-1">, </span><span class="hl-8">0x9b</span><span class="hl-1">, </span><span class="hl-8">0x03</span><span class="hl-1">, </span><span class="hl-8">0xd4</span><span class="hl-1">,</span><br/><span class="hl-1">  ]</span><br/><span class="hl-1">);</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">sortGen</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-7">IdSortable</span><span class="hl-1">({ </span><span class="hl-2">lastId</span><span class="hl-1"> });</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">sortId1</span><span class="hl-1"> = </span><span class="hl-2">sortGen</span><span class="hl-1">.</span><span class="hl-7">get</span><span class="hl-1">();</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">sortId2</span><span class="hl-1"> = </span><span class="hl-2">sortGen</span><span class="hl-1">.</span><span class="hl-7">get</span><span class="hl-1">();</span><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">sortId3</span><span class="hl-1"> = </span><span class="hl-2">sortGen</span><span class="hl-1">.</span><span class="hl-7">get</span><span class="hl-1">();</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">sortIds</span><span class="hl-1"> = [</span><br/><span class="hl-1">  </span><span class="hl-2">utils</span><span class="hl-1">.</span><span class="hl-7">toBuffer</span><span class="hl-1">(</span><span class="hl-2">sortId2</span><span class="hl-1">),</span><br/><span class="hl-1">  </span><span class="hl-2">utils</span><span class="hl-1">.</span><span class="hl-7">toBuffer</span><span class="hl-1">(</span><span class="hl-2">sortId3</span><span class="hl-1">),</span><br/><span class="hl-1">  </span><span class="hl-2">utils</span><span class="hl-1">.</span><span class="hl-7">toBuffer</span><span class="hl-1">(</span><span class="hl-2">sortId1</span><span class="hl-1">),</span><br/><span class="hl-1">];</span><br/><br/><span class="hl-2">sortIds</span><span class="hl-1">.</span><span class="hl-7">sort</span><span class="hl-1">(</span><span class="hl-2">Buffer</span><span class="hl-1">.</span><span class="hl-2">compare</span><span class="hl-1">);</span><br/><br/><span class="hl-2">console</span><span class="hl-1">.</span><span class="hl-7">log</span><span class="hl-1">(</span><span class="hl-2">sortIds</span><span class="hl-1">);</span><br/><br/><span class="hl-4">// Save the last id to ensure strict monotonicity across process restarts</span><br/><span class="hl-2">lastId</span><span class="hl-1"> = </span><span class="hl-2">sortGen</span><span class="hl-1">.</span><span class="hl-2">lastId</span><span class="hl-1">;</span><br/><br/><span class="hl-4">// Ids can also be compared in order</span><br/><span class="hl-2">console</span><span class="hl-1">.</span><span class="hl-7">log</span><span class="hl-1">(</span><span class="hl-2">sortId1</span><span class="hl-1"> &lt; </span><span class="hl-2">sortId2</span><span class="hl-1">);</span><br/><span class="hl-2">console</span><span class="hl-1">.</span><span class="hl-7">log</span><span class="hl-1">(</span><span class="hl-2">sortId2</span><span class="hl-1"> &lt; </span><span class="hl-2">sortId3</span><span class="hl-1">);</span>
 </code></pre>
-				<p><strong>Base Encoding and Lexicographic Order</strong></p>
-				<p>It is important to realise that not all base-encodings preserve lexicographic sort order. The UUID (hex-encoding) and <code>base32hex</code> does, but <code>base58btc</code> and <code>base64</code> does not. Make sure to pick an appropriate base encoding if you are expecting to compare the <code>IdSortable</code> as base-encoded strings.</p>
-				<p>Out of all the multibase encodings, the only ones that preserve sort order are:</p>
-				<pre><code><span style="color: #001080">base2</span>
-<span style="color: #001080">base8</span>
-<span style="color: #001080">base16</span>
-<span style="color: #001080">base16upper</span>
-<span style="color: #001080">base32hex</span>
-<span style="color: #001080">base32hexupper</span>
-<span style="color: #001080">base32hexpad</span>
-<span style="color: #001080">base32hexpadupper</span>
+<p><strong>Base Encoding and Lexicographic Order</strong></p>
+<p>It is important to realise that not all base-encodings preserve lexicographic sort order. The UUID (hex-encoding) and <code>base32hex</code> does, but <code>base58btc</code> and <code>base64</code> does not. Make sure to pick an appropriate base encoding if you are expecting to compare the <code>IdSortable</code> as base-encoded strings.</p>
+<p>Out of all the multibase encodings, the only ones that preserve sort order are:</p>
+<pre><code><span class="hl-2">base2</span><br/><span class="hl-2">base8</span><br/><span class="hl-2">base16</span><br/><span class="hl-2">base16upper</span><br/><span class="hl-2">base32hex</span><br/><span class="hl-2">base32hexupper</span><br/><span class="hl-2">base32hexpad</span><br/><span class="hl-2">base32hexpadupper</span>
 </code></pre>
-				<p>In addition to this, JS binary string encoding through <code>id.toString()</code> also preserves sort order.</p>
-				<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
-					<h2>Installation</h2>
-				</a>
-				<pre><code class="language-sh"><span style="color: #000000">npm install --save @matrixai/id</span>
+<p>In addition to this, JS binary string encoding through <code>id.toString()</code> also preserves sort order.</p>
+
+<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+  <h2>Installation</h2>
+</a>
+<pre><code class="language-sh"><span class="hl-1">npm install --save @matrixai/id</span>
 </code></pre>
-				<a href="#development" id="development" style="color: inherit; text-decoration: none;">
-					<h2>Development</h2>
-				</a>
-				<p>Run <code>nix-shell</code>, and once you&#39;re inside, you can use:</p>
-				<pre><code class="language-sh"><span style="color: #008000"># install (or reinstall packages from package.json)</span>
-<span style="color: #000000">npm install</span>
-<span style="color: #008000"># build the dist</span>
-<span style="color: #000000">npm run build</span>
-<span style="color: #008000"># run the repl (this allows you to import from ./src)</span>
-<span style="color: #000000">npm run ts-node</span>
-<span style="color: #008000"># run the tests</span>
-<span style="color: #000000">npm run </span><span style="color: #795E26">test</span>
-<span style="color: #008000"># lint the source code</span>
-<span style="color: #000000">npm run lint</span>
-<span style="color: #008000"># automatically fix the source</span>
-<span style="color: #000000">npm run lintfix</span>
+
+<a href="#development" id="development" style="color: inherit; text-decoration: none;">
+  <h2>Development</h2>
+</a>
+<p>Run <code>nix-shell</code>, and once you&#39;re inside, you can use:</p>
+<pre><code class="language-sh"><span class="hl-4"># install (or reinstall packages from package.json)</span><br/><span class="hl-1">npm install</span><br/><span class="hl-4"># build the dist</span><br/><span class="hl-1">npm run build</span><br/><span class="hl-4"># run the repl (this allows you to import from ./src)</span><br/><span class="hl-1">npm run ts-node</span><br/><span class="hl-4"># run the tests</span><br/><span class="hl-1">npm run </span><span class="hl-7">test</span><br/><span class="hl-4"># lint the source code</span><br/><span class="hl-1">npm run lint</span><br/><span class="hl-4"># automatically fix the source</span><br/><span class="hl-1">npm run lintfix</span>
 </code></pre>
-				<a href="#docs-generation" id="docs-generation" style="color: inherit; text-decoration: none;">
-					<h3>Docs Generation</h3>
-				</a>
-				<pre><code class="language-sh"><span style="color: #000000">npm run docs</span>
+
+<a href="#docs-generation" id="docs-generation" style="color: inherit; text-decoration: none;">
+  <h3>Docs Generation</h3>
+</a>
+<pre><code class="language-sh"><span class="hl-1">npm run docs</span>
 </code></pre>
-				<p>See the docs at: <a href="https://matrixai.github.io/js-id/">https://matrixai.github.io/js-id/</a></p>
-				<a href="#publishing" id="publishing" style="color: inherit; text-decoration: none;">
-					<h3>Publishing</h3>
-				</a>
-				<pre><code class="language-sh"><span style="color: #008000"># npm login</span>
-<span style="color: #000000">npm version patch </span><span style="color: #008000"># major/minor/patch</span>
-<span style="color: #000000">npm run build</span>
-<span style="color: #000000">npm publish --access public</span>
-<span style="color: #000000">git push</span>
-<span style="color: #000000">git push --tags</span>
+<p>See the docs at: <a href="https://matrixai.github.io/js-id/">https://matrixai.github.io/js-id/</a></p>
+
+<a href="#publishing" id="publishing" style="color: inherit; text-decoration: none;">
+  <h3>Publishing</h3>
+</a>
+<pre><code class="language-sh"><span class="hl-4"># npm login</span><br/><span class="hl-1">npm version patch </span><span class="hl-4"># major/minor/patch</span><br/><span class="hl-1">npm run build</span><br/><span class="hl-1">npm publish --access public</span><br/><span class="hl-1">git push</span><br/><span class="hl-1">git push --tags</span>
 </code></pre>
-			</div>
-		</div>
-		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
-			<nav class="tsd-navigation primary">
-				<ul>
-					<li class=" ">
-						<a href="modules.html">Modules</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/Id.html">Id</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/IdDeterministic.html">Id<wbr>Deterministic</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/IdRandom.html">Id<wbr>Random</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/IdSortable.html">Id<wbr>Sortable</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/index.html">index</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/utils.html">utils</a>
-					</li>
-				</ul>
-			</nav>
-			<nav class="tsd-navigation secondary menu-sticky">
-				<ul class="before-current">
-				</ul>
-			</nav>
-		</div>
-	</div>
-</div>
-<footer class="with-border-bottom">
-	<div class="container">
-		<h2>Legend</h2>
-		<div class="tsd-legend-group">
-			<ul class="tsd-legend">
-				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
-				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
-				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
-				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
-			</ul>
-		</div>
-	</div>
-</footer>
-<div class="container tsd-generator">
-	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
-</div>
-<div class="overlay"></div>
-<script src="assets/js/main.js"></script>
-</body>
-</html>
+</div></div><div class="col-4 col-menu menu-sticky-wrap menu-highlight"><nav class="tsd-navigation primary"><ul><li class="current"><a href="modules.html">Exports</a></li><li class=" tsd-kind-namespace"><a href="modules/utils.html">utils</a></li></ul></nav><nav class="tsd-navigation secondary menu-sticky"><ul><li class="tsd-kind-class tsd-has-type-parameter"><a href="classes/IdDeterministic.html" class="tsd-kind-icon">Id<wbr/>Deterministic</a></li><li class="tsd-kind-class"><a href="classes/IdInternal.html" class="tsd-kind-icon">Id<wbr/>Internal</a></li><li class="tsd-kind-class tsd-has-type-parameter"><a href="classes/IdRandom.html" class="tsd-kind-icon">Id<wbr/>Random</a></li><li class="tsd-kind-class tsd-has-type-parameter"><a href="classes/IdSortable.html" class="tsd-kind-icon">Id<wbr/>Sortable</a></li><li class="tsd-kind-type-alias"><a href="modules.html#Id" class="tsd-kind-icon">Id</a></li></ul></nav></div></div></div><footer class="with-border-bottom"><div class="container"><h2>Legend</h2><div class="tsd-legend-group"><ul class="tsd-legend"><li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li></ul><ul class="tsd-legend"><li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li></ul><ul class="tsd-legend"><li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected property</span></li></ul></div><h2>Settings</h2><p>Theme <select id="theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></p></div></footer><div class="container tsd-generator"><p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div><div class="overlay"></div><script src="assets/main.js"></script></body></html>
