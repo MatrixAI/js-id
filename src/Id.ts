@@ -1,5 +1,5 @@
+import type { MultibaseFormats } from './utils';
 import * as utils from './utils';
-import { MultibaseFormats } from './utils';
 
 /**
  * IdInternal can be used as a string primitive

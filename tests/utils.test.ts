@@ -94,14 +94,14 @@ describe('utils', () => {
   test('fixed point conversion', () => {
     // To 3 decimal places
     // we should expect .102 to be the resulting fractional
-    const fp1 = 1633860855.1015312;
+    const fp1 = 1633860855.1015312; // eslint-disable-line @typescript-eslint/no-loss-of-precision
     const fixed1 = utils.toFixedPoint(fp1, 12, 3);
     expect(fixed1[1]).toBe(417);
     const fp1_ = utils.fromFixedPoint(fixed1, 12, 3);
     expect(fp1_).toBe(utils.roundPrecise(fp1, 3));
     // Also to 3 decimal places
     // expecting 0.101 now
-    const fp2 = 1633860855.1014312;
+    const fp2 = 1633860855.1014312; // eslint-disable-line @typescript-eslint/no-loss-of-precision
     const fixed2 = utils.toFixedPoint(fp2, 12, 3);
     expect(fixed2[1]).toBe(413);
     const fp2_ = utils.fromFixedPoint(fixed2, 12, 3);

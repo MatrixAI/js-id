@@ -231,9 +231,9 @@ describe('IdSortable', () => {
     const id1 = idGen.get();
     const id2 = idGen.get();
     // Objects will be different
-    expect(id1 == id2).toBe(false);
+    expect(id1 == id2).toBe(false); // eslint-disable-line eqeqeq
     // Sortable ids are different
-    expect(id1.toString() == id2.toString()).toBe(false);
+    expect(id1.toString() == id2.toString()).toBe(false); // eslint-disable-line eqeqeq
     expect(id1.toString()).toBe(id1 + '');
     expect(id2.toString()).toBe(String(id2));
   });

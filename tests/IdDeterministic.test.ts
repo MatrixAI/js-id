@@ -112,9 +112,9 @@ describe('IdDeterministic', () => {
     const id1 = idGen.get('a');
     const id2 = idGen.get('a');
     // Objects will be different
-    expect(id1 == id2).toBe(false);
+    expect(id1 == id2).toBe(false); // eslint-disable-line eqeqeq
     // Deterministic ids are the same
-    expect(id1.toString() == id2.toString()).toBe(true);
+    expect(id1.toString() == id2.toString()).toBe(true); // eslint-disable-line eqeqeq
     expect(id1.toString()).toBe(id2 + '');
     expect(id2.toString()).toBe(String(id1));
   });
