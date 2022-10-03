@@ -224,20 +224,32 @@ function bits2bytes(bits: string): Uint8Array {
  * Encodes positive base 10 numbers to bit string
  * Will output bits in big-endian order
  */
-function dec2bits(dec: number, size: number): string {
-  dec %= 2 ** size;
-  // `>>>` coerces dec to unsigned integer
-  return (dec >>> 0).toString(2).padStart(size, '0');
+function dec2bits(dec: number, size?: number): string {
+  if (dec < 0) throw RangeError('`dec` must be positive');
+  if (size != null) {
+    if (size < 0) throw RangeError('`size` must be positive');
+    if (size === 0) return '';
+    dec %= 2 ** size;
+  } else {
+    size = 0;
+  }
+  return dec.toString(2).padStart(size, '0');
 }
 
 /**
  * Encodes positive base 10 numbers to hex string
  * Will output hex in big-endian order
  */
-function dec2hex(dec: number, size: number): string {
-  dec %= 16 ** size;
-  // `>>>` coerces dec to unsigned integer
-  return (dec >>> 0).toString(16).padStart(size, '0');
+function dec2hex(dec: number, size?: number): string {
+  if (dec < 0) throw RangeError('`dec` must be positive');
+  if (size != null) {
+    if (size < 0) throw RangeError('`size` must be positive');
+    if (size === 0) return '';
+    dec %= 16 ** size;
+  } else {
+    size = 0;
+  }
+  return dec.toString(16).padStart(size, '0');
 }
 
 /**
