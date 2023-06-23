@@ -1,6 +1,7 @@
 # js-id
 
-[![pipeline status](https://gitlab.com/MatrixAI/open-source/js-id/badges/master/pipeline.svg)](https://gitlab.com/MatrixAI/open-source/js-id/commits/master)
+staging:[![pipeline status](https://gitlab.com/MatrixAI/open-source/js-id/badges/staging/pipeline.svg)](https://gitlab.com/MatrixAI/open-source/js-id/commits/staging)
+master:[![pipeline status](https://gitlab.com/MatrixAI/open-source/js-idlocks/badges/master/pipeline.svg)](https://gitlab.com/MatrixAI/open-source/js-id/commits/master)
 
 ID generation for JavaScript & TypeScript applications.
 
