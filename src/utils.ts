@@ -1,6 +1,5 @@
 import type { Codec } from 'multiformats/bases/base';
 import type { Id } from './Id';
-
 import crypto from 'crypto';
 import { performance } from 'perf_hooks';
 import { bases } from 'multiformats/basics';

@@ -1,5 +1,4 @@
 import type { Id } from './Id';
-
 import IdInternal from './Id';
 import * as utils from './utils';
 

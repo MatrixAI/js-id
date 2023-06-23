@@ -1,5 +1,4 @@
 import type { Id } from '@';
-
 import IdDeterministic from '@/IdDeterministic';
 import * as utils from '@/utils';
 

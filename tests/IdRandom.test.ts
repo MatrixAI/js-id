@@ -1,5 +1,4 @@
 import type { Id } from '@';
-
 import IdRandom from '@/IdRandom';
 import * as utils from '@/utils';
 

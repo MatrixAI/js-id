@@ -1,5 +1,4 @@
 import type { Id } from '@';
-
 import IdSortable, { extractTs, extractSeq, extractRand } from '@/IdSortable';
 import * as utils from '@/utils';
 import { sleep, shuffle } from './utils';

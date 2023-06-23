@@ -28,6 +28,18 @@
     "no-constant-condition": 0,
     "no-useless-escape": 0,
     "no-console": "error",
+    "no-restricted-globals": [
+      "error",
+      {
+        "name": "global",
+        "message": "Use `globalThis` instead"
+      },
+      {
+        "name": "window",
+        "message": "Use `globalThis` instead"
+      }
+    ],
+    "require-yield": 0,
     "eqeqeq": ["error", "smart"],
     "spaced-comment": [
       "warn",
@@ -38,7 +50,8 @@
         },
         "block": {
           "exceptions": ["*"]
-        }
+        },
+        "markers": ["/"]
       }
     ],
     "capitalized-comments": [
@@ -48,6 +61,11 @@
         "ignoreInlineComments": true,
         "ignoreConsecutiveComments": true
       }
+    ],
+    "curly": [
+      "error",
+      "multi-line",
+      "consistent"
     ],
     "import/order": [
       "error",
@@ -74,7 +92,8 @@
         ],
         "pathGroupsExcludedImportTypes": [
           "type"
-        ]
+        ],
+        "newlines-between": "never"
       }
     ],
     "@typescript-eslint/no-namespace": 0,
@@ -96,7 +115,7 @@
     "@typescript-eslint/consistent-type-imports": ["error"],
     "@typescript-eslint/consistent-type-exports": ["error"],
     "no-throw-literal": "off",
-    "@typescript-eslint/no-throw-literal": ["error"],
+    "@typescript-eslint/no-throw-literal": "off",
     "@typescript-eslint/no-floating-promises": ["error", {
       "ignoreVoid": true,
       "ignoreIIFE": true
@@ -110,6 +129,12 @@
       {
         "selector": "default",
         "format": ["camelCase"],
+        "leadingUnderscore": "allow",
+        "trailingUnderscore": "allowSingleOrDouble"
+      },
+      {
+        "selector": "function",
+        "format": ["camelCase", "PascalCase"],
         "leadingUnderscore": "allow",
         "trailingUnderscore": "allowSingleOrDouble"
       },
@@ -129,6 +154,10 @@
         "selector": "typeLike",
         "format": ["PascalCase"],
         "trailingUnderscore": "allowSingleOrDouble"
+      },
+      {
+        "selector": "enumMember",
+        "format": ["PascalCase", "UPPER_CASE"]
       },
       {
         "selector": "objectLiteralProperty",

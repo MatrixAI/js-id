@@ -1,5 +1,4 @@
 import type { Id } from './Id';
-
 import { v4 as uuidv4 } from 'uuid';
 import * as utils from './utils';
 import IdInternal from './Id';

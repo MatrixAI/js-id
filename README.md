@@ -127,6 +127,26 @@ See the docs at: https://matrixai.github.io/js-id/
 
 ### Publishing
 
+Publishing is handled automatically by the staging pipeline.
+
+Prerelease:
+
+```sh
+# npm login
+npm version prepatch --preid alpha # premajor/preminor/prepatch
+git push --follow-tags
+```
+
+Release:
+
+```sh
+# npm login
+npm version patch # major/minor/patch
+git push --follow-tags
+```
+
+Manually:
+
 ```sh
 # npm login
 npm version patch # major/minor/patch

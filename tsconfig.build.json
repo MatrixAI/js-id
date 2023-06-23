@@ -1,9 +1,12 @@
 {
   "extends": "./tsconfig.json",
-  "exclude": [
-    "./tests/**/*"
-  ],
   "compilerOptions": {
-    "noEmit": false
-  }
+    "rootDir": "./src",
+    "noEmit": false,
+    "stripInternal": true
+  },
+  "exclude": [
+    "./tests/**/*",
+    "./scripts/**/*"
+  ]
 }
