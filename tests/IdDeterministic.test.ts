@@ -1,6 +1,6 @@
-import type { Id } from '@';
-import IdDeterministic from '@/IdDeterministic';
-import * as utils from '@/utils';
+import type { Id } from '#index.js';
+import IdDeterministic from '#IdDeterministic.js';
+import * as utils from '#utils.js';
 
 describe('IdDeterministic', () => {
   test('ids are Uint8Array', () => {

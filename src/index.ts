@@ -1,7 +1,7 @@
-export type { Id } from './Id';
-export { default as IdInternal } from './Id';
-export { default as IdRandom } from './IdRandom';
-export { default as IdDeterministic } from './IdDeterministic';
-export { default as IdSortable } from './IdSortable';
-export * as idSortable from './IdSortable';
-export * as utils from './utils';
+export type { Id } from './Id.js';
+export { default as IdInternal } from './Id.js';
+export { default as IdRandom } from './IdRandom.js';
+export { default as IdDeterministic } from './IdDeterministic.js';
+export { default as IdSortable } from './IdSortable.js';
+export * as idSortable from './IdSortable.js';
+export * as utils from './utils.js';

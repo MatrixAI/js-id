@@ -1,6 +1,6 @@
-import type { Id } from '@/Id';
-import IdInternal from '@/Id';
-import * as utils from '@/utils';
+import type { Id } from '#Id.js';
+import IdInternal from '#Id.js';
+import * as utils from '#utils.js';
 
 describe('Id', () => {
   test('create id from buffer', () => {

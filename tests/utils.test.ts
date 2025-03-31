@@ -1,5 +1,5 @@
 import * as uuid from 'uuid';
-import * as utils from '@/utils';
+import * as utils from '#utils.js';
 
 describe('utils', () => {
   test('take from an iterator', () => {

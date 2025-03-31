@@ -1,7 +1,7 @@
-import type { Id } from './Id';
+import type { Id } from './Id.js';
 import { v4 as uuidv4 } from 'uuid';
-import * as utils from './utils';
-import IdInternal from './Id';
+import * as utils from './utils.js';
+import IdInternal from './Id.js';
 
 class IdRandom<T extends Id = Id> implements IterableIterator<T> {
   protected randomSource: (size: number) => Uint8Array;

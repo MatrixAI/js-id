@@ -1,6 +1,6 @@
-import type { Id } from './Id';
+import type { Id } from './Id.js';
 import { v5 as uuidv5, NIL } from 'uuid';
-import IdInternal from './Id';
+import IdInternal from './Id.js';
 
 /**
  * This produces deterministic ids based on:
