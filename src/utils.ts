@@ -1,9 +1,8 @@
-import type { Codec } from 'multiformats/bases/base';
-import type { Id } from './Id';
+import type { Id } from './Id.js';
 import crypto from 'crypto';
 import { performance } from 'perf_hooks';
 import { bases } from 'multiformats/basics';
-import IdInternal from './Id';
+import IdInternal from './Id.js';
 
 /**
  * Gets random bytes as Uint8Array
@@ -140,8 +139,9 @@ function fromUUID(uuid: string): Id | undefined {
 }
 
 type MultibaseFormats = keyof typeof bases;
+type Codec = (typeof bases)[MultibaseFormats];
 
-const basesByPrefix: Record<string, Codec<string, string>> = {};
+const basesByPrefix: Record<string, Codec> = {};
 for (const k in bases) {
   const codec = bases[k];
   basesByPrefix[codec.prefix] = codec;

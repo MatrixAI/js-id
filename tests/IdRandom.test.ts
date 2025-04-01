@@ -1,6 +1,6 @@
-import type { Id } from '@';
-import IdRandom from '@/IdRandom';
-import * as utils from '@/utils';
+import type { Id } from '#index.js';
+import IdRandom from '#IdRandom.js';
+import * as utils from '#utils.js';
 
 describe('IdRandom', () => {
   test('ids are Uint8Array', () => {

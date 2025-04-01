@@ -1,7 +1,7 @@
-import type { Id } from '@';
-import IdSortable, { extractTs, extractSeq, extractRand } from '@/IdSortable';
-import * as utils from '@/utils';
-import { sleep, shuffle } from './utils';
+import type { Id } from '#index.js';
+import { sleep, shuffle } from './utils.js';
+import IdSortable, { extractTs, extractSeq, extractRand } from '#IdSortable.js';
+import * as utils from '#utils.js';
 
 describe('IdSortable', () => {
   test('ids are Uint8Array', () => {

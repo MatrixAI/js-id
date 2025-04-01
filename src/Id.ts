@@ -1,5 +1,5 @@
-import type { MultibaseFormats } from './utils';
-import * as utils from './utils';
+import type { MultibaseFormats } from './utils.js';
+import * as utils from './utils.js';
 
 /**
  * IdInternal can be used as a string primitive
