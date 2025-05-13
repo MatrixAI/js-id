@@ -168,7 +168,7 @@ function fromMultibase(idString: string): Id | undefined {
   let buffer: Uint8Array;
   try {
     buffer = codec.decode(idString);
-  } catch (e) {
+  } catch {
     return;
   }
   return IdInternal.create(buffer);

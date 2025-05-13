@@ -94,6 +94,7 @@ describe('utils', () => {
   test('fixed point conversion', () => {
     // To 3 decimal places
     // we should expect .102 to be the resulting fractional
+    // eslint-disable-next-line no-loss-of-precision
     const fp1 = 1633860855.1015312;
     const fixed1 = utils.toFixedPoint(fp1, 12, 3);
     expect(fixed1[1]).toBe(417);
@@ -101,6 +102,7 @@ describe('utils', () => {
     expect(fp1_).toBe(utils.roundPrecise(fp1, 3));
     // Also to 3 decimal places
     // expecting 0.101 now
+    // eslint-disable-next-line no-loss-of-precision
     const fp2 = 1633860855.1014312;
     const fixed2 = utils.toFixedPoint(fp2, 12, 3);
     expect(fixed2[1]).toBe(413);
