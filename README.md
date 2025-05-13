@@ -17,7 +17,7 @@ console.log(randIds.map((b) => utils.toUUID(b)));
 // Deterministic ids, equivalent to UUIDv5
 
 const deteGen = new IdDeterministic({
-  namespace: 'foo'
+  namespace: 'foo',
 });
 
 const deteId1 = deteGen.get();
@@ -40,12 +40,10 @@ console.log(deteId2.toString() === deteId3.toString());
 
 // Strictly monotonic sortable ids, equivalent to UUIDv7
 
-let lastId = new Uint8Array(
-  [
-    0x06, 0x16, 0x3e, 0xf5, 0x6d, 0x8d, 0x70, 0x00,
-    0x87, 0xc4, 0x65, 0xd5, 0x21, 0x9b, 0x03, 0xd4,
-  ]
-);
+let lastId = new Uint8Array([
+  0x06, 0x16, 0x3e, 0xf5, 0x6d, 0x8d, 0x70, 0x00, 0x87, 0xc4, 0x65, 0xd5, 0x21,
+  0x9b, 0x03, 0xd4,
+]);
 
 const sortGen = new IdSortable({ lastId });
 
