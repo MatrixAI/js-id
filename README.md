@@ -71,7 +71,10 @@ console.log(sortId2 < sortId3);
 
 **Base Encoding and Lexicographic Order**
 
-It is important to realise that not all base-encodings preserve lexicographic sort order. The UUID (hex-encoding) and `base32hex` does, but `base58btc` and `base64` does not. Make sure to pick an appropriate base encoding if you are expecting to compare the `IdSortable` as base-encoded strings.
+It is important to realise that not all base-encodings preserve lexicographic
+sort order. The UUID (hex-encoding) and `base32hex` does, but `base58btc` and
+`base64` does not. Make sure to pick an appropriate base encoding if you are
+expecting to compare the `IdSortable` as base-encoded strings.
 
 Out of all the multibase encodings, the only ones that preserve sort order are:
 
@@ -86,7 +89,8 @@ base32hexpad
 base32hexpadupper
 ```
 
-In addition to this, JS binary string encoding through `id.toString()` also preserves sort order.
+In addition to this, JS binary string encoding through `id.toString()` also
+preserves sort order.
 
 ## Installation
 
