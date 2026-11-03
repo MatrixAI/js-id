@@ -2,6 +2,9 @@
 /dist
 .env*
 !.env.example
+!.envrc
+/.direnv
+/.devenv
 # nix
 /result*
 /builds

@@ -1,0 +1,5 @@
+[submodule ".matrixai/matrixai-standards"]
+	path = .matrixai/matrixai-standards
+	url = git@github.com:MatrixAI/matrixai-standards.git
+	branch = master
+	shallow = true

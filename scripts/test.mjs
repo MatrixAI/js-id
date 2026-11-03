@@ -30,7 +30,9 @@ async function main(argv = process.argv) {
   childProcess.execFileSync('jest', jestArgs, {
     env: {
       ...process.env,
-      NODE_OPTIONS: '--experimental-vm-modules',
+      NODE_OPTIONS: [process.env.NODE_OPTIONS, '--experimental-vm-modules']
+        .filter(Boolean)
+        .join(' '),
     },
     stdio: ['inherit', 'inherit', 'inherit'],
     windowsHide: true,
@@ -43,6 +45,9 @@ async function main(argv = process.argv) {
 if (import.meta.url.startsWith('file:')) {
   const modulePath = url.fileURLToPath(import.meta.url);
   if (process.argv[1] === modulePath) {
-    void main();
+    main().catch((error) => {
+      process.stderr.write(`${error.stack ?? error}\n`);
+      process.exitCode = 1;
+    });
   }
 }

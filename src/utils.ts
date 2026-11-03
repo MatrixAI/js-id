@@ -1,6 +1,6 @@
 import type { Id } from './Id.js';
-import crypto from 'crypto';
-import { performance } from 'perf_hooks';
+import crypto from 'node:crypto';
+import { performance } from 'node:perf_hooks';
 import { bases } from 'multiformats/basics';
 import IdInternal from './Id.js';
 

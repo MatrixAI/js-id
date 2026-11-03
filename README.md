@@ -100,58 +100,85 @@ npm install --save @matrixai/id
 
 ## Development
 
-Run `nix develop`, and once you're inside, you can use:
+Node.js 24 or newer is required. Enter the integrated environment with
+`nix develop --no-pure-eval`, or review and allow [.envrc](.envrc) for automatic
+direnv activation. Activation does not load credentials, install dependencies,
+or change persistent shell options. Install project dependencies explicitly:
 
 ```sh
-# install (or reinstall packages from package.json)
-npm install
-# build the dist
+npm ci --ignore-scripts
 npm run build
-# run the repl (this allows you to import from ./src)
-npm run tsx
-# run the tests
-npm run test
-# lint the source code
-npm run lint
-# automatically fix the source
+npm test -- --runInBand
+npm run check
+```
+
+Tests compile the package first and import built modules through the package
+mapping. JUnit results are written under [tmp/junit](tmp/junit), and optional
+coverage results under [tmp/coverage](tmp/coverage). Type checking is also
+available through `npm run typecheck`.
+
+### Lint and formatting
+
+MatrixAI lint comes from the selected nixpkgs-matrixai package set, not an npm
+dependency or a separate lint flake input. One configured tool environment is
+shared by the development shell, hermetic lint check, and Nix formatter. The
+repository's TypeScript compiler remains a project dependency.
+
+```sh
+nix fmt
 npm run lintfix
+npm run lint
 ```
 
-### Docs Generation
+The first two commands run the same formatting authority across applicable
+domains, including TypeScript, Markdown, shell, and Nix. The last command is
+nonmutating verification. No global npm lint installation is required.
+
+### Package and hermetic checks
+
+The [manifest](package.json) allowlists emitted code and declarations, excluding
+development artifacts and compiler cache metadata. Package verification inspects
+an actual archive and exercises its root/subpath imports, fixed compatibility
+vectors, canonical manifest, and TypeScript declaration consumers. It is not a
+network installer test.
+
+The default Nix check aggregates conformance and the shared lint check. Both run
+independently of an activated development shell:
 
 ```sh
-npm run docs
+npm run check:package
+npm run check:portable
+nix flake check
+nix build '.#npm-package'
 ```
 
-See the docs at: https://matrixai.github.io/js-id/
+The package output is a prepared npm archive, with a separate unpacked output
+and dependency metadata for downstream Nix consumption. It preserves the
+canonical manifest and does not substitute unpublished sibling checkouts.
 
-### Publishing
+### Runtime boundary
 
-Publishing is handled automatically by the staging pipeline.
+This modernization preserves the existing Node runtime boundary: cryptographic
+randomness, the performance clock, and public Buffer conversions. The
+portability command audits the declared Node import boundary and prevents source
+imports through built-output aliases. It does not demonstrate browser or worker
+support; no browser support is claimed by this change.
 
-Prerelease:
+### Repository standards
 
-```sh
-# npm login
-npm version prepatch --preid alpha # premajor/preminor/prepatch
-git push --follow-tags
-```
+Start from [repository guidance](AGENTS.md), the
+[profile selector](.matrixai/repo-profile.yml), and the pinned private
+[standards submodule](.matrixai/matrixai-standards). Materialized skills are
+derived from that checkout's profile and ecosystem collections. Private
+acquisition failures are blockers, not permission to bypass checks.
 
-Release:
+Documentation is handwritten Markdown; generated API documentation is no longer
+maintained. Package and hermetic checks provide the executable validation gates.
 
-```sh
-# npm login
-npm version patch # major/minor/patch
-git push --follow-tags
-```
+## Release policy
 
-Manually:
-
-```sh
-# npm login
-npm version patch # major/minor/patch
-npm run build
-npm publish --access public
-git push
-git push --tags
-```
+There is no automatic npm publication workflow. Existing published releases
+remain available, but this modernization does not publish a new one. Family
+integration selects reviewed released Git tags with exact lockfile resolutions;
+prepared Nix archives are derived from those producer revisions. Committing,
+tagging, and publishing require separate approval.

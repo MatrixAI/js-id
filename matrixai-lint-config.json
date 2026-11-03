@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "root": ".",
+  "domains": {
+    "eslint": {
+      "tsconfigPaths": ["./tsconfig.json"],
+      "excludeTargets": ["tests/fixtures/package/types.ts"]
+    },
+    "markdown": {
+      "targets": ["*.{md,mdx}", "[!.]*/**/*.{md,mdx}"],
+      "excludeTargets": ["plans/ChatGPT-*.md"]
+    }
+  }
+}
