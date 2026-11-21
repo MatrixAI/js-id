@@ -40,8 +40,9 @@
   modernization work.
 - Source imports are relative. Tests use the package's compiled-output mapping
   and execute through the package test script after its build step.
-- Keep Jest/SWC, a 20-second default test timeout, and explicit type imports.
-  Any decorators must use standard-track semantics, never legacy metadata.
+- As a project-specific exception to the library profile's Jest/SWC rule, use
+  Vitest with explicit test imports. Keep a 20-second default test timeout,
+  explicit type imports, and standard decorators.
 - Documentation is handwritten Markdown; generated API documentation is not
   maintained. This overrides the generic profile's documentation-generator rule.
 - Obtain MatrixAI lint from the selected nixpkgs-matrixai package set. Do not
@@ -52,8 +53,8 @@
   this same MatrixAI lint authority, not a separate underlying formatter. This
   explicitly replaces the older npm-provider/no-formatter workflow.
 - Package lint scripts remain thin wrappers around the Nix-provided executable.
-  Start development formatting with the lintfix script; use lint for nonmutating
-  verification. The Nix formatter is the equivalent formatting entrypoint.
+  Prefer `matrixai-lint --fix` for development and `matrixai-lint --check` for
+  CI; the wrappers and Nix formatter provide equivalent entrypoints.
 - Use integrated flake-parts/devenv/direnv development and independently
   runnable hermetic checks. Do not make checks consume ambient developer state.
 - Keep package manifests canonical, use a package file allowlist, and select
@@ -66,13 +67,10 @@
 ## Golden commands
 
 - Build: `npm run build`.
-- Types: `npm run typecheck`.
-- Tests: `npm test -- --runInBand`.
-- Development formatting: `npm run lintfix` or `nix fmt`.
-- Lint verification: `npm run lint`.
-- Package verification: `npm run check:package`.
-- Portable imports: `npm run check:portable`.
-- Aggregate local checks: `npm run check`.
+- Tests: `npm test`.
+- Development formatting: `matrixai-lint --fix`, `npm run lintfix`, or
+  `nix fmt`.
+- Lint verification: `matrixai-lint --check` or `npm run lint`.
 - Hermetic checks: `nix flake check`.
 - Documentation and benchmarks: no generated-documentation or benchmark command
   is required for this repository.

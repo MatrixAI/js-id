@@ -1,4 +1,5 @@
 import type { Id } from '#index.js';
+import { describe, expect, test } from 'vitest';
 import IdDeterministic from '#IdDeterministic.js';
 import * as utils from '#utils.js';
 

@@ -69,7 +69,6 @@
               nodejs
               (pkgs.lib.hiPrio npmLibrary.npm)
               lint
-              pkgs.gnutar
             ];
             enterShell = ''
               mkdir -p "$PWD/tmp"

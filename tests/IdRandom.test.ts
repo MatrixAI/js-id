@@ -1,4 +1,5 @@
 import type { Id } from '#index.js';
+import { describe, expect, test } from 'vitest';
 import IdRandom from '#IdRandom.js';
 import * as utils from '#utils.js';
 

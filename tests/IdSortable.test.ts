@@ -1,4 +1,5 @@
 import type { Id } from '#index.js';
+import { describe, expect, test } from 'vitest';
 import { sleep, shuffle } from './utils.js';
 import IdSortable, { extractTs, extractSeq, extractRand } from '#IdSortable.js';
 import * as utils from '#utils.js';

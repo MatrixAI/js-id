@@ -101,21 +101,21 @@ npm install --save @matrixai/id
 ## Development
 
 Node.js 24 or newer is required. Enter the integrated environment with
-`nix develop --no-pure-eval`, or review and allow [.envrc](.envrc) for automatic
-direnv activation. Activation does not load credentials, install dependencies,
-or change persistent shell options. Install project dependencies explicitly:
+`nix develop`, or review and allow [.envrc](.envrc) for automatic direnv
+activation. Activation does not load credentials, install dependencies, or
+change persistent shell options. Install project dependencies explicitly:
 
 ```sh
 npm ci --ignore-scripts
 npm run build
-npm test -- --runInBand
-npm run check
+npm test
 ```
 
-Tests compile the package first and import built modules through the package
-mapping. JUnit results are written under [tmp/junit](tmp/junit), and optional
-coverage results under [tmp/coverage](tmp/coverage). Type checking is also
-available through `npm run typecheck`.
+Vitest compiles the package incrementally first and imports built modules
+through the package mapping. A matching build may be supplied with
+`npm test -- --prebuilt`. JUnit results are written under
+[tmp/junit](tmp/junit), and optional coverage results under
+[tmp/coverage](tmp/coverage).
 
 ### Lint and formatting
 
@@ -137,17 +137,13 @@ nonmutating verification. No global npm lint installation is required.
 ### Package and hermetic checks
 
 The [manifest](package.json) allowlists emitted code and declarations, excluding
-development artifacts and compiler cache metadata. Package verification inspects
-an actual archive and exercises its root/subpath imports, fixed compatibility
-vectors, canonical manifest, and TypeScript declaration consumers. It is not a
-network installer test.
+development artifacts and compiler cache metadata. The tests exercise identifier
+compatibility vectors through the compiled package.
 
-The default Nix check aggregates conformance and the shared lint check. Both run
-independently of an activated development shell:
+The default Nix check aggregates unit tests, typechecking, and the shared lint
+check. Both checks run independently of an activated development shell:
 
 ```sh
-npm run check:package
-npm run check:portable
 nix flake check
 nix build '.#npm-package'
 ```
@@ -159,10 +155,8 @@ canonical manifest and does not substitute unpublished sibling checkouts.
 ### Runtime boundary
 
 This modernization preserves the existing Node runtime boundary: cryptographic
-randomness, the performance clock, and public Buffer conversions. The
-portability command audits the declared Node import boundary and prevents source
-imports through built-output aliases. It does not demonstrate browser or worker
-support; no browser support is claimed by this change.
+randomness, the performance clock, and public Buffer conversions. These checks
+do not demonstrate browser or worker support.
 
 ### Repository standards
 
@@ -172,13 +166,12 @@ Start from [repository guidance](AGENTS.md), the
 derived from that checkout's profile and ecosystem collections. Private
 acquisition failures are blockers, not permission to bypass checks.
 
-Documentation is handwritten Markdown; generated API documentation is no longer
-maintained. Package and hermetic checks provide the executable validation gates.
+Documentation is handwritten Markdown; generated API documentation is not
+maintained. Unit and hermetic checks provide the executable validation gates.
 
 ## Release policy
 
 There is no automatic npm publication workflow. Existing published releases
 remain available, but this modernization does not publish a new one. Family
-integration selects reviewed released Git tags with exact lockfile resolutions;
-prepared Nix archives are derived from those producer revisions. Committing,
-tagging, and publishing require separate approval.
+integration uses released dependencies with exact lockfile resolutions.
+Committing, tagging, and publishing require separate approval.

@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest';
 import { IdInternal, IdDeterministic, utils } from '#index.js';
 
 describe('public compatibility vectors', () => {

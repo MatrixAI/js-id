@@ -1,4 +1,5 @@
 import type { Id } from '#Id.js';
+import { describe, expect, test } from 'vitest';
 import IdInternal from '#Id.js';
 import * as utils from '#utils.js';
 

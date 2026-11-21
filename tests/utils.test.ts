@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest';
 import * as uuid from 'uuid';
 import * as utils from '#utils.js';
 

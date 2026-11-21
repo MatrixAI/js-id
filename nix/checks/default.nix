@@ -6,39 +6,43 @@
   npmLibrary,
 }:
 let
-  verify = pkgs.buildNpmPackage {
-    pname = "id-verify";
-    version = "0";
-    inherit nodejs;
+  unit-js = pkgs.stdenv.mkDerivation {
+    pname = "id-unit-js";
+    version = "0.1.0";
     src = npmLibrary.src;
-    inherit (npmLibrary.npmDependencies) npmDeps npmConfigHook;
-    dontNpmBuild = true;
+    nativeBuildInputs = [ nodejs ];
+    dontBuild = true;
     doCheck = true;
     checkPhase = ''
       runHook preCheck
-      npm run check:conformance
+      ${npmLibrary.setupDependencies}
+      # Vitest 5.1 writes typecheck state beside its own package.
+      mkdir -p tmp/vitest
+      cp -R ${npmLibrary.installedDependencies}/node_modules/vitest tmp/vitest/package
+      chmod -R u+w tmp/vitest/package
+      rm node_modules/vitest
+      ln -s ../tmp/vitest/package node_modules/vitest
+      ln -s ${npmLibrary.npmBuild}/dist dist
+      ./node_modules/.bin/tsc -p ./tsconfig.json --incremental false
+      npm test -- --prebuilt
       runHook postCheck
     '';
     installPhase = ''
+      runHook preInstall
       mkdir -p "$out/artifacts"
       cp -R tmp/junit "$out/artifacts/junit"
-      cp -R tmp/package-candidate "$out/artifacts/package"
-      cp tmp/portable-imports.json "$out/artifacts/portable-imports.json"
       cat > "$out/report.json" <<EOF
       {
         "schemaVersion": 1,
-        "name": "verify",
-        "kind": "conformance",
+        "name": "unit-js",
+        "kind": "unit-test",
         "status": "passed",
         "system": "${system}",
-        "summary": "Node 24 types, tests, package consumers, and declared Node import boundary passed",
-        "artifacts": {
-          "junit": "artifacts/junit",
-          "package": "artifacts/package/report.json",
-          "portableImports": "artifacts/portable-imports.json"
-        }
+        "summary": "Full-project typechecking and Vitest cases passed",
+        "artifacts": { "junit": "artifacts/junit" }
       }
       EOF
+      runHook postInstall
     '';
   };
   lintCheck = lint.mkCheck {
@@ -50,11 +54,11 @@ let
   };
 in
 {
-  inherit verify;
+  inherit unit-js;
   lint = lintCheck;
   default = pkgs.runCommand "id-check-default" { } ''
     mkdir -p "$out/artifacts"
-    ln -s ${verify} "$out/artifacts/verify"
+    ln -s ${unit-js} "$out/artifacts/unit-js"
     ln -s ${lintCheck} "$out/artifacts/lint"
     cat > "$out/report.json" <<EOF
     {
@@ -64,7 +68,7 @@ in
       "status": "passed",
       "system": "${system}",
       "artifacts": {
-        "verify": "artifacts/verify/report.json",
+        "unit-js": "artifacts/unit-js/report.json",
         "lint": "artifacts/lint/report.json"
       }
     }

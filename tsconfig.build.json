@@ -6,6 +6,7 @@
     "stripInternal": true
   },
   "exclude": [
+    "./vitest.config.mts",
     "./tests/**/*",
     "./scripts/**/*"
   ]
