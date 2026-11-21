@@ -32,29 +32,19 @@
             pkgs.nixfmt
             pkgs.shellcheck
           ];
-          src = nixpkgs-matrixai.lib.gitignore.gitignoreSource ./.;
-          package = builtins.fromJSON (builtins.readFile ./package.json);
-          npmDependencies = import ./nix/npm-deps.nix { inherit pkgs nodejs; };
-          npmPackage = import ./nix/npm-package.nix {
-            inherit
-              pkgs
-              nodejs
-              src
-              package
-              npmDependencies
-              ;
-            sourceProvenance = {
-              rev = if inputs.self ? dirtyRev then null else inputs.self.rev or null;
-              dirtyRev = inputs.self.dirtyRev or null;
-              narHash = inputs.self.narHash or null;
-            };
+          npmLibrary = nixpkgs-matrixai.lib.npmBridge.producer.libraryFromRoot {
+            inherit pkgs nodejs;
+            gitignore = nixpkgs-matrixai.lib.gitignore;
+            root = ./.;
+            self = inputs.self;
           };
         in
         {
           packages = {
-            default = npmPackage.out;
-            npm-package = npmPackage.out;
-            npm-package-unpacked = npmPackage.unpacked;
+            default = npmLibrary.npmPackage.out;
+            npm-build = npmLibrary.npmBuild;
+            npm-package = npmLibrary.npmPackage.out;
+            npm-package-unpacked = npmLibrary.npmPackage.unpacked;
           };
           formatter = lint.formatter;
           checks = import ./nix/checks {
@@ -62,9 +52,8 @@
               pkgs
               nodejs
               lint
-              src
-              npmDependencies
               system
+              npmLibrary
               ;
           };
           devShells.ci = config.devShells.default;
@@ -78,11 +67,13 @@
             );
             packages = [
               nodejs
+              (pkgs.lib.hiPrio npmLibrary.npm)
               lint
               pkgs.gnutar
             ];
             enterShell = ''
-              export PATH="${lint}/bin:$PWD/node_modules/.bin:$PATH"
+              mkdir -p "$PWD/tmp"
+              export PATH="${npmLibrary.npm}/bin:${lint}/bin:$PWD/node_modules/.bin:$PATH"
             '';
           };
         };

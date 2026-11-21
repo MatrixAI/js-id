@@ -2,16 +2,16 @@
   pkgs,
   nodejs,
   lint,
-  src,
-  npmDependencies,
   system,
+  npmLibrary,
 }:
 let
   verify = pkgs.buildNpmPackage {
     pname = "id-verify";
     version = "0";
-    inherit src nodejs;
-    inherit (npmDependencies) npmDeps npmConfigHook;
+    inherit nodejs;
+    src = npmLibrary.src;
+    inherit (npmLibrary.npmDependencies) npmDeps npmConfigHook;
     dontNpmBuild = true;
     doCheck = true;
     checkPhase = ''
@@ -42,9 +42,9 @@ let
     '';
   };
   lintCheck = lint.mkCheck {
-    inherit src;
+    src = npmLibrary.src;
     name = "id-lint";
-    npmDependencies = npmDependencies // {
+    npmDependencies = npmLibrary.npmDependencies // {
       inherit nodejs;
     };
   };
