@@ -15,7 +15,7 @@ function referenceId(timestamp: number, payload: string): Uint8Array {
 }
 
 describe('IdFlake', () => {
-  test('encodes a configurable 42-bit sequence and 32-bit node layout', () => {
+  test('CASE-ID-FLAKE-LAYOUT: encodes a configurable 42-bit sequence and 32-bit node layout', () => {
     const nodeId = Uint8Array.of(0x12, 0x34, 0x56, 0x78);
     const generator = new IdFlake({
       nodeId,
@@ -37,7 +37,7 @@ describe('IdFlake', () => {
     expect(first < second).toBe(true);
   });
 
-  test('preserves the leading 62 node bits by default and copies input', () => {
+  test('CASE-ID-FLAKE-LAYOUT: preserves the leading 62 node bits by default and copies input', () => {
     const nodeId = Uint8Array.of(1, 2, 3, 4, 5, 6, 7, 0xff, 0xaa);
     const expected = utils.bytes2bits(nodeId).slice(0, 62);
     const generator = new IdFlake({ nodeId, timeSource: () => () => 42 });
@@ -48,7 +48,7 @@ describe('IdFlake', () => {
     expect(extracted[7] & 3).toBe(0);
   });
 
-  test('packs every sequence width against an independent bit-string model', () => {
+  test('CASE-ID-FLAKE-LAYOUT: packs every sequence width against an independent bit-string model', () => {
     const node = Uint8Array.of(
       0xaa,
       0x55,
@@ -95,7 +95,7 @@ describe('IdFlake', () => {
     }
   });
 
-  test('allocates random bits after the node and masks unused source bits', () => {
+  test('CASE-ID-FLAKE-LAYOUT: allocates random bits after the node and masks unused source bits', () => {
     const requests: number[] = [];
     const generator = new IdFlake({
       sequenceBits: 12,
@@ -120,7 +120,7 @@ describe('IdFlake', () => {
     ).toBe(true);
   });
 
-  test('separates different equal-width nodes for the same timestamp and sequence', () => {
+  test('CASE-ID-FLAKE-NODES: separates different equal-width nodes for the same timestamp and sequence', () => {
     const options = {
       sequenceBits: 12,
       timeSource: () => () => 50,
@@ -132,7 +132,7 @@ describe('IdFlake', () => {
     expect(lower < upper).toBe(true);
   });
 
-  test('holds time during rollback and resumes from copied restart state', () => {
+  test('CASE-ID-VALUE-STATE CASE-ID-FLAKE-CLOCK: holds time during rollback and resumes from copied restart state', () => {
     let now = 1000;
     const nodeId = Uint8Array.of(0xab);
     const generator = new IdFlake({ nodeId, timeSource: () => () => now });
@@ -152,7 +152,7 @@ describe('IdFlake', () => {
     expect(extractSeq(next)).toBe(1n);
   });
 
-  test('rejects exhausted sequences including a 74-bit restart and recovers', () => {
+  test('CASE-ID-FLAKE-EXHAUST: rejects exhausted sequences including a 74-bit restart and recovers', () => {
     for (const sequenceBits of [1, 12, 42, 53, 54, 74]) {
       const lastId = referenceId(
         1000,
@@ -179,7 +179,7 @@ describe('IdFlake', () => {
     }
   });
 
-  test('reports flake exhaustion without hiding clock or random failures', () => {
+  test('CASE-ID-FLAKE-EXHAUST: reports flake exhaustion without hiding clock or random failures', () => {
     let now = 1000;
     let invalidRandom = false;
     let randomFailure = false;
@@ -216,7 +216,7 @@ describe('IdFlake', () => {
     expect(extractSeq(resumed, 1)).toBe(0n);
   });
 
-  test('leaves committed state unchanged when random generation fails', () => {
+  test('CASE-ID-FLAKE-FAILURE: leaves committed state unchanged when random generation fails', () => {
     let fail = false;
     const generator = new IdFlake({
       nodeId: Uint8Array.of(1),
@@ -234,7 +234,7 @@ describe('IdFlake', () => {
     expect(extractSeq(generator.get())).toBe(1n);
   });
 
-  test('leaves committed state unchanged when the random result has the wrong size', () => {
+  test('CASE-ID-FLAKE-FAILURE: leaves committed state unchanged when the random result has the wrong size', () => {
     let invalid = false;
     const generator = new IdFlake({
       timeSource: () => () => 1,
@@ -248,7 +248,7 @@ describe('IdFlake', () => {
     expect(extractSeq(generator.get())).toBe(1n);
   });
 
-  test('rejects invalid allocation, node, timestamps, randomness, and restart state', () => {
+  test('CASE-ID-FLAKE-INVALID: rejects invalid allocation, node, timestamps, randomness, and restart state', () => {
     for (const sequenceBits of [0, 75, -1, 0.5, NaN, Infinity]) {
       expect(() => new IdFlake({ sequenceBits })).toThrow(RangeError);
     }

@@ -1,0 +1,31 @@
+version: 1
+role: non-normative-requirement-index
+normative_source: adr.md
+decision_status: accepted
+assessment_status: partial
+case_registries: [cases.yml]
+requirements:
+  - id: REQ-ID-FLAKE-001
+    spec: adr.md#REQ-ID-FLAKE-001
+    requirement_status: active
+    evidence_status: partial
+    cases: [CASE-ID-FLAKE-LAYOUT, CASE-ID-FLAKE-BROWSER]
+    assessment: Selected bit allocations and browser scenario, not universal UUIDv8 interoperability.
+  - id: REQ-ID-FLAKE-002
+    spec: adr.md#REQ-ID-FLAKE-002
+    requirement_status: active
+    evidence_status: partial
+    cases: [CASE-ID-FLAKE-INVALID, CASE-ID-FLAKE-NODES]
+    assessment: Exclusive allocation, reservation, and crash-safe persistence are caller-owned and unverified.
+  - id: REQ-ID-FLAKE-003
+    spec: adr.md#REQ-ID-FLAKE-003
+    requirement_status: active
+    evidence_status: partial
+    cases: [CASE-ID-FLAKE-CLOCK, CASE-ID-FLAKE-EXHAUST, CASE-ID-FLAKE-INVALID, CASE-ID-FLAKE-FAILURE, CASE-ID-FLAKE-BROWSER]
+    assessment: Selected state transitions only; no distributed coordination proof.
+  - id: REQ-ID-FLAKE-004
+    spec: adr.md#REQ-ID-FLAKE-004
+    requirement_status: active
+    evidence_status: pending
+    cases: []
+    assessment: Provenance and security interpretation depend on consumer protocols.

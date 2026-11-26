@@ -1,18 +1,14 @@
-import {
-  IdDeterministic,
-  IdFlake,
-  IdInternal,
-  IdRandom,
-  IdSortable,
-  utils,
-} from '#index.js';
-import { extractNodeId, extractSeq } from '#IdFlake.js';
+import type * as IdModule from '#index.js';
 
-function assert(condition: unknown, message: string): asserts condition {
-  if (!condition) throw new Error(message);
-}
-
-export function verifyRuntime() {
+export async function verifyRuntime(
+  library: typeof IdModule,
+): Promise<boolean> {
+  const { IdDeterministic, IdFlake, IdInternal, IdRandom, IdSortable, utils } =
+    library;
+  const { extractNodeId, extractSeq } = library.idFlake;
+  function assert(condition: unknown, message: string): asserts condition {
+    if (!condition) throw new Error(message);
+  }
   assert(
     typeof globalThis.Buffer === 'undefined',
     'unexpected Buffer polyfill',
@@ -33,6 +29,15 @@ export function verifyRuntime() {
     new IdDeterministic({ namespace: dns }).get('www.example.com').toUUID() ===
       '5c146b14-3c52-8afd-938a-375d0df1fbf6',
     'RFC 9562 name-based UUIDv8 vector',
+  );
+  const nistMessage =
+    'abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq';
+  const nistNamespace = new TextEncoder().encode(nistMessage.slice(0, 16));
+  assert(
+    new IdDeterministic({ namespace: nistNamespace })
+      .get(nistMessage.slice(16))
+      .toUUID() === '248d6a61-d206-88b8-a5c0-26930c3e6039',
+    'multi-block SHA-256 vector with UUIDv8 markers',
   );
   const sortable = new IdSortable();
   const first = sortable.get();
@@ -158,4 +163,5 @@ export function verifyRuntime() {
       NodeId | undefined) instanceof NodeId,
     'subclass decoding',
   );
+  return true;
 }

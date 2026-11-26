@@ -1,0 +1,24 @@
+version: 1
+scope: record-owned case mappings; test execution is separate evidence
+binding: unit
+cases:
+  - id: CASE-ID-VALUE-BYTES
+    tests: [../../tests/utils.test.ts, ../../tests/compatibility.test.ts]
+    assertions: [round trips large IDs through binary strings without argument overflow, 'preserves bytes through UUID, multibase, binary string, and JSON']
+    requirements: [adr.md#REQ-ID-VALUE-001]
+    limit: Selected sizes and representations, not every input.
+  - id: CASE-ID-VALUE-KEYS
+    tests: [../../tests/Id.test.ts]
+    assertions: [id can be used as POJO keys, id can be used as Map keys]
+    requirements: [adr.md#REQ-ID-VALUE-001]
+    limit: Selected object and Map behavior, not a database collation proof.
+  - id: CASE-ID-VALUE-VIEWS
+    tests: [../../tests/compatibility.test.ts]
+    assertions: [preserves zero-copy Buffer conversion including byte offsets]
+    requirements: [adr.md#REQ-ID-VALUE-002]
+    limit: Node Buffer view example only.
+  - id: CASE-ID-VALUE-STATE
+    tests: [../../tests/IdSortable.test.ts, ../../tests/IdFlake.test.ts]
+    assertions: [clamps clock rollback and protects state from mutable returned bytes, holds time during rollback and resumes from copied restart state]
+    requirements: [adr.md#REQ-ID-VALUE-002]
+    limit: Selected mutable state examples.

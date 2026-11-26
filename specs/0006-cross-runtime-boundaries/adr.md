@@ -175,8 +175,8 @@ Use a neutral core, explicit adapters, and real runtime-boundary evidence.
 ## More Information
 
 Runtime support is not implied by a successful Node-only unit test. The
-[assurance graph](assurance.json) records execution bindings and explicit gaps.
-No package archive test or deployed Cloudflare check is implied.
+[assurance graph](requirements.yml) records cases and explicit gaps. No package
+archive test or deployed Cloudflare check is implied.
 
 ## Audit
 
@@ -222,7 +222,7 @@ SHA-256 profile.
 | Finding                                                         | Files                                                | Lines | Assessment |
 | --------------------------------------------------------------- | ---------------------------------------------------- | ----- | ---------- |
 | Compiled SHA-256 and frozen-clock cases run in Chromium         | [Browser scenario](../../tests/browser/scenarios.ts) | -     | partial    |
-| Deployed Cloudflare and other browser engines are not exercised | [Assurance](assurance.json)                          | -     | pending    |
+| Deployed Cloudflare and other browser engines are not exercised | [Assurance](requirements.yml)                        | -     | pending    |
 
 **Summary:** The Chromium document and dedicated worker check passed without a
 Buffer polyfill; this does not establish deployed-platform behavior.
@@ -236,10 +236,10 @@ claims.
 
 **Findings:**
 
-| Finding                                 | Files                             | Lines | Assessment |
-| --------------------------------------- | --------------------------------- | ----- | ---------- |
-| Decision accepted; requirements active  | [Record](adr.md)                  | -     | partial    |
-| Evidence gaps remain separately tracked | [Assurance graph](assurance.json) | -     | partial    |
+| Finding                                 | Files                               | Lines | Assessment |
+| --------------------------------------- | ----------------------------------- | ----- | ---------- |
+| Decision accepted; requirements active  | [Record](adr.md)                    | -     | partial    |
+| Evidence gaps remain separately tracked | [Assurance graph](requirements.yml) | -     | partial    |
 
 **Summary:** The owner accepted this decision. Acceptance does not establish
 conformance, deployment, or an immutable execution receipt. Previous audit
@@ -258,7 +258,7 @@ receipts when available.
 | ------------------------------------------------------ | ---------------------------------------- | ----- | ---------- |
 | Default epoch sampling supports a wall-clock fallback  | [Clock](../../src/clock.ts)              | -     | partial    |
 | Fallback and invalid readings have deterministic tests | [Clock tests](../../tests/clock.test.ts) | -     | partial    |
-| Deployed Worker evidence is still absent               | [Assurance](assurance.json)              | -     | pending    |
+| Deployed Worker evidence is still absent               | [Assurance](requirements.yml)            | -     | pending    |
 
 **Summary:** The default source uses the performance clock when usable and falls
 back to the wall clock otherwise. An invalid fallback is an error. Generator
@@ -267,3 +267,23 @@ establish deployed-platform conformance.
 
 **Action Required:** Verify runtime-specific behavior and retain execution
 receipts before making broader support claims.
+
+### 2026-11-26
+
+**Status:** Partial
+
+**Findings:**
+
+| Finding                                 | Files                                                         | Lines | Assessment |
+| --------------------------------------- | ------------------------------------------------------------- | ----- | ---------- |
+| Local workerd executes compiled package | [Worker tests](../../tests/cloudflare-worker/runtime.test.ts) | -     | partial    |
+| Worker check is independently runnable  | [Nix check](../../nix/checks/cloudflare-worker.nix)           | -     | partial    |
+
+**Summary:** The Cloudflare Vitest plugin runs the name-based vector, random and
+sortable generation, injected-clock exhaustion, and restart after rollback in
+local workerd. The Nix check provides isolated dependencies and records a JUnit
+artifact. Injected frozen time tests the backpressure contract, not whether a
+real deployed clock advances. Local workerd is not a deployed Worker and does
+not establish production scheduling or clock behavior.
+
+**Action Required:** Retain deployed-platform evidence separately if claimed.

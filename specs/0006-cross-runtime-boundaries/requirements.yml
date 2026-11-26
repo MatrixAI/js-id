@@ -1,0 +1,25 @@
+version: 1
+role: non-normative-requirement-index
+normative_source: adr.md
+decision_status: accepted
+assessment_status: partial
+case_registries: [cases.yml]
+requirements:
+  - id: REQ-ID-RUNTIME-001
+    spec: adr.md#REQ-ID-RUNTIME-001
+    requirement_status: active
+    evidence_status: partial
+    cases: [CASE-ID-RUNTIME-CHROMIUM, CASE-ID-RUNTIME-BUFFER, CASE-ID-RUNTIME-WORKER]
+    assessment: Other engines, deployed Cloudflare, and every bundler are not verified.
+  - id: REQ-ID-RUNTIME-002
+    spec: adr.md#REQ-ID-RUNTIME-002
+    requirement_status: active
+    evidence_status: partial
+    cases: [CASE-ID-RUNTIME-RANDOM, CASE-ID-RUNTIME-CHROMIUM, CASE-ID-RUNTIME-WORKER]
+    assessment: Injected-source quality and all unavailable-crypto environments are not established.
+  - id: REQ-ID-RUNTIME-003
+    spec: adr.md#REQ-ID-RUNTIME-003
+    requirement_status: active
+    evidence_status: partial
+    cases: [CASE-ID-RUNTIME-CHROMIUM, CASE-ID-RUNTIME-BUFFER, CASE-ID-RUNTIME-FROZEN, CASE-ID-RUNTIME-CLOCK-FALLBACK, CASE-ID-RUNTIME-WORKER]
+    assessment: No deployed Cloudflare execution or retained immutable revision-bound receipt.

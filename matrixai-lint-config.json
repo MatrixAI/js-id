@@ -3,7 +3,9 @@
   "root": ".",
   "domains": {
     "eslint": {
-      "tsconfigPaths": ["./tsconfig.json"]
+      "tsconfigPaths": ["./tsconfig.json"],
+      "extendTargets": ["vitest.cloudflare-worker.config.mts"],
+      "excludeTargets": ["src/noble-hashes/**"]
     },
     "markdown": {
       "targets": ["*.{md,mdx}", "[!.]*/**/*.{md,mdx}"]

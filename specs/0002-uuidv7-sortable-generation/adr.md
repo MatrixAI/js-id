@@ -218,7 +218,7 @@ Use RFC UUIDv7 with explicit per-generator monotonicity and exhaustion.
 ## More Information
 
 RFC 9562 defines UUIDv7 and permits guarded counters for monotonicity. The
-[assurance graph](assurance.json) records selected vectors, state cases, and
+[assurance graph](requirements.yml) records selected vectors, state cases, and
 execution bindings. The pinned historical benchmark is an adapted instrument,
 not an old-format production reader or a controlled performance guarantee.
 
@@ -280,10 +280,10 @@ budget.
 
 **Findings:**
 
-| Finding                                 | Files                             | Lines | Assessment |
-| --------------------------------------- | --------------------------------- | ----- | ---------- |
-| Decision accepted; requirements active  | [Record](adr.md)                  | -     | partial    |
-| Evidence gaps remain separately tracked | [Assurance graph](assurance.json) | -     | partial    |
+| Finding                                 | Files                               | Lines | Assessment |
+| --------------------------------------- | ----------------------------------- | ----- | ---------- |
+| Decision accepted; requirements active  | [Record](adr.md)                    | -     | partial    |
+| Evidence gaps remain separately tracked | [Assurance graph](requirements.yml) | -     | partial    |
 
 **Summary:** The owner accepted this decision. Acceptance does not establish
 conformance, deployment, or an immutable execution receipt. Previous audit

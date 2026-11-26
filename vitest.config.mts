@@ -1,10 +1,15 @@
-import { defineConfig } from 'vitest/config';
+import { configDefaults, defineConfig } from 'vitest/config';
 
 const config = defineConfig({
   cacheDir: './tmp/vitest',
   test: {
     environment: 'node',
     include: ['tests/**/*.{test,spec}.{ts,tsx,js,jsx}'],
+    exclude: [
+      ...configDefaults.exclude,
+      'tests/browser/**',
+      'tests/cloudflare-worker/**',
+    ],
     typecheck: {
       enabled: true,
       include: ['tests/**/*.{test,spec}-d.?(c|m)[jt]s?(x)'],

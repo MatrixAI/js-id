@@ -1,0 +1,40 @@
+version: 1
+scope: record-owned case mappings; test execution is separate evidence
+binding: unit
+cases:
+  - id: CASE-ID-FLAKE-LAYOUT
+    tests: [../../tests/IdFlake.test.ts, ../../tests/IdFlake.test-d.ts]
+    assertions: [encodes a configurable 42-bit sequence and 32-bit node layout, packs every sequence width against an independent bit-string model, preserves the leading 62 node bits by default and copies input, allocates random bits after the node and masks unused source bits, configurable flake keeps branded IDs and lossless sequence types]
+    requirements: [adr.md#REQ-ID-FLAKE-001]
+    limit: Sequence widths are exercised with selected node and random widths, not every bit pattern.
+  - id: CASE-ID-FLAKE-INVALID
+    tests: [../../tests/IdFlake.test.ts]
+    assertions: ['rejects invalid allocation, node, timestamps, randomness, and restart state']
+    requirements: [adr.md#REQ-ID-FLAKE-002, adr.md#REQ-ID-FLAKE-003]
+    limit: Local validation does not establish allocation exclusivity or profile provenance.
+  - id: CASE-ID-FLAKE-NODES
+    tests: [../../tests/IdFlake.test.ts]
+    assertions: [separates different equal-width nodes for the same timestamp and sequence]
+    requirements: [adr.md#REQ-ID-FLAKE-002]
+    limit: One equal-width example; mixed allocations may overlap.
+  - id: CASE-ID-FLAKE-CLOCK
+    tests: [../../tests/IdFlake.test.ts]
+    assertions: [holds time during rollback and resumes from copied restart state]
+    requirements: [adr.md#REQ-ID-FLAKE-003]
+    limit: Selected rollback and copied-state examples.
+  - id: CASE-ID-FLAKE-EXHAUST
+    tests: [../../tests/IdFlake.test.ts]
+    assertions: [rejects exhausted sequences including a 74-bit restart and recovers, reports flake exhaustion without hiding clock or random failures]
+    requirements: [adr.md#REQ-ID-FLAKE-003]
+    limit: Selected exhausted restart widths, not the full counter space.
+  - id: CASE-ID-FLAKE-FAILURE
+    tests: [../../tests/IdFlake.test.ts]
+    assertions: [leaves committed state unchanged when random generation fails, leaves committed state unchanged when the random result has the wrong size]
+    requirements: [adr.md#REQ-ID-FLAKE-003]
+    limit: Selected source failures, not every runtime failure.
+  - id: CASE-ID-FLAKE-BROWSER
+    tests: [../../tests/browser/runtime.spec.ts, ../../tests/browser/scenarios.ts]
+    binding: browser
+    assertions: [flake node prefix, flake frozen clock must not wrap]
+    requirements: [adr.md#REQ-ID-FLAKE-001, adr.md#REQ-ID-FLAKE-003]
+    limit: One configuration in Chromium document and dedicated worker, not a deployed Worker.

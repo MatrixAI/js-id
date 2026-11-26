@@ -33,7 +33,7 @@ describe('utils', () => {
     expect(utils.isUuidVersion(new Uint8Array(15), 7)).toBe(false);
   });
 
-  test('round trips large IDs through binary strings without argument overflow', () => {
+  test('CASE-ID-VALUE-BYTES: round trips large IDs through binary strings without argument overflow', () => {
     const bytes = new Uint8Array(262_145);
     for (let index = 0; index < bytes.length; index++) {
       bytes[index] = index % 256;
@@ -43,7 +43,7 @@ describe('utils', () => {
     expect(utils.fromString(binary).equals(bytes)).toBe(true);
   });
 
-  test('uses Web Crypto for large random byte requests in bounded chunks', () => {
+  test('CASE-ID-RUNTIME-RANDOM: uses Web Crypto for large random byte requests in bounded chunks', () => {
     const spy = vi.spyOn(globalThis.crypto, 'getRandomValues');
     try {
       expect(utils.randomBytes(131_073)).toHaveLength(131_073);
@@ -316,7 +316,7 @@ describe('utils', () => {
 });
 
 describe('sortable base64', () => {
-  test('matches the Base64sort draft unpadded vectors', () => {
+  test('CASE-ID-ENCODING-SORTABLE: matches the Base64sort draft unpadded vectors', () => {
     // Draft-brown-davis-base64-sort-01, Appendix B.
     const vectors = [
       ['f', 'OV'],
@@ -385,7 +385,7 @@ describe('sortable base64', () => {
     }
   });
 
-  test('sorts equal-length values in unsigned byte order', () => {
+  test('CASE-ID-ENCODING-SORTABLE: sorts equal-length values in unsigned byte order', () => {
     const values = Array.from({ length: 1024 }, (_, index) => {
       const bytes = new Uint8Array(16);
       bytes[14] = index >> 8;
@@ -406,7 +406,7 @@ describe('sortable base64', () => {
     expect([...decoded].reverse().sort(Buffer.compare)).toEqual(decoded);
   });
 
-  test('rejects invalid lengths, characters, and nonzero trailing bits', () => {
+  test('CASE-ID-ENCODING-SORTABLE: rejects invalid lengths, characters, and nonzero trailing bits', () => {
     for (const value of [
       '-',
       '0',
@@ -432,7 +432,7 @@ describe('sortable base64', () => {
 
 describe('TypeID 0.3', () => {
   // Official vectors: https://github.com/jetify-com/typeid/tree/23d60e701166f783b9f7175a9114ebfd4bcc22e3/spec
-  test('interoperates with the official valid UUID and prefix vectors', () => {
+  test('CASE-ID-ENCODING-TYPEID: interoperates with the official valid UUID and prefix vectors', () => {
     const vectors = [
       [
         '',
@@ -490,7 +490,7 @@ describe('TypeID 0.3', () => {
     }
   });
 
-  test('rejects the official invalid prefix and suffix cases', () => {
+  test('CASE-ID-ENCODING-TYPEID: rejects the official invalid prefix and suffix cases', () => {
     const zero = '00000000000000000000000000';
     const invalid = [
       `PREFIX_${zero}`,

@@ -209,8 +209,8 @@ profiles.
 ## More Information
 
 UUIDv7 and UUIDv8 profiles follow RFC 9562. Identifiers are not bearer secrets.
-The [local assurance graph](assurance.json) identifies selected cases and their
-limits; it is an index, not a replacement for these clauses.
+The [local assurance graph](requirements.yml) identifies selected cases and
+their limits; it is an index, not a replacement for these clauses.
 
 ## Audit
 
@@ -238,7 +238,7 @@ verification.
 | Finding                                                     | Files                           | Lines | Assessment |
 | ----------------------------------------------------------- | ------------------------------- | ----- | ---------- |
 | Byte, key, and Buffer cases exist locally                   | [Tests](../../tests/Id.test.ts) | -     | partial    |
-| Downstream provenance and authorization remain caller-owned | [Assurance](assurance.json)     | -     | pending    |
+| Downstream provenance and authorization remain caller-owned | [Assurance](requirements.yml)   | -     | pending    |
 
 **Summary:** The proposed contract now distinguishes shared views, copied
 values, coercion, brands, and the hard cut. Selected tests do not prove
@@ -253,10 +253,10 @@ release.
 
 **Findings:**
 
-| Finding                                 | Files                             | Lines | Assessment |
-| --------------------------------------- | --------------------------------- | ----- | ---------- |
-| Decision accepted; requirements active  | [Record](adr.md)                  | -     | partial    |
-| Evidence gaps remain separately tracked | [Assurance graph](assurance.json) | -     | partial    |
+| Finding                                 | Files                               | Lines | Assessment |
+| --------------------------------------- | ----------------------------------- | ----- | ---------- |
+| Decision accepted; requirements active  | [Record](adr.md)                    | -     | partial    |
+| Evidence gaps remain separately tracked | [Assurance graph](requirements.yml) | -     | partial    |
 
 **Summary:** The owner accepted this decision. Acceptance does not establish
 conformance, deployment, or an immutable execution receipt. Previous audit

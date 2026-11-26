@@ -1,0 +1,35 @@
+version: 1
+scope: record-owned case mappings; test execution is separate evidence
+binding: unit
+cases:
+  - id: CASE-ID-UUID7-VECTOR
+    tests: [../../tests/IdSortable.test.ts]
+    assertions: [can reproduce the RFC 9562 Appendix A.6 UUIDv7 vector]
+    requirements: [adr.md#REQ-ID-UUID7-001]
+    limit: One RFC example with selected injected state and randomness.
+  - id: CASE-ID-UUID7-INVALID
+    tests: [../../tests/IdSortable.test.ts]
+    assertions: ['rejects invalid timestamps, restart IDs, and random sources']
+    requirements: [adr.md#REQ-ID-UUID7-001, adr.md#REQ-ID-UUID7-004]
+    limit: Selected invalid inputs; structural version checks do not establish provenance.
+  - id: CASE-ID-UUID7-EXHAUST
+    tests: [../../tests/IdSortable.test.ts]
+    assertions: [throws on counter exhaustion and resumes when the clock advances, reports exhaustion without throwing and propagates unrelated failures, leaves state unchanged when a random source fails]
+    requirements: [adr.md#REQ-ID-UUID7-002]
+    limit: Selected seed and failure paths.
+  - id: CASE-ID-UUID7-ROLLBACK
+    tests: [../../tests/IdSortable.test.ts]
+    assertions: [clamps clock rollback and protects state from mutable returned bytes]
+    requirements: [adr.md#REQ-ID-UUID7-002, adr.md#REQ-ID-UUID7-003]
+    limit: One generator and selected rollback values.
+  - id: CASE-ID-UUID7-RESTART
+    tests: [../../tests/IdSortable.test.ts]
+    assertions: [rejects exhausted restart state until the clock advances, copies restart state before the caller can mutate it]
+    requirements: [adr.md#REQ-ID-UUID7-003]
+    limit: Does not test crash-safe persistence or concurrent owners.
+  - id: CASE-ID-UUID7-BROWSER
+    tests: [../../tests/browser/runtime.spec.ts, ../../tests/browser/scenarios.ts]
+    binding: browser
+    assertions: [frozen clock must not wrap the UUIDv7 counter]
+    requirements: [adr.md#REQ-ID-UUID7-002]
+    limit: Simulated frozen clock in Chromium, not deployed Cloudflare.

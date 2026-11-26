@@ -185,8 +185,9 @@ Use an explicitly specified SHA-256 UUIDv8 profile for modern name-based IDs.
 ## More Information
 
 RFC 9562 Appendix B.2 provides an illustrative SHA-256 name-based UUIDv8 vector.
-The [assurance graph](assurance.json) distinguishes the RFC vector, independent
-Node hash comparisons, and selected browser execution from exhaustive proof.
+The [assurance graph](requirements.yml) distinguishes the RFC vector,
+independent Node hash comparisons, and selected browser execution from
+exhaustive proof.
 
 ## Audit
 
@@ -233,7 +234,7 @@ hard-cut decisions for persisted deterministic IDs.
 | Finding                                                       | Files                                                | Lines | Assessment |
 | ------------------------------------------------------------- | ---------------------------------------------------- | ----- | ---------- |
 | The RFC vector runs in Chromium document and dedicated worker | [Browser scenario](../../tests/browser/scenarios.ts) | -     | partial    |
-| Historical deterministic IDs require consumer decisions       | [Assurance](assurance.json)                          | -     | pending    |
+| Historical deterministic IDs require consumer decisions       | [Assurance](requirements.yml)                        | -     | pending    |
 
 **Summary:** Local Node and selected Chromium executions passed; earlier audit
 entries record historical implementation and verification state.
@@ -246,10 +247,10 @@ entries record historical implementation and verification state.
 
 **Findings:**
 
-| Finding                                 | Files                             | Lines | Assessment |
-| --------------------------------------- | --------------------------------- | ----- | ---------- |
-| Decision accepted; requirements active  | [Record](adr.md)                  | -     | partial    |
-| Evidence gaps remain separately tracked | [Assurance graph](assurance.json) | -     | partial    |
+| Finding                                 | Files                               | Lines | Assessment |
+| --------------------------------------- | ----------------------------------- | ----- | ---------- |
+| Decision accepted; requirements active  | [Record](adr.md)                    | -     | partial    |
+| Evidence gaps remain separately tracked | [Assurance graph](requirements.yml) | -     | partial    |
 
 **Summary:** The owner accepted this decision. Acceptance does not establish
 conformance, deployment, or an immutable execution receipt. Previous audit
@@ -257,3 +258,35 @@ entries remain historical.
 
 **Action Required:** Review remaining evidence gaps and attach execution
 receipts when available.
+
+### 2026-11-26
+
+**Status:** Partial
+
+**Findings:**
+
+| Finding                          | Files                                        | Lines | Assessment |
+| -------------------------------- | -------------------------------------------- | ----- | ---------- |
+| SHA-256 source is vendored       | [Generator](../../src/IdDeterministic.ts)    | -     | partial    |
+| Standard and independent vectors | [Tests](../../tests/IdDeterministic.test.ts) | -     | partial    |
+| Upstream MIT license is retained | [License](../../LICENSE.noble-hashes)        | -     | partial    |
+
+**Summary:** The synchronous name-based API needs SHA-256 in Node, browsers, and
+workers; Web Crypto's asynchronous digest would change that API. Instead of
+fetching a runtime package solely for this hash, the project vendors the
+required Noble modules from version 2.4.0 at commit
+`663c2aeeffc308ac0cded59bd32f7c212adacfc2`. Their source bytes match upstream;
+TypeScript rewrites relative import extensions in emitted JavaScript. The files
+include shared utilities and other SHA-2 variants because retaining whole
+upstream modules makes provenance and future comparisons straightforward. The
+MIT notice is included in the distribution allowlist.
+
+Vendoring reduces runtime dependency acquisition but transfers responsibility
+for upstream security updates, provenance review, and license preservation to
+this project. Noble's published audit refers to version 1.0.0; it is not an
+audit of this version or its integration. The UUIDv8 hash profile and output
+bytes are unchanged. Node vector and differential tests passed; runtime and
+performance evidence remain separate from this source comparison.
+
+**Action Required:** Verify the browser and worker paths and review upstream
+updates when maintaining the vendored source.

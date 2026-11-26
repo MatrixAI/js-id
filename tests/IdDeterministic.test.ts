@@ -2,21 +2,64 @@ import type { Id } from '#index.js';
 import { createHash } from 'node:crypto';
 import { describe, expect, test } from 'vitest';
 import IdDeterministic from '#IdDeterministic.js';
+import { _SHA256 } from '#noble-hashes/sha2.js';
 import * as utils from '#utils.js';
 
 describe('IdDeterministic', () => {
-  test('matches the RFC 9562 Appendix B.2 SHA-256 UUIDv8 vector', () => {
+  test('CASE-ID-NAME-HASH: SHA-256 matches standard empty, short, multi-block, and million-byte vectors', () => {
+    const encoder = new TextEncoder();
+    const vectors = [
+      ['', 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'],
+      [
+        'abc',
+        'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad',
+      ],
+      [
+        'abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq',
+        '248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1',
+      ],
+      [
+        'a'.repeat(1_000_000),
+        'cdc76e5c9914fb9281a1c7e284d73e67f1809a48a497200e046d39ccc7112cd0',
+      ],
+    ];
+    for (const [message, expected] of vectors) {
+      const actual = new _SHA256().update(encoder.encode(message)).digest();
+      expect(Buffer.from(actual).toString('hex')).toBe(expected);
+    }
+  });
+  test('CASE-ID-NAME-HASH: SHA-256 streaming agrees with Node across padding and block boundaries', () => {
+    for (const length of [
+      0, 1, 55, 56, 57, 63, 64, 65, 119, 120, 127, 128, 129, 4097,
+    ]) {
+      const backing = Uint8Array.from(
+        { length: length + 7 },
+        (_, i) => (i * 71) & 255,
+      );
+      const input = backing.subarray(3, 3 + length);
+      const expected = createHash('sha256').update(input).digest('hex');
+      for (const chunkSize of [1, 7, 64, 100]) {
+        const hash = new _SHA256();
+        for (let offset = 0; offset < input.length; offset += chunkSize) {
+          hash.update(input.subarray(offset, offset + chunkSize));
+        }
+        expect(Buffer.from(hash.digest()).toString('hex')).toBe(expected);
+      }
+    }
+  });
+  test('CASE-ID-NAME-VECTOR: matches the RFC 9562 Appendix B.2 SHA-256 UUIDv8 vector', () => {
     const namespace = utils.fromUUID('6ba7b810-9dad-11d1-80b4-00c04fd430c8')!;
     const generator = new IdDeterministic({ namespace });
     expect(generator.get('www.example.com').toUUID()).toBe(
       '5c146b14-3c52-8afd-938a-375d0df1fbf6',
     );
   });
-  test('matches independent SHA-256 results over varied UTF-8 input lengths', () => {
+  test('CASE-ID-NAME-HASH: matches independent SHA-256 results over varied UTF-8 input lengths', () => {
     const namespace = Uint8Array.from({ length: 16 }, (_, index) => index);
     const generator = new IdDeterministic({ namespace });
     for (const length of [
-      0, 1, 39, 40, 47, 48, 55, 56, 63, 64, 65, 128, 1024,
+      0, 1, 37, 38, 39, 40, 45, 46, 47, 48, 55, 56, 63, 64, 65, 128, 1024,
+      100_000,
     ]) {
       const name = 'x'.repeat(length) + '\u00e9';
       const digest = createHash('sha256')
@@ -29,7 +72,7 @@ describe('IdDeterministic', () => {
       expect([...generator.get(name)], name).toEqual([...expected]);
     }
   });
-  test('copies byte namespaces and does not normalize strings', () => {
+  test('CASE-ID-NAME-UNICODE: copies byte namespaces and does not normalize strings', () => {
     const namespace = new Uint8Array(16);
     const generator = new IdDeterministic({ namespace });
     const first = generator.get('name');

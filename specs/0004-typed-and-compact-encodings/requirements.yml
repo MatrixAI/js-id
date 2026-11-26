@@ -1,0 +1,31 @@
+version: 1
+role: non-normative-requirement-index
+normative_source: adr.md
+decision_status: accepted
+assessment_status: partial
+case_registries: [cases.yml]
+requirements:
+  - id: REQ-ID-ENCODING-001
+    spec: adr.md#REQ-ID-ENCODING-001
+    requirement_status: active
+    evidence_status: partial
+    cases: [CASE-ID-ENCODING-UUID]
+    assessment: Selected syntax examples do not establish profile provenance.
+  - id: REQ-ID-ENCODING-002
+    spec: adr.md#REQ-ID-ENCODING-002
+    requirement_status: active
+    evidence_status: partial
+    cases: [CASE-ID-ENCODING-SORTABLE]
+    assessment: Ordering examples do not cover external database collations.
+  - id: REQ-ID-ENCODING-003
+    spec: adr.md#REQ-ID-ENCODING-003
+    requirement_status: active
+    evidence_status: partial
+    cases: [CASE-ID-ENCODING-TYPEID]
+    assessment: Selected official vectors; generation policy and prefix allocation are caller-owned.
+  - id: REQ-ID-ENCODING-004
+    spec: adr.md#REQ-ID-ENCODING-004
+    requirement_status: active
+    evidence_status: partial
+    cases: [CASE-ID-ENCODING-SUBTYPE]
+    assessment: Selected subclass constructors and type checks only.

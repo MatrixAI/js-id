@@ -29,27 +29,25 @@ historical audit entries intact when recording later observations.
 
 ## Assurance graph
 
-Each record owns an `assurance.json` projection. Its requirement entries point
-to inline ADR anchors and list cases; cases point to named source assertions and
-execution bindings; bindings identify the runner or check. Empty case lists and
-case limitations expose obligations that local tests cannot establish. The graph
-is non-normative: it does not define requirements, change record status, or
-prove that an execution passed. Bindings are not execution receipts. Local
-successful runs described in audits concern the then-current uncommitted working
-tree, not a reproducible committed revision. Retained check reports can be
-associated with a future reviewed revision; the graph does not claim such a
-receipt exists.
+Each record owns a non-normative requirement index in `requirements.yml` and a
+case registry in `cases.yml`. Requirements link to ADR anchors and cases; cases
+link back to requirements and to selected assertions in the test sources. Test
+names carry case IDs into runner reports. A case registry's default binding is
+overridden by a case-specific binding where needed. The shared
+[execution bindings](execution-bindings.yml) identify the corresponding checks.
+Neither a case mapping nor a check binding is an execution receipt or proves
+complete conformance.
 
-The checker below verifies selected structural links, anchors, file existence,
-and assertion-name text, not semantic coverage, execution, acceptance, runtime
-availability, or all Markdown links. Values that define wire profiles are
-normative in the records; implementation facts are read from the linked source,
-not maintained as a second source of authority. External assurance views, if
-introduced, are projections over these records and their evidence.
+Current indices separate decision status, requirement status, and partial or
+pending evidence. No immutable revision-bound receipt is claimed for the present
+worktree. Local test runs and their mutable output must not be mistaken for
+release evidence. Record a dated receipt with source and artifact digests when a
+specific execution needs to be retained as evidence.
 
-```sh
-npm run specs:assurance
-```
+The ADRs remain normative, while these indices, case mappings, execution
+bindings, and any future external views are projections. Values defining wire
+profiles remain in the records; implementation facts are read from linked source
+rather than maintained as a second source of authority.
 
 Validate the numbered records from the repository root with:
 
@@ -57,5 +55,5 @@ Validate the numbered records from the repository root with:
 INPUT_PATH=specs INPUT_PATTERN='**/adr.md' structured-madr-validate
 ```
 
-The Structured MADR validator and the assurance checker have separate scopes;
-neither by itself proves conformance or performs browser or package testing.
+The Structured MADR validator checks record structure; it does not prove
+conformance, validate every graph edge, or run the execution bindings.

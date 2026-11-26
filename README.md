@@ -504,12 +504,22 @@ nix flake check
 nix build '.#npm-package'
 ```
 
-The separate browser integration check runs the compiled library in a Chromium
-document and dedicated worker without a server or Buffer polyfill:
+The separate Playwright browser integration check runs the compiled library in a
+Chromium document and dedicated worker without a server or Buffer polyfill:
 
 ```sh
 nix build '.#checks.x86_64-linux.integration-browser'
 ```
+
+The separate Cloudflare Worker integration check uses the Cloudflare Vitest
+plugin and local workerd against the compiled library:
+
+```sh
+nix build '.#checks.x86_64-linux.integration-cloudflare-worker'
+```
+
+This local runtime check does not establish deployed Worker clock or scheduling
+behavior.
 
 The package output is a prepared npm archive, with a separate unpacked output
 and dependency metadata for downstream Nix consumption. It preserves the

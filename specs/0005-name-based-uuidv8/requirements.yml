@@ -1,0 +1,25 @@
+version: 1
+role: non-normative-requirement-index
+normative_source: adr.md
+decision_status: accepted
+assessment_status: partial
+case_registries: [cases.yml]
+requirements:
+  - id: REQ-ID-NAME-001
+    spec: adr.md#REQ-ID-NAME-001
+    requirement_status: active
+    evidence_status: partial
+    cases: [CASE-ID-NAME-VECTOR, CASE-ID-NAME-HASH, CASE-ID-NAME-BROWSER]
+    assessment: Selected inputs and runtimes only; UUIDv8 bits do not identify this profile.
+  - id: REQ-ID-NAME-002
+    spec: adr.md#REQ-ID-NAME-002
+    requirement_status: active
+    evidence_status: partial
+    cases: [CASE-ID-NAME-UNICODE, CASE-ID-NAME-HASH]
+    assessment: Consumers must define any normalization policy and validate its consistency.
+  - id: REQ-ID-NAME-003
+    spec: adr.md#REQ-ID-NAME-003
+    requirement_status: active
+    evidence_status: pending
+    cases: []
+    assessment: Security interpretation and persisted-ID cutover are consumer responsibilities.

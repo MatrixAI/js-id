@@ -54,11 +54,14 @@ describe('portable epoch sampling', () => {
         throw new Error('restricted');
       },
     },
-  ])('falls back from an unusable performance capability: %p', (value) => {
-    setPerformance(value);
-    vi.spyOn(Date, 'now').mockReturnValue(42);
-    expect(readEpochMilliseconds()).toBe(42);
-  });
+  ])(
+    'CASE-ID-RUNTIME-CLOCK-FALLBACK: falls back from an unusable performance capability: %p',
+    (value) => {
+      setPerformance(value);
+      vi.spyOn(Date, 'now').mockReturnValue(42);
+      expect(readEpochMilliseconds()).toBe(42);
+    },
+  );
 
   test('falls back from a throwing global getter', () => {
     Object.defineProperty(globalThis, 'performance', {

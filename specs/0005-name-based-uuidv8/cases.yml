@@ -1,0 +1,25 @@
+version: 1
+scope: record-owned case mappings; test execution is separate evidence
+binding: unit
+cases:
+  - id: CASE-ID-NAME-VECTOR
+    tests: [../../tests/IdDeterministic.test.ts]
+    assertions: [matches the RFC 9562 Appendix B.2 SHA-256 UUIDv8 vector]
+    requirements: [adr.md#REQ-ID-NAME-001]
+    limit: One standard illustrative byte-namespace vector.
+  - id: CASE-ID-NAME-HASH
+    tests: [../../tests/IdDeterministic.test.ts]
+    assertions: [matches independent SHA-256 results over varied UTF-8 input lengths, 'SHA-256 matches standard empty, short, multi-block, and million-byte vectors', SHA-256 streaming agrees with Node across padding and block boundaries]
+    requirements: [adr.md#REQ-ID-NAME-001, adr.md#REQ-ID-NAME-002]
+    limit: Selected strings compared with the Node hash implementation.
+  - id: CASE-ID-NAME-UNICODE
+    tests: [../../tests/IdDeterministic.test.ts]
+    assertions: [copies byte namespaces and does not normalize strings]
+    requirements: [adr.md#REQ-ID-NAME-002]
+    limit: Selected namespace ownership and normalization examples.
+  - id: CASE-ID-NAME-BROWSER
+    tests: [../../tests/browser/runtime.spec.ts, ../../tests/browser/scenarios.ts]
+    binding: browser
+    assertions: [RFC 9562 name-based UUIDv8 vector, multi-block SHA-256 vector with UUIDv8 markers]
+    requirements: [adr.md#REQ-ID-NAME-001]
+    limit: Selected vectors in Chromium document and dedicated worker.

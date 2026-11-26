@@ -20,7 +20,7 @@ class SpecialNodeIdInternal extends NodeIdInternal {
   }
 }
 
-test('identifier factories infer subclass and preserve opaque IDs', () => {
+test('CASE-ID-ENCODING-SUBTYPE: identifier factories infer subclass and preserve opaque IDs', () => {
   const node = NodeIdInternal.create(16);
   expectTypeOf(node).toEqualTypeOf<Id<NodeIdInternal>>();
   expectTypeOf(NodeIdInternal.fromString('a')).toEqualTypeOf<

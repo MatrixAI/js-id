@@ -1,6 +1,6 @@
 {
   "name": "@matrixai/id",
-  "version": "5.0.1",
+  "version": "5.0.2",
   "author": "Roger Qiu",
   "description": "ID generation for JavaScript & TypeScript Applications",
   "license": "Apache-2.0",
@@ -16,7 +16,8 @@
   "types": "./dist/index.d.ts",
   "files": [
     "dist",
-    "!dist/tsbuildinfo"
+    "!dist/tsbuildinfo",
+    "LICENSE.noble-hashes"
   ],
   "exports": {
     "./package.json": "./package.json",
@@ -40,19 +41,21 @@
     "perf:bench": "id-perf",
     "tsx": "tsx",
     "test": "node ./scripts/test.mjs",
-    "specs:assurance": "node ./scripts/validate-assurance.mjs",
     "lint": "matrixai-lint --check",
     "lintfix": "matrixai-lint --fix"
   },
   "dependencies": {
-    "@noble/hashes": "2.4.0",
     "multiformats": "14.0.8"
   },
   "devDependencies": {
+    "@cloudflare/vitest-plugin": "1.4.5",
+    "@playwright/test": "1.64.1",
     "@types/node": "^24.0.0",
     "@vitest/coverage-v8": "5.1.0",
+    "esbuild": "0.28.2",
     "tsx": "^4.19.3",
     "typescript": "^5.8.3",
-    "vitest": "5.1.0"
+    "vitest": "5.1.0",
+    "workerd": "1.20261019.1"
   }
 }

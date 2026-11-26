@@ -1,0 +1,38 @@
+version: 1
+scope: record-owned case mappings; test execution is separate evidence
+binding: unit
+cases:
+  - id: CASE-ID-RUNTIME-CHROMIUM
+    tests: [../../tests/browser/runtime.spec.ts, ../../tests/browser/scenarios.ts]
+    binding: browser
+    assertions: [unexpected Buffer polyfill, RFC 9562 name-based UUIDv8 vector]
+    requirements: [adr.md#REQ-ID-RUNTIME-001, adr.md#REQ-ID-RUNTIME-002, adr.md#REQ-ID-RUNTIME-003]
+    limit: Compiled output in Chromium document and dedicated worker, without a Buffer polyfill.
+  - id: CASE-ID-RUNTIME-BUFFER
+    tests: [../../tests/compatibility.test.ts]
+    assertions: [preserves zero-copy Buffer conversion including byte offsets]
+    requirements: [adr.md#REQ-ID-RUNTIME-001, adr.md#REQ-ID-RUNTIME-003]
+    limit: Node Buffer adapter example only.
+  - id: CASE-ID-RUNTIME-RANDOM
+    tests: [../../tests/utils.test.ts]
+    assertions: [uses Web Crypto for large random byte requests in bounded chunks]
+    requirements: [adr.md#REQ-ID-RUNTIME-002]
+    limit: Selected chunking behavior, not a statistical entropy test.
+  - id: CASE-ID-RUNTIME-FROZEN
+    tests: [../../tests/browser/runtime.spec.ts, ../../tests/browser/scenarios.ts]
+    binding: browser
+    assertions: [frozen clock must not wrap the UUIDv7 counter]
+    requirements: [adr.md#REQ-ID-RUNTIME-003]
+    limit: Simulated clock, not a deployed provider clock.
+  - id: CASE-ID-RUNTIME-CLOCK-FALLBACK
+    tests: [../../tests/clock.test.ts, ../../tests/browser/runtime.spec.ts, ../../tests/browser/scenarios.ts]
+    binding: [unit, browser]
+    assertions: [falls back from an unusable performance capability, wall clock fallback]
+    requirements: [adr.md#REQ-ID-RUNTIME-003]
+    limit: Mocked fallback in Node and Chromium, not deployed Worker behavior.
+  - id: CASE-ID-RUNTIME-WORKER
+    tests: [../../tests/cloudflare-worker/runtime.test.ts]
+    binding: worker
+    assertions: [imports the compiled package and derives the RFC name-based vector, reports exhaustion and resumes only when the injected clock advances, restores monotonic state after a clock rollback]
+    requirements: [adr.md#REQ-ID-RUNTIME-001, adr.md#REQ-ID-RUNTIME-002, adr.md#REQ-ID-RUNTIME-003]
+    limit: Local workerd with injected clock; not deployed Cloudflare clock behavior.

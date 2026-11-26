@@ -1,0 +1,24 @@
+version: 1
+scope: record-owned case mappings; test execution is separate evidence
+binding: unit
+cases:
+  - id: CASE-ID-ENCODING-UUID
+    tests: [../../tests/compatibility.test.ts]
+    assertions: [rejects non-hex UUIDs and noncanonical separator placement, accepts canonical UUID syntax without restricting UUID bits]
+    requirements: [adr.md#REQ-ID-ENCODING-001]
+    limit: Selected valid and malformed strings.
+  - id: CASE-ID-ENCODING-SORTABLE
+    tests: [../../tests/utils.test.ts]
+    assertions: [sorts equal-length values in unsigned byte order, 'rejects invalid lengths, characters, and nonzero trailing bits', matches the Base64sort draft unpadded vectors]
+    requirements: [adr.md#REQ-ID-ENCODING-002]
+    limit: Selected lengths, draft vectors, and binary string ordering; external collations are not verified.
+  - id: CASE-ID-ENCODING-TYPEID
+    tests: [../../tests/utils.test.ts]
+    assertions: [interoperates with the official valid UUID and prefix vectors, rejects the official invalid prefix and suffix cases]
+    requirements: [adr.md#REQ-ID-ENCODING-003]
+    limit: Selected TypeID 0.3 vectors, not a separate implementation deployment.
+  - id: CASE-ID-ENCODING-SUBTYPE
+    tests: [../../tests/Id.test.ts, ../../tests/Id.test-d.ts]
+    assertions: [factories and decoders construct the invoked subclass, identifier factories infer subclass and preserve opaque IDs, subclass buffer decoding remains zero copy and respects offsets]
+    requirements: [adr.md#REQ-ID-ENCODING-004]
+    limit: Type and runtime examples do not validate arbitrary user subclasses.

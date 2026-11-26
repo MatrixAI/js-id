@@ -201,7 +201,7 @@ Specify separate strict encoding profiles with no invented multibase assignment.
 
 TypeID 0.3 uses a fixed 26-character suffix and a separate semantic type prefix.
 Its alphabet and bit placement are not the sortable base64 profile above. The
-[assurance graph](assurance.json) links selected upstream TypeID vectors,
+[assurance graph](requirements.yml) links selected upstream TypeID vectors,
 malformed-input cases, and type tests without claiming complete
 interoperability.
 
@@ -287,10 +287,10 @@ multibase registry do not prove deployed protocol interoperability.
 
 **Findings:**
 
-| Finding                                 | Files                             | Lines | Assessment |
-| --------------------------------------- | --------------------------------- | ----- | ---------- |
-| Decision accepted; requirements active  | [Record](adr.md)                  | -     | partial    |
-| Evidence gaps remain separately tracked | [Assurance graph](assurance.json) | -     | partial    |
+| Finding                                 | Files                               | Lines | Assessment |
+| --------------------------------------- | ----------------------------------- | ----- | ---------- |
+| Decision accepted; requirements active  | [Record](adr.md)                    | -     | partial    |
+| Evidence gaps remain separately tracked | [Assurance graph](requirements.yml) | -     | partial    |
 
 **Summary:** The owner accepted this decision. Acceptance does not establish
 conformance, deployment, or an immutable execution receipt. Previous audit

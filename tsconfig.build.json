@@ -6,7 +6,8 @@
     "stripInternal": true
   },
   "exclude": [
-    "./vitest.config.mts",
+    "./playwright.config.ts",
+    "./vitest*.mts",
     "./tests/**/*",
     "./scripts/**/*",
     "./perf/**/*"

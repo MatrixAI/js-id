@@ -3,7 +3,7 @@ import { expectTypeOf, test } from 'vitest';
 import IdFlake, { extractNodeId, extractSeq } from '#IdFlake.js';
 import IdSortable from '#IdSortable.js';
 
-test('configurable flake keeps branded IDs and lossless sequence types', () => {
+test('CASE-ID-FLAKE-LAYOUT: configurable flake keeps branded IDs and lossless sequence types', () => {
   type EntityId = Id & { readonly entityId: unique symbol };
   const generator = new IdFlake<EntityId>({
     nodeId: new Uint8Array(8),

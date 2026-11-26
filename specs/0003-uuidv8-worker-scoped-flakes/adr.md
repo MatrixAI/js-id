@@ -263,7 +263,7 @@ Provide an opt-in configurable node-aware UUIDv8 profile alongside UUIDv7.
 ## More Information
 
 RFC 9562 reserves UUIDv8 for explicitly defined custom formats. The
-[assurance graph](assurance.json) distinguishes local layout tests from the
+[assurance graph](requirements.yml) distinguishes local layout tests from the
 unverified external coordination and persistence obligations.
 
 ## Audit
@@ -310,7 +310,7 @@ before release.
 | Finding                                                               | Files                                | Lines | Assessment |
 | --------------------------------------------------------------------- | ------------------------------------ | ----- | ---------- |
 | Local layout, worker boundary, and exhaustion cases exist             | [Tests](../../tests/IdFlake.test.ts) | -     | partial    |
-| Durable reservation and exclusive allocation are not implemented here | [Assurance](assurance.json)          | -     | pending    |
+| Durable reservation and exclusive allocation are not implemented here | [Assurance](requirements.yml)        | -     | pending    |
 
 **Summary:** The flake is a new optional profile, not a replacement for random,
 name-based, or standard UUIDv7 generation.
@@ -328,7 +328,7 @@ relying on uniqueness.
 | --------------------------------------------------------------- | ------------------------------------ | ----- | ---------- |
 | Configurable allocation replaces the earlier fixed 42/32 target | [Generator](../../src/IdFlake.ts)    | -     | partial    |
 | Local cases compare field layouts and counter boundaries        | [Tests](../../tests/IdFlake.test.ts) | -     | partial    |
-| Shared profile allocation and durable state remain external     | [Assurance](assurance.json)          | -     | pending    |
+| Shared profile allocation and durable state remain external     | [Assurance](requirements.yml)        | -     | pending    |
 
 **Summary:** The earlier fixed-width findings describe the prior proposal, not
 the current configurable target. Local tests cannot prove distributed ownership.
@@ -342,10 +342,10 @@ and deployed runtimes before release.
 
 **Findings:**
 
-| Finding                                 | Files                             | Lines | Assessment |
-| --------------------------------------- | --------------------------------- | ----- | ---------- |
-| Decision accepted; requirements active  | [Record](adr.md)                  | -     | partial    |
-| Evidence gaps remain separately tracked | [Assurance graph](assurance.json) | -     | partial    |
+| Finding                                 | Files                               | Lines | Assessment |
+| --------------------------------------- | ----------------------------------- | ----- | ---------- |
+| Decision accepted; requirements active  | [Record](adr.md)                    | -     | partial    |
+| Evidence gaps remain separately tracked | [Assurance graph](requirements.yml) | -     | partial    |
 
 **Summary:** The owner accepted this decision. Acceptance does not establish
 conformance, deployment, or an immutable execution receipt. Previous audit

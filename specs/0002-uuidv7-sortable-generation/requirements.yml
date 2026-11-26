@@ -1,0 +1,31 @@
+version: 1
+role: non-normative-requirement-index
+normative_source: adr.md
+decision_status: accepted
+assessment_status: partial
+case_registries: [cases.yml]
+requirements:
+  - id: REQ-ID-UUID7-001
+    spec: adr.md#REQ-ID-UUID7-001
+    requirement_status: active
+    evidence_status: partial
+    cases: [CASE-ID-UUID7-VECTOR, CASE-ID-UUID7-INVALID]
+    assessment: Selected RFC vector and invalid inputs do not prove all interoperating implementations.
+  - id: REQ-ID-UUID7-002
+    spec: adr.md#REQ-ID-UUID7-002
+    requirement_status: active
+    evidence_status: partial
+    cases: [CASE-ID-UUID7-EXHAUST, CASE-ID-UUID7-ROLLBACK, CASE-ID-UUID7-BROWSER]
+    assessment: No proof for every source failure or runtime clock.
+  - id: REQ-ID-UUID7-003
+    spec: adr.md#REQ-ID-UUID7-003
+    requirement_status: active
+    evidence_status: partial
+    cases: [CASE-ID-UUID7-RESTART, CASE-ID-UUID7-ROLLBACK]
+    assessment: Caller-owned provenance, exclusive use, and durable persistence are not tested.
+  - id: REQ-ID-UUID7-004
+    spec: adr.md#REQ-ID-UUID7-004
+    requirement_status: active
+    evidence_status: partial
+    cases: [CASE-ID-UUID7-INVALID]
+    assessment: No distributed ordering or worker allocation is implied.

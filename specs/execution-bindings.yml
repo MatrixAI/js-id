@@ -1,0 +1,18 @@
+version: 1
+role: non-normative-execution-bindings
+bindings:
+  - id: unit
+    runner: Vitest and TypeScript
+    check: ../nix/checks/default.nix
+    target: checks.x86_64-linux.unit-js
+    limit: Selected Node runtime and type cases; not a deployment receipt.
+  - id: browser
+    runner: Playwright and Chromium
+    check: ../nix/checks/browser.nix
+    target: checks.x86_64-linux.integration-browser
+    limit: Document and dedicated-worker cases in local Chromium only.
+  - id: worker
+    runner: Vitest and local workerd
+    check: ../nix/checks/cloudflare-worker.nix
+    target: checks.x86_64-linux.integration-cloudflare-worker
+    limit: Local simulation; no deployed Cloudflare clock or scheduling claim.

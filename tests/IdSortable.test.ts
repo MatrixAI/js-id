@@ -209,7 +209,7 @@ describe('IdSortable', () => {
     expect(extractSeq(id)).toBe(0x123);
     expect(extractRand(id)).toHaveLength(62);
   });
-  test('can reproduce the RFC 9562 Appendix A.6 UUIDv7 vector', () => {
+  test('CASE-ID-UUID7-VECTOR: can reproduce the RFC 9562 Appendix A.6 UUIDv7 vector', () => {
     const lastId = utils.fromUUID('017f22e2-79b0-7cc2-8000-000000000000')!;
     const generator = new IdSortable({
       lastId,
@@ -222,7 +222,7 @@ describe('IdSortable', () => {
     expect(extractTs(id)).toBe(1645557742000);
     expect(extractSeq(id)).toBe(0xcc3);
   });
-  test('throws on counter exhaustion and resumes when the clock advances', () => {
+  test('CASE-ID-UUID7-EXHAUST: throws on counter exhaustion and resumes when the clock advances', () => {
     let now = 1000;
     const id = new IdSortable({
       timeSource: () => () => now,
@@ -240,7 +240,7 @@ describe('IdSortable', () => {
     now++;
     expect(previous < id.get()).toBe(true);
   });
-  test('rejects exhausted restart state until the clock advances', () => {
+  test('CASE-ID-UUID7-RESTART: rejects exhausted restart state until the clock advances', () => {
     const lastId = utils.fromUUID('00000000-03e8-7fff-8000-000000000000')!;
     let now = 999;
     const generator = new IdSortable({
@@ -257,7 +257,7 @@ describe('IdSortable', () => {
     expect(extractTs(resumed)).toBe(1001);
     expect(extractSeq(resumed)).toBe(0);
   });
-  test('reports exhaustion without throwing and propagates unrelated failures', () => {
+  test('CASE-ID-UUID7-EXHAUST: reports exhaustion without throwing and propagates unrelated failures', () => {
     const lastId = utils.fromUUID('00000000-03e8-7fff-8000-000000000000')!;
     let now = 999;
     let calls = 0;
@@ -311,7 +311,7 @@ describe('IdSortable', () => {
     });
     expect(() => invalid.get()).toThrow(RangeError);
   });
-  test('clamps clock rollback and protects state from mutable returned bytes', () => {
+  test('CASE-ID-VALUE-STATE CASE-ID-UUID7-ROLLBACK: clamps clock rollback and protects state from mutable returned bytes', () => {
     let now = 1000;
     const generator = new IdSortable({
       timeSource: () => () => now,
@@ -327,7 +327,7 @@ describe('IdSortable', () => {
     expect(extractSeq(second)).toBe(1);
     expect(generator.lastId.equals(second)).toBe(true);
   });
-  test('copies restart state before the caller can mutate it', () => {
+  test('CASE-ID-UUID7-RESTART: copies restart state before the caller can mutate it', () => {
     const first = new IdSortable({
       timeSource: () => () => 1000,
       randomSource: (size) => new Uint8Array(size),
@@ -352,7 +352,7 @@ describe('IdSortable', () => {
     expect(extractSeq(first)).toBe(2047);
     expect(extractSeq(second)).toBe(2048);
   });
-  test('leaves state unchanged when a random source fails', () => {
+  test('CASE-ID-UUID7-EXHAUST: leaves state unchanged when a random source fails', () => {
     let fail = false;
     const generator = new IdSortable({
       timeSource: () => () => 1,
@@ -368,7 +368,7 @@ describe('IdSortable', () => {
     fail = false;
     expect(extractSeq(generator.get())).toBe(1);
   });
-  test('rejects invalid timestamps, restart IDs, and random sources', () => {
+  test('CASE-ID-UUID7-INVALID: rejects invalid timestamps, restart IDs, and random sources', () => {
     for (const now of [-1, Infinity, NaN, 2 ** 48]) {
       const generator = new IdSortable({ timeSource: () => () => now });
       expect(() => generator.get()).toThrow(RangeError);

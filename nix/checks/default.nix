@@ -53,7 +53,20 @@ let
       inherit nodejs;
     };
   };
+  browserBundle = import ./browser/bundle.nix {
+    inherit pkgs nodejs;
+    inherit (npmLibrary) src npmBuild setupDependencies;
+  };
   integration-browser = import ./browser.nix {
+    inherit
+      pkgs
+      nodejs
+      system
+      browserBundle
+      ;
+    inherit (npmLibrary) src setupDependencies;
+  };
+  integration-cloudflare-worker = import ./cloudflare-worker.nix {
     inherit
       pkgs
       nodejs
@@ -66,7 +79,12 @@ let
   };
 in
 {
-  inherit unit-js integration-browser perf-bench-smoke;
+  inherit
+    unit-js
+    integration-browser
+    integration-cloudflare-worker
+    perf-bench-smoke
+    ;
   lint = lintCheck;
   default = pkgs.runCommand "id-check-default" { } ''
     mkdir -p "$out/artifacts"

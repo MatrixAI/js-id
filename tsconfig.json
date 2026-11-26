@@ -14,6 +14,7 @@
     "isolatedModules": true,
     "moduleResolution": "NodeNext",
     "module": "NodeNext",
+    "rewriteRelativeImportExtensions": true,
     "target": "ES2022",
     "paths": {
       "#*": ["./src/*"]
@@ -22,7 +23,8 @@
     "noEmit": true
   },
   "include": [
-    "./vitest.config.mts",
+    "./playwright.config.ts",
+    "./vitest*.mts",
     "./src/**/*",
     "./src/**/*.json",
     "./tests/**/*",

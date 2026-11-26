@@ -18,7 +18,7 @@ describe('Id', () => {
     const id2 = IdInternal.create(id1);
     expect([...id2]).toStrictEqual([...id1]);
   });
-  test('id can be used as POJO keys', () => {
+  test('CASE-ID-VALUE-KEYS: id can be used as POJO keys', () => {
     const buffer = Buffer.from('hello world');
     const id = IdInternal.create(buffer);
     // Automatic string conversion takes place here
@@ -38,7 +38,7 @@ describe('Id', () => {
       break;
     }
   });
-  test('id can be used as Map keys', () => {
+  test('CASE-ID-VALUE-KEYS: id can be used as Map keys', () => {
     const buffer = Buffer.from('hello world');
     const id = IdInternal.create(buffer);
     // The id is an object, so this is an object key
@@ -81,7 +81,7 @@ describe('Id', () => {
     expect(id1.equals(id2)).toBe(true);
     expect(id1.equals(id3)).toBe(false);
   });
-  test('factories and decoders construct the invoked subclass', () => {
+  test('CASE-ID-ENCODING-SUBTYPE: factories and decoders construct the invoked subclass', () => {
     class NodeIdInternal extends IdInternal {
       public domain(): string {
         return 'node';
@@ -113,7 +113,7 @@ describe('Id', () => {
     expect(NodeIdInternal.fromMultibase('?invalid')).toBeUndefined();
     expect(NodeIdInternal.fromJSON(null)).toBeUndefined();
   });
-  test('subclass buffer decoding remains zero copy and respects offsets', () => {
+  test('CASE-ID-ENCODING-SUBTYPE: subclass buffer decoding remains zero copy and respects offsets', () => {
     class NodeIdInternal extends IdInternal {}
     const buffer = Buffer.from([9, 1, 2, 3, 9]).subarray(1, 4);
     const id = NodeIdInternal.fromBuffer(buffer);

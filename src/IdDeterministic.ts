@@ -1,10 +1,16 @@
 import type { Id } from './Id.js';
-import { sha256 } from '@noble/hashes/sha2.js';
 import IdInternal from './Id.js';
+import { sha256 } from './noble-hashes/sha2.js';
 
 const textEncoder = new TextEncoder();
 const nilNamespace = new Uint8Array(16);
 
+/**
+ * SHA-256 is vendored verbatim from noble-hashes 2.4.0, commit
+ * 663c2aeeffc308ac0cded59bd32f7c212adacfc2, under the MIT license in
+ * LICENSE.noble-hashes. TypeScript rewrites relative imports in emitted JS
+ * without modifying the upstream source files.
+ */
 function nameUuidV8<T extends Id>(namespace: Uint8Array, name: string): T {
   const digest = sha256
     .create()

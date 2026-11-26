@@ -1,0 +1,31 @@
+version: 1
+role: non-normative-requirement-index
+normative_source: adr.md
+decision_status: accepted
+assessment_status: partial
+case_registries: [cases.yml]
+requirements:
+  - id: REQ-ID-VALUE-001
+    spec: adr.md#REQ-ID-VALUE-001
+    requirement_status: active
+    evidence_status: partial
+    cases: [CASE-ID-VALUE-BYTES, CASE-ID-VALUE-KEYS]
+    assessment: Selected byte lengths and key uses only; brands do not validate domain meaning.
+  - id: REQ-ID-VALUE-002
+    spec: adr.md#REQ-ID-VALUE-002
+    requirement_status: active
+    evidence_status: partial
+    cases: [CASE-ID-VALUE-VIEWS, CASE-ID-VALUE-STATE]
+    assessment: Selected conversion and generator ownership paths only.
+  - id: REQ-ID-VALUE-003
+    spec: adr.md#REQ-ID-VALUE-003
+    requirement_status: active
+    evidence_status: pending
+    cases: []
+    assessment: Authorization and credential use are consumer responsibilities.
+  - id: REQ-ID-VALUE-004
+    spec: adr.md#REQ-ID-VALUE-004
+    requirement_status: active
+    evidence_status: pending
+    cases: []
+    assessment: Persisted-data provenance and downstream cutovers are not verified.

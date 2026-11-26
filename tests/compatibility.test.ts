@@ -1,8 +1,25 @@
+import { fileURLToPath } from 'node:url';
+import ts from 'typescript';
 import { describe, expect, test } from 'vitest';
 import { IdInternal, IdDeterministic, utils } from '#index.js';
 
 describe('public compatibility vectors', () => {
-  test('preserves bytes through UUID, multibase, binary string, and JSON', () => {
+  test('emitted vendored declarations resolve with strict NodeNext typechecking', () => {
+    const entry = fileURLToPath(
+      new URL('../dist/noble-hashes/sha2.d.ts', import.meta.url),
+    );
+    const program = ts.createProgram([entry], {
+      module: ts.ModuleKind.NodeNext,
+      moduleResolution: ts.ModuleResolutionKind.NodeNext,
+      target: ts.ScriptTarget.ES2022,
+      types: [],
+      strict: true,
+      noEmit: true,
+      skipLibCheck: false,
+    });
+    expect(ts.getPreEmitDiagnostics(program)).toEqual([]);
+  });
+  test('CASE-ID-VALUE-BYTES: preserves bytes through UUID, multibase, binary string, and JSON', () => {
     const bytes = Uint8Array.from({ length: 16 }, (_, index) => index);
     const id = IdInternal.create(bytes);
     expect(id.toUUID()).toBe('00010203-0405-0607-0809-0a0b0c0d0e0f');
@@ -23,7 +40,7 @@ describe('public compatibility vectors', () => {
     }
   });
 
-  test('preserves zero-copy Buffer conversion including byte offsets', () => {
+  test('CASE-ID-VALUE-VIEWS CASE-ID-RUNTIME-BUFFER: preserves zero-copy Buffer conversion including byte offsets', () => {
     const buffer = Buffer.from([99, 1, 2, 3, 88]);
     const id = IdInternal.fromBuffer(buffer.subarray(1, 4));
     expect([...id]).toEqual([1, 2, 3]);
@@ -46,7 +63,7 @@ describe('public compatibility vectors', () => {
     expect(() => utils.toUUID(new Uint8Array(15))).toThrow(RangeError);
   });
 
-  test('accepts canonical UUID syntax without restricting UUID bits', () => {
+  test('CASE-ID-ENCODING-UUID: accepts canonical UUID syntax without restricting UUID bits', () => {
     for (const uuid of [
       '00000000-0000-0000-0000-000000000000',
       'FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF',
@@ -57,7 +74,7 @@ describe('public compatibility vectors', () => {
     }
   });
 
-  test('rejects non-hex UUIDs and noncanonical separator placement', () => {
+  test('CASE-ID-ENCODING-UUID: rejects non-hex UUIDs and noncanonical separator placement', () => {
     for (const uuid of [
       'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
       '1g000000-0000-0000-0000-000000000000',
