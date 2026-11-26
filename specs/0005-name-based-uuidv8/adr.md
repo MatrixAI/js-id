@@ -290,3 +290,36 @@ performance evidence remain separate from this source comparison.
 
 **Action Required:** Verify the browser and worker paths and review upstream
 updates when maintaining the vendored source.
+
+## Vendored source maintenance
+
+The initial source is [noble-hashes 2.4.0 at commit
+663c2aeeffc308ac0cded59bd32f7c212adacfc2](https://github.com/paulmillr/noble-hashes/tree/663c2aeeffc308ac0cded59bd32f7c212adacfc2).
+The vendored source directory contains the complete upstream `sha2.ts`,
+`_md.ts`, `_u64.ts`, and `utils.ts` modules. The [generator](../../src/IdDeterministic.ts)
+records the selected version and commit. These are upstream source files, not a
+claim that this particular version or integration was independently audited.
+
+When updating the vendored implementation:
+
+1. Review upstream releases, security fixes, compatibility, and licensing.
+   Select a specific upstream release and resolve its tag to an exact commit;
+   record both in the generator's provenance comment and in a new audit entry.
+2. Inspect the selected SHA-256 module's transitive imports. Copy complete
+   required upstream source modules verbatim at that commit, adding or removing
+   modules if its dependency closure has changed. Do not format or otherwise
+   edit the copies. Compare every copied file byte-for-byte against the selected
+   commit, including any newly required modules.
+3. Review and retain the applicable upstream license and notices, and ensure
+   they remain included in the published file allowlist. Check that the lint
+   exclusion and TypeScript import-extension rewriting still cover the vendored
+   files, without changing the upstream source bytes.
+4. Review the upstream diff and the synchronous generator integration. Run the
+   standard SHA-256 vectors, streaming and Node differential tests, deterministic
+   UUIDv8 vectors, declaration checks, and the Node, browser, and local Worker
+   checks. Investigate performance regressions when the change warrants it.
+   Record which checks actually ran and any unsupported runtime boundaries.
+5. Preserve the documented namespace and name conversion, hash profile, and
+   existing output bytes. If a proposed change affects them, treat it as an
+   identity migration requiring a separate decision, not a routine vendor
+   update. Release the reviewed change normally without moving an existing tag.
