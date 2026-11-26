@@ -134,6 +134,16 @@ are not supported by the new generator. Do not mix them as restart state or rely
 on their combined chronological ordering. Embedded node IDs are not part of the
 UUIDv7 generator.
 
+The library does not persist state or coordinate owners. Persist each issued ID
+before exposing it, using application-owned durable storage and exclusive
+ownership of the generator state. Restore that ID as `lastId` after a restart;
+the generator retains its timestamp and sequence even if the clock moved
+backwards. A crash before the durable write must not expose the new ID. If the
+restored counter is exhausted, attempts report exhaustion until a later
+timestamp is observed rather than wrapping. Version 5 calls an injected
+`timeSource` factory without the restored timestamp; the generator applies the
+clamp itself. This differs from the version 4 factory contract.
+
 #### Exhaustion and backpressure
 
 Both sortable generators expose `tryGet()`: it returns a new ID, or `undefined`
@@ -142,8 +152,11 @@ invalid random result, or exception from a collaborator still throws. The
 existing `get()` and iterator methods continue to throw `RangeError` on
 exhaustion. Neither failure advances committed generator state.
 
-Applications that need to retry can apply backpressure and retain the same
-generator. For example, a service may supply its own cancellable, delayed wait:
+The safest portable policy is to return exhaustion to the caller, which can
+apply backpressure or reject the request. An asynchronous caller can instead
+retry a bounded number of times with a cancellable delay, retaining the same
+generator. A strictly synchronous caller cannot yield; it must return failure or
+defer the request to its caller.
 
 ```ts
 import { IdSortable } from '@matrixai/id';
@@ -153,23 +166,71 @@ async function issueWithBackpressure(
   waitForRetry: (signal: AbortSignal) => Promise<void>,
   signal: AbortSignal,
 ) {
-  for (;;) {
-    signal.throwIfAborted();
-    const id = generator.tryGet();
-    if (id !== undefined) return id;
-    await waitForRetry(signal);
+  const immediateAttempts = 1; // A bounded value such as 4 is optional.
+  for (let round = 0; round < 8; round += 1) {
+    for (let attempt = 0; attempt < immediateAttempts; attempt += 1) {
+      signal.throwIfAborted();
+      const id = generator.tryGet();
+      if (id !== undefined) return id;
+    }
+    if (round < 7) await waitForRetry(signal);
   }
+  return undefined;
+}
+
+function waitForRetry(signal: AbortSignal): Promise<void> {
+  signal.throwIfAborted();
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      signal.removeEventListener('abort', onAbort);
+      resolve();
+    }, 1);
+    function onAbort() {
+      clearTimeout(timer);
+      reject(signal.reason);
+    }
+    signal.addEventListener('abort', onAbort, { once: true });
+  });
+}
+
+const id = await issueWithBackpressure(
+  new IdSortable(),
+  waitForRetry,
+  AbortSignal.timeout(1000),
+);
+if (id === undefined) {
+  // Apply backpressure or report exhaustion to the caller.
 }
 ```
 
-The application must supply a wait that yields, delays repeated attempts, and
-honors cancellation, as well as a request deadline or other bound. A timer
-firing does not ensure that the generator's clock advanced: a stalled or
-rolled-back clock may require many retries or never recover. Bound the queue and
-propagate timeout or cancellation rather than busy-looping or waiting
-indefinitely. Do not catch every `RangeError` as exhaustion, inspect
-error-message text, reset the generator, or switch profiles to evade the limit.
-The same pattern applies to `IdFlake`.
+The default makes one attempt per round. A caller may choose a small bounded
+number of immediate attempts as a latency optimization, but the retry count and
+delay shown are illustrative, not measured optima. The wait must yield to the
+host, delay repeated attempts, and honor cancellation; the application must
+bound its queue and waiting. A deadline also depends on its host being able to
+deliver cancellation. Merely awaiting an already-resolved promise yields only to
+the microtask queue and can still starve host tasks. Do not catch every
+`RangeError` as exhaustion, inspect error-message text, reset the generator, or
+switch profiles to evade the limit. The same pattern applies to `IdFlake`.
+
+Runtime assumptions differ:
+
+- In Node.js, the ordinary performance clock can advance during computation, so
+  a short immediate retry may succeed. Spinning still blocks the event loop.
+- In browser documents and web workers, clock precision and timer scheduling
+  depend on the browser and its privacy settings. A busy loop blocks its own
+  execution thread; it must not assume that a tick occurs within any retry
+  count.
+- In deployed Cloudflare Workers, [Cloudflare documents][cf-clock] that clock
+  readings advance only after I/O, not during CPU-only work. A synchronous spin
+  cannot force such a clock forward. Local Worker development clocks behave
+  differently from deployed clocks.
+
+In every environment, yielding or a timer firing is not itself a guarantee of
+clock progress. An injected or rolled-back clock can remain stalled, so the
+application must bound retries or waiting and choose an appropriate fallback.
+
+[cf-clock]: https://developers.cloudflare.com/workers/runtime-apis/performance/
 
 For UUIDv7, a fresh millisecond has 2,049 to 4,096 available values, depending
 on its random counter seed; restored state may have fewer. A flake's configured
@@ -361,6 +422,21 @@ ownership, and shared helpers. The baseline is not a full historical build. The
 no-random-tail flake profiles require coordinated node and state ownership;
 their timings are not equivalent to generation with a cryptographic random tail.
 
+The Web Crypto batch average is about 750 IDs per millisecond, below the
+2,049-ID minimum capacity of a fresh UUIDv7 tick. That does not show whether any
+real millisecond could exhaust the counter: the benchmark advanced a synthetic
+clock every 1,024 IDs and did not record real-clock tick occupancy or
+saturation. Bursts, other hardware, clock precision, rollback, and stalled
+Worker clocks can produce different results. Do not use the batch average as a
+per-tick limit.
+
+A separate instrumented run used the default real Node clock and Web Crypto: all
+eight samples generated 100,000 IDs without exhaustion, and the largest observed
+timestamp bucket held 919 IDs. Per-ID counting adds overhead, so this does not
+establish an uninstrumented maximum or rule out exhaustion elsewhere. See the
+[real-clock observation](perf/results/2026-11-26-real-clock-exploratory.md) for
+the samples and limitations.
+
 The run used an uncontrolled Intel Core i9-13900KF, with no CPU isolation or
 frequency policy. Its candidate bundle SHA-256 was
 `d1c9ffdfd0db3e9ba86704a056822abbcd0952fd6f5ee57513c6f61b4c0dd2b1`; the adapted
@@ -442,7 +518,10 @@ canonical manifest and does not substitute unpublished sibling checkouts.
 ### Runtime boundary
 
 The shared runtime uses Web Crypto for random bytes and the platform performance
-clock. Node.js and the hermetic Chromium document and dedicated-worker cases are
+clock. If the performance clock is unavailable or unusable, the default clock
+falls back to the wall clock. An invalid wall clock or injected clock still
+fails; a wall-clock rollback can hold a generator's timestamp until time catches
+up. Node.js and the hermetic Chromium document and dedicated-worker cases are
 tested. Buffer conversions are Node-specific and expose shared storage; browser
 consumers can use the underlying byte array directly. This browser check is not
 evidence of deployed Cloudflare Workers or other browsers.

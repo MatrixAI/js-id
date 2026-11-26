@@ -10,6 +10,7 @@ import * as base58 from 'multiformats/bases/base58';
 import * as base64 from 'multiformats/bases/base64';
 import * as base8 from 'multiformats/bases/base8';
 import * as identity from 'multiformats/bases/identity';
+import { readEpochMilliseconds } from './clock.js';
 import IdInternal from './Id.js';
 
 const typedArrayTag = Object.getOwnPropertyDescriptor(
@@ -69,10 +70,9 @@ function nodeBits(nodeBytes: Uint8Array, size: number): string {
  * Not strictly monotonic, which means the same number may be returned
  */
 function timeSource(lastTs?: number): () => number {
-  const origin = globalThis.performance.timeOrigin;
   return lastTs == null
-    ? () => origin + globalThis.performance.now()
-    : () => Math.max(lastTs, origin + globalThis.performance.now());
+    ? readEpochMilliseconds
+    : () => Math.max(lastTs, readEpochMilliseconds());
 }
 
 /**

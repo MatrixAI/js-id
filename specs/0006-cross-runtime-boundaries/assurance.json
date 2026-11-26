@@ -4,13 +4,14 @@
   "requirements": [
     { "id": "REQ-ID-RUNTIME-001", "cases": ["CASE-ID-RUNTIME-CHROMIUM", "CASE-ID-RUNTIME-BUFFER"], "gap": "Other engines, deployed Cloudflare, and every bundler are not verified." },
     { "id": "REQ-ID-RUNTIME-002", "cases": ["CASE-ID-RUNTIME-RANDOM", "CASE-ID-RUNTIME-CHROMIUM"], "gap": "Injected-source quality and all unavailable-crypto environments are not established." },
-    { "id": "REQ-ID-RUNTIME-003", "cases": ["CASE-ID-RUNTIME-CHROMIUM", "CASE-ID-RUNTIME-BUFFER", "CASE-ID-RUNTIME-FROZEN"], "gap": "No deployed Cloudflare execution or retained immutable revision-bound receipt." }
+    { "id": "REQ-ID-RUNTIME-003", "cases": ["CASE-ID-RUNTIME-CHROMIUM", "CASE-ID-RUNTIME-BUFFER", "CASE-ID-RUNTIME-FROZEN", "CASE-ID-RUNTIME-CLOCK-FALLBACK"], "gap": "No deployed Cloudflare execution or retained immutable revision-bound receipt." }
   ],
   "cases": [
     { "id": "CASE-ID-RUNTIME-CHROMIUM", "assertions": [{ "path": "../../tests/browser/scenarios.ts", "text": "unexpected Buffer polyfill" }, { "path": "../../tests/browser/scenarios.ts", "text": "RFC 9562 name-based UUIDv8 vector" }], "evidence": ["EVID-ID-RUNTIME-BROWSER"], "limit": "Bundled compiled output in Chromium document and dedicated worker, without a Buffer polyfill." },
     { "id": "CASE-ID-RUNTIME-BUFFER", "assertions": [{ "path": "../../tests/compatibility.test.ts", "text": "preserves zero-copy Buffer conversion including byte offsets" }], "evidence": ["EVID-ID-RUNTIME-UNIT"], "limit": "Node Buffer adapter example only." },
     { "id": "CASE-ID-RUNTIME-RANDOM", "assertions": [{ "path": "../../tests/utils.test.ts", "text": "uses Web Crypto for large random byte requests in bounded chunks" }], "evidence": ["EVID-ID-RUNTIME-UNIT"], "limit": "Selected chunking behavior, not a statistical entropy test." },
-    { "id": "CASE-ID-RUNTIME-FROZEN", "assertions": [{ "path": "../../tests/browser/scenarios.ts", "text": "frozen clock must not wrap the UUIDv7 counter" }], "evidence": ["EVID-ID-RUNTIME-BROWSER"], "limit": "Simulated clock, not a deployed provider clock." }
+    { "id": "CASE-ID-RUNTIME-FROZEN", "assertions": [{ "path": "../../tests/browser/scenarios.ts", "text": "frozen clock must not wrap the UUIDv7 counter" }], "evidence": ["EVID-ID-RUNTIME-BROWSER"], "limit": "Simulated clock, not a deployed provider clock." },
+    { "id": "CASE-ID-RUNTIME-CLOCK-FALLBACK", "assertions": [{ "path": "../../tests/clock.test.ts", "text": "falls back from an unusable performance capability" }, { "path": "../../tests/browser/scenarios.ts", "text": "wall clock fallback" }], "evidence": ["EVID-ID-RUNTIME-UNIT", "EVID-ID-RUNTIME-BROWSER"], "limit": "Mocked fallback in Node and Chromium; not deployed Worker behavior." }
   ],
   "evidence": [
     { "id": "EVID-ID-RUNTIME-UNIT", "kind": "execution-binding", "path": "../../nix/checks/default.nix", "outcome": "not-recorded", "limit": "The unit-js binding only; no immutable execution receipt is attached." },

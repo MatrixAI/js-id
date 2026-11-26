@@ -10,3 +10,6 @@ The [exploratory observation](2026-11-26-exploratory.md) records one
 uncontrolled run and its limitations. A locally observed timing, an adapted
 historical source, or a passing harness-health check is not a numeric budget,
 release gate, or correctness proof.
+
+The separate [real-clock observation](2026-11-26-real-clock-exploratory.md)
+records timestamp-bucket occupancy and exhaustion in an instrumented local run.

@@ -38,6 +38,32 @@ export function verifyRuntime() {
   const first = sortable.get();
   const second = sortable.get();
   assert(first < second && first[6] >> 4 === 7, 'monotonic UUIDv7');
+  const originalPerformance = Object.getOwnPropertyDescriptor(
+    globalThis,
+    'performance',
+  );
+  const originalDateNow = Date.now;
+  try {
+    Object.defineProperty(globalThis, 'performance', {
+      configurable: true,
+      value: undefined,
+    });
+    Date.now = () => 1000;
+    const fallback = new IdSortable({
+      randomSource: (size) => new Uint8Array(size),
+    });
+    assert(
+      utils.readUint48BE(fallback.get(), 0) === 1000,
+      'wall clock fallback',
+    );
+  } finally {
+    Date.now = originalDateNow;
+    if (originalPerformance == null) {
+      Reflect.deleteProperty(globalThis, 'performance');
+    } else {
+      Object.defineProperty(globalThis, 'performance', originalPerformance);
+    }
+  }
   let clock = 1_700_000_000_000;
   const frozen = new IdSortable({
     timeSource: () => () => clock,

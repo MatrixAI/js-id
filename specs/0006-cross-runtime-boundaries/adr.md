@@ -247,3 +247,23 @@ entries remain historical.
 
 **Action Required:** Review remaining evidence gaps and attach execution
 receipts when available.
+
+### 2026-11-26
+
+**Status:** Partial
+
+**Findings:**
+
+| Finding                                                | Files                                    | Lines | Assessment |
+| ------------------------------------------------------ | ---------------------------------------- | ----- | ---------- |
+| Default epoch sampling supports a wall-clock fallback  | [Clock](../../src/clock.ts)              | -     | partial    |
+| Fallback and invalid readings have deterministic tests | [Clock tests](../../tests/clock.test.ts) | -     | partial    |
+| Deployed Worker evidence is still absent               | [Assurance](assurance.json)              | -     | pending    |
+
+**Summary:** The default source uses the performance clock when usable and falls
+back to the wall clock otherwise. An invalid fallback is an error. Generator
+rollback and exhaustion handling remains unchanged. This observation does not
+establish deployed-platform conformance.
+
+**Action Required:** Verify runtime-specific behavior and retain execution
+receipts before making broader support claims.
