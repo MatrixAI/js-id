@@ -1,0 +1,20 @@
+{
+  "providerId": "sortable-before-rfc-hard-cut",
+  "providerKind": "git-ref",
+  "durableBaseline": true,
+  "exploratoryOnly": false,
+  "evidenceAuthority": "none",
+  "allowedResultAuthorities": ["exploratory"],
+  "source": {
+    "description": "Pinned old sortable source, adapted to the candidate ID and utilities; not a full historical build",
+    "repository": "https://github.com/MatrixAI/js-id",
+    "revision": "865673e04f869ec930423c3f05f939e2ec1a7313",
+    "narHash": "sha256-W/MuT4GgeqfNVF82XpOXOMyfHuBaJf602PJqXZZoFiA=",
+    "acquisition": "Nix GitHub fetchTree; replace imports and transpile with Nix esbuild"
+  },
+  "caveats": [
+    "The baseline shares candidate helpers and constructor; it is not the historical package closure.",
+    "The implementations differ in timestamp layout, random-byte count, and state ownership.",
+    "Timing authority depends on the execution profile, not the source pin."
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["providerId", "providerKind", "durableBaseline", "exploratoryOnly", "evidenceAuthority", "allowedResultAuthorities", "source", "caveats"],
+  "properties": {
+    "providerId": { "type": "string", "minLength": 1 },
+    "providerKind": { "enum": ["none", "local-worktree", "git-ref"] },
+    "durableBaseline": { "type": "boolean" },
+    "exploratoryOnly": { "type": "boolean" },
+    "evidenceAuthority": { "const": "none" },
+    "allowedResultAuthorities": { "const": ["exploratory"] },
+    "source": { "type": "object", "required": ["description"], "properties": { "description": { "type": "string", "minLength": 1 }, "path": { "type": "string", "minLength": 1 }, "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }, "repository": { "type": "string", "format": "uri" }, "revision": { "type": "string", "pattern": "^[0-9a-f]{40}$" }, "narHash": { "type": "string", "pattern": "^sha256-" }, "acquisition": { "type": "string", "minLength": 1 } }, "additionalProperties": false },
+    "caveats": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } }
+  },
+  "allOf": [
+    { "if": { "properties": { "providerKind": { "const": "local-worktree" } } }, "then": { "properties": { "durableBaseline": { "const": false }, "exploratoryOnly": { "const": true }, "source": { "required": ["path", "sha256"] } } } },
+    { "if": { "properties": { "providerKind": { "const": "none" } } }, "then": { "properties": { "durableBaseline": { "const": false }, "exploratoryOnly": { "const": true } } } },
+    { "if": { "properties": { "providerKind": { "const": "git-ref" } } }, "then": { "properties": { "durableBaseline": { "const": true }, "exploratoryOnly": { "const": false }, "source": { "required": ["repository", "revision", "narHash", "acquisition"] } } } }
+  ]
+}

@@ -8,6 +8,7 @@
   "exclude": [
     "./vitest.config.mts",
     "./tests/**/*",
-    "./scripts/**/*"
+    "./scripts/**/*",
+    "./perf/**/*"
   ]
 }

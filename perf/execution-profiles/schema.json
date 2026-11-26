@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["profileId", "profileKind", "machineClass", "system", "runtime", "scheduler", "frequencyPolicy", "determinismClass", "enforcementLevel", "caveats"],
+  "properties": {
+    "profileId": { "type": "string", "minLength": 1 },
+    "profileKind": { "enum": ["uncontrolled-local", "nix-harness-health"] },
+    "machineClass": { "type": "string", "minLength": 1 },
+    "system": { "type": "object", "required": ["os", "architecture", "kernel"], "properties": { "os": { "type": "string" }, "architecture": { "type": "string" }, "kernel": { "type": "string" } }, "additionalProperties": false },
+    "runtime": { "type": "string", "minLength": 1 },
+    "scheduler": { "type": "string", "minLength": 1 },
+    "frequencyPolicy": { "type": "string", "minLength": 1 },
+    "determinismClass": { "const": "nondeterministic-timing" },
+    "enforcementLevel": { "const": "none" },
+    "caveats": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } }
+  }
+}

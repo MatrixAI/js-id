@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "role": "non-normative-proposed-traceability",
+  "requirements": [
+    { "id": "REQ-ID-UUID7-001", "cases": ["CASE-ID-UUID7-VECTOR", "CASE-ID-UUID7-INVALID"], "gap": "Selected RFC vector and invalid inputs do not prove all interoperating implementations." },
+    { "id": "REQ-ID-UUID7-002", "cases": ["CASE-ID-UUID7-EXHAUST", "CASE-ID-UUID7-ROLLBACK", "CASE-ID-UUID7-BROWSER"], "gap": "No proof for every source failure or runtime clock." },
+    { "id": "REQ-ID-UUID7-003", "cases": ["CASE-ID-UUID7-RESTART", "CASE-ID-UUID7-ROLLBACK"], "gap": "Caller-owned provenance, exclusive use, and durable persistence are not tested." },
+    { "id": "REQ-ID-UUID7-004", "cases": ["CASE-ID-UUID7-INVALID"], "gap": "No distributed ordering or worker allocation is implied." }
+  ],
+  "cases": [
+    { "id": "CASE-ID-UUID7-VECTOR", "assertions": [{ "path": "../../tests/IdSortable.test.ts", "text": "can reproduce the RFC 9562 Appendix A.6 UUIDv7 vector" }], "evidence": ["EVID-ID-UUID7-UNIT"], "limit": "One RFC example with selected injected state and randomness." },
+    { "id": "CASE-ID-UUID7-INVALID", "assertions": [{ "path": "../../tests/IdSortable.test.ts", "text": "rejects invalid timestamps, restart IDs, and random sources" }], "evidence": ["EVID-ID-UUID7-UNIT"], "limit": "Selected invalid inputs; structural version checks do not establish provenance." },
+    { "id": "CASE-ID-UUID7-EXHAUST", "assertions": [{ "path": "../../tests/IdSortable.test.ts", "text": "throws on counter exhaustion and resumes when the clock advances" }, { "path": "../../tests/IdSortable.test.ts", "text": "leaves state unchanged when a random source fails" }], "evidence": ["EVID-ID-UUID7-UNIT"], "limit": "Selected seed and failure paths." },
+    { "id": "CASE-ID-UUID7-ROLLBACK", "assertions": [{ "path": "../../tests/IdSortable.test.ts", "text": "clamps clock rollback and protects state from mutable returned bytes" }], "evidence": ["EVID-ID-UUID7-UNIT"], "limit": "One generator and selected rollback values." },
+    { "id": "CASE-ID-UUID7-RESTART", "assertions": [{ "path": "../../tests/IdSortable.test.ts", "text": "rejects exhausted restart state until the clock advances" }, { "path": "../../tests/IdSortable.test.ts", "text": "copies restart state before the caller can mutate it" }], "evidence": ["EVID-ID-UUID7-UNIT"], "limit": "Does not test crash-safe persistence or concurrent owners." },
+    { "id": "CASE-ID-UUID7-BROWSER", "assertions": [{ "path": "../../tests/browser/scenarios.ts", "text": "frozen clock must not wrap the UUIDv7 counter" }], "evidence": ["EVID-ID-UUID7-BROWSER"], "limit": "Simulated frozen clock in Chromium, not deployed Cloudflare." }
+  ],
+  "evidence": [
+    { "id": "EVID-ID-UUID7-UNIT", "kind": "execution-binding", "path": "../../nix/checks/default.nix", "outcome": "not-recorded", "limit": "The unit-js binding only; no immutable execution receipt is attached." },
+    { "id": "EVID-ID-UUID7-BROWSER", "kind": "execution-binding", "path": "../../nix/checks/browser.nix", "outcome": "not-recorded", "limit": "Chromium document and dedicated-worker binding only." }
+  ]
+}

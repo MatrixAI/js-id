@@ -38,6 +38,9 @@
             root = ./.;
             self = inputs.self;
           };
+          perfRunner = import ./nix/perf-runner.nix {
+            inherit pkgs nodejs npmLibrary;
+          };
         in
         {
           packages = {
@@ -45,6 +48,11 @@
             npm-build = npmLibrary.npmBuild;
             npm-package = npmLibrary.npmPackage.out;
             npm-package-unpacked = npmLibrary.npmPackage.unpacked;
+            perf-id = perfRunner;
+          };
+          apps.perf-id = {
+            type = "app";
+            program = "${perfRunner}/bin/id-perf";
           };
           formatter = lint.formatter;
           checks = import ./nix/checks {
@@ -54,9 +62,11 @@
               lint
               system
               npmLibrary
+              perfRunner
               ;
           };
           devShells.ci = config.devShells.default;
+          devShells.perf = config.devShells.default;
           devenv.shells.default = { lib, ... }: {
             containers = lib.mkForce { };
             devenv.root = lib.mkForce (
@@ -69,6 +79,7 @@
               nodejs
               (pkgs.lib.hiPrio npmLibrary.npm)
               lint
+              perfRunner
             ];
             enterShell = ''
               mkdir -p "$PWD/tmp"

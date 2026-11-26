@@ -81,6 +81,49 @@ describe('Id', () => {
     expect(id1.equals(id2)).toBe(true);
     expect(id1.equals(id3)).toBe(false);
   });
+  test('factories and decoders construct the invoked subclass', () => {
+    class NodeIdInternal extends IdInternal {
+      public domain(): string {
+        return 'node';
+      }
+    }
+    class SpecialNodeIdInternal extends NodeIdInternal {}
+
+    const bytes = Uint8Array.from({ length: 16 }, (_, i) => i);
+    const uuid = utils.toUUID(bytes);
+    const multibase = utils.toMultibase(bytes, 'base32hex');
+    const values = [
+      NodeIdInternal.create(),
+      NodeIdInternal.create(16),
+      NodeIdInternal.create(bytes),
+      NodeIdInternal.create(bytes.buffer, 1, 8),
+      NodeIdInternal.fromString(utils.toString(bytes)),
+      NodeIdInternal.fromUUID(uuid),
+      NodeIdInternal.fromMultibase(multibase),
+      NodeIdInternal.fromJSON(utils.toJSON(IdInternal.create(bytes))),
+    ];
+    for (const value of values) {
+      expect(value).toBeInstanceOf(NodeIdInternal);
+      expect(value!.domain()).toBe('node');
+    }
+    expect(SpecialNodeIdInternal.fromUUID(uuid)).toBeInstanceOf(
+      SpecialNodeIdInternal,
+    );
+    expect(NodeIdInternal.fromUUID('invalid')).toBeUndefined();
+    expect(NodeIdInternal.fromMultibase('?invalid')).toBeUndefined();
+    expect(NodeIdInternal.fromJSON(null)).toBeUndefined();
+  });
+  test('subclass buffer decoding remains zero copy and respects offsets', () => {
+    class NodeIdInternal extends IdInternal {}
+    const buffer = Buffer.from([9, 1, 2, 3, 9]).subarray(1, 4);
+    const id = NodeIdInternal.fromBuffer(buffer);
+    expect(id).toBeInstanceOf(NodeIdInternal);
+    expect([...id]).toEqual([1, 2, 3]);
+    buffer[1] = 8;
+    expect(id[1]).toBe(8);
+    id[2] = 7;
+    expect(buffer[2]).toBe(7);
+  });
   test('id JSON representation', async () => {
     const id = IdInternal.create([97, 98, 99]);
     const json1 = JSON.stringify(id);

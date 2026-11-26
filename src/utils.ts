@@ -1,14 +1,44 @@
 import type { Id } from './Id.js';
-import crypto from 'node:crypto';
-import { performance } from 'node:perf_hooks';
-import { bases } from 'multiformats/basics';
+import type { bases as multiformatsBases } from 'multiformats/basics';
+import * as base10 from 'multiformats/bases/base10';
+import * as base16 from 'multiformats/bases/base16';
+import * as base2 from 'multiformats/bases/base2';
+import * as base256emoji from 'multiformats/bases/base256emoji';
+import * as base32 from 'multiformats/bases/base32';
+import * as base36 from 'multiformats/bases/base36';
+import * as base58 from 'multiformats/bases/base58';
+import * as base64 from 'multiformats/bases/base64';
+import * as base8 from 'multiformats/bases/base8';
+import * as identity from 'multiformats/bases/identity';
 import IdInternal from './Id.js';
 
-/**
- * Gets random bytes as Uint8Array
- */
+const typedArrayTag = Object.getOwnPropertyDescriptor(
+  Object.getPrototypeOf(Uint8Array.prototype),
+  Symbol.toStringTag,
+)?.get;
+
+/** Checks for a genuine Uint8Array, including arrays from another realm. */
+function isUint8Array(value: unknown): value is Uint8Array {
+  return (
+    value instanceof Uint8Array ||
+    (ArrayBuffer.isView(value) && typedArrayTag?.call(value) === 'Uint8Array')
+  );
+}
+
+/** Returns secure Web Crypto bytes, chunking requests above 65,536 bytes. */
 function randomBytes(size: number): Uint8Array {
-  return crypto.randomBytes(size);
+  if (!Number.isSafeInteger(size) || size < 0) {
+    throw new RangeError('Random byte size must be a nonnegative integer');
+  }
+  const bytes = new Uint8Array(size);
+  if (bytes.length <= 65_536) {
+    return globalThis.crypto.getRandomValues(bytes);
+  }
+  // Web Crypto limits each request to 65,536 bytes.
+  for (let offset = 0; offset < bytes.length; offset += 65_536) {
+    globalThis.crypto.getRandomValues(bytes.subarray(offset, offset + 65_536));
+  }
+  return bytes;
 }
 
 /**
@@ -23,6 +53,7 @@ function randomBits(
   return bits.substr(0, size);
 }
 
+/** Returns up to size leading bits from the supplied bytes in big-endian order. */
 function nodeBits(nodeBytes: Uint8Array, size: number): string {
   const bytes = nodeBytes.subarray(
     0,
@@ -34,29 +65,14 @@ function nodeBits(nodeBytes: Uint8Array, size: number): string {
 
 /**
  * Monotonic system time in milliseconds as a floating point number
- * Use last timestamp this to ensure monotonocity is preserved over process restarts
+ * Use the last timestamp to retain monotonicity over process restarts
  * Not strictly monotonic, which means the same number may be returned
  */
 function timeSource(lastTs?: number): () => number {
-  // `performance.now()` is weakly monotonic
-  let origin: number;
-  if (lastTs != null && performance.timeOrigin <= lastTs) {
-    origin = lastTs;
-    return () => {
-      let now = origin + performance.now();
-      if (now === lastTs) {
-        // Only needed if performance.now() returns 0
-        // this means no time has elapsed and now is equal to lastTs
-        // plus 1 assumes lastTs integer-part represents the maximum precision
-        // so 1 is the smallest unit of time to be added
-        now += 1;
-      }
-      return now;
-    };
-  } else {
-    origin = performance.timeOrigin;
-    return () => origin + performance.now();
-  }
+  const origin = globalThis.performance.timeOrigin;
+  return lastTs == null
+    ? () => origin + globalThis.performance.now()
+    : () => Math.max(lastTs, origin + globalThis.performance.now());
 }
 
 /**
@@ -70,15 +86,60 @@ function* take<T>(g: Iterator<T>, l: number): Generator<T> {
   }
 }
 
+/** Compares byte length and contents, not object identity. */
 function equals(id1: Uint8Array, id2: Uint8Array): boolean {
   if (id1.byteLength !== id2.byteLength) return false;
   return id1.every((byte, i) => byte === id2[i]);
 }
 
-function toString(id: Uint8Array): string {
-  return String.fromCharCode(...id);
+/** Checks UUID length, version, and RFC variant without identifying a profile. */
+function isUuidVersion(id: Uint8Array, version: number): boolean {
+  return (
+    id.byteLength === 16 && id[6] >>> 4 === version && (id[8] & 0xc0) === 0x80
+  );
 }
 
+/** Reads an unsigned 48-bit big-endian integer from a byte array. */
+function readUint48BE(bytes: Uint8Array, offset: number = 0): number {
+  if (!Number.isInteger(offset) || offset < 0 || offset + 6 > bytes.length) {
+    throw new RangeError('A 48-bit integer requires six available bytes');
+  }
+  let value = 0;
+  for (let i = offset; i < offset + 6; i++) value = value * 256 + bytes[i];
+  return value;
+}
+
+/** Writes an unsigned 48-bit integer in big-endian order into existing bytes. */
+function writeUint48BE(
+  bytes: Uint8Array,
+  value: number,
+  offset: number = 0,
+): void {
+  if (!Number.isInteger(offset) || offset < 0 || offset + 6 > bytes.length) {
+    throw new RangeError('A 48-bit integer requires six available bytes');
+  }
+  if (!Number.isSafeInteger(value) || value < 0 || value >= 2 ** 48) {
+    throw new RangeError('Value must be an unsigned 48-bit integer');
+  }
+  for (let i = offset + 5; i >= offset; i--) {
+    bytes[i] = value % 256;
+    value = Math.floor(value / 256);
+  }
+}
+
+/** Returns a binary string with one code unit per byte, not UTF-8 text. */
+function toString(id: Uint8Array): string {
+  // Spreading a large array into one call exceeds runtime argument limits.
+  const chunkSize = 8192;
+  if (id.length <= chunkSize) return String.fromCharCode(...id);
+  let binary = '';
+  for (let offset = 0; offset < id.length; offset += chunkSize) {
+    binary += String.fromCharCode(...id.subarray(offset, offset + chunkSize));
+  }
+  return binary;
+}
+
+/** Copies binary-string code units into bytes using typed-array conversion. */
 function fromString(idString: string): Id {
   const id = IdInternal.create(idString.length);
   for (let i = 0; i < idString.length; i++) {
@@ -87,6 +148,7 @@ function fromString(idString: string): Id {
   return id;
 }
 
+/** Returns a JSON-compatible object containing an independent byte array. */
 function toJSON(id: IdInternal): { type: string; data: Array<number> } {
   return {
     type: IdInternal.name,
@@ -116,6 +178,7 @@ function fromJSON(idJSON: any): Id | undefined {
   return IdInternal.create(idJSON.data);
 }
 
+/** Encodes exactly 16 bytes as lowercase UUID text without validating a profile. */
 function toUUID(id: Uint8Array): string {
   if (id.byteLength !== 16) {
     throw new RangeError('UUID can only be created from buffers with 16 bytes');
@@ -130,16 +193,39 @@ function toUUID(id: Uint8Array): string {
   ].join('-');
 }
 
+/** Parses canonical UUID syntax without restricting version or variant bits. */
 function fromUUID(uuid: string): Id | undefined {
-  const uuidHex = uuid.split('-').join('');
-  if (uuidHex.length !== 32) {
+  if (
+    uuid.length !== 36 ||
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+      uuid,
+    )
+  ) {
     return;
   }
+  const uuidHex = uuid.split('-').join('');
   return IdInternal.create(hex2bytes(uuidHex).buffer);
 }
 
-type MultibaseFormats = keyof typeof bases;
-type Codec = (typeof bases)[MultibaseFormats];
+type MultibaseFormats = keyof typeof multiformatsBases;
+type Codec = {
+  prefix: string;
+  encode(bytes: Uint8Array): string;
+  decode(text: string): Uint8Array;
+};
+
+const bases: Record<MultibaseFormats, Codec> = {
+  ...identity,
+  ...base2,
+  ...base8,
+  ...base10,
+  ...base16,
+  ...base32,
+  ...base36,
+  ...base58,
+  ...base64,
+  ...base256emoji,
+};
 
 const basesByPrefix: Record<string, Codec> = {};
 for (const k in bases) {
@@ -148,7 +234,7 @@ for (const k in bases) {
 }
 
 /**
- * Encodes an multibase ID string
+ * Encodes bytes using a supported multibase codec and its prefix.
  */
 function toMultibase(id: Uint8Array, format: MultibaseFormats): string {
   const codec = bases[format];
@@ -156,11 +242,13 @@ function toMultibase(id: Uint8Array, format: MultibaseFormats): string {
 }
 
 /**
- * Decodes a multibase encoded ID
- * Do not use this for generic multibase strings
+ * Decodes bytes using a supported multibase prefix. This does not validate any
+ * CID, multihash, UUID, or other structure carried by those bytes.
  */
 function fromMultibase(idString: string): Id | undefined {
-  const prefix = idString[0];
+  const firstCodePoint = idString.codePointAt(0);
+  const prefix =
+    firstCodePoint == null ? '' : String.fromCodePoint(firstCodePoint);
   const codec = basesByPrefix[prefix];
   if (codec == null) {
     return;
@@ -172,6 +260,143 @@ function fromMultibase(idString: string): Id | undefined {
     return;
   }
   return IdInternal.create(buffer);
+}
+
+const sortableBase64Alphabet =
+  '-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz';
+
+/** Encodes bytes as unpadded Base64sort without a multibase prefix. */
+function toSortableBase64(id: Uint8Array): string {
+  let output = '';
+  let accumulator = 0;
+  let bits = 0;
+  for (const byte of id) {
+    accumulator = (accumulator << 8) | byte;
+    bits += 8;
+    while (bits >= 6) {
+      bits -= 6;
+      output += sortableBase64Alphabet[(accumulator >> bits) & 0x3f];
+      accumulator &= (1 << bits) - 1;
+    }
+  }
+  if (bits > 0) {
+    output += sortableBase64Alphabet[accumulator << (6 - bits)];
+  }
+  return output;
+}
+
+/** Encodes Base64sort with the selected draft padding character. */
+function toSortableBase64Padded(id: Uint8Array, padding: '=' | '~'): string {
+  if (padding !== '=' && padding !== '~') {
+    throw new TypeError('Padding must be = or ~');
+  }
+  const encoded = toSortableBase64(id);
+  return encoded + padding.repeat((4 - (encoded.length % 4)) % 4);
+}
+
+/** Decodes unpadded or consistently padded Base64sort with canonical pad bits. */
+function fromSortableBase64(encoded: string): Id | undefined {
+  let dataLength = encoded.length;
+  const padding = encoded.endsWith('=')
+    ? '='
+    : encoded.endsWith('~')
+      ? '~'
+      : '';
+  if (padding !== '') {
+    while (dataLength > 0 && encoded[dataLength - 1] === padding) dataLength--;
+    const paddingLength = encoded.length - dataLength;
+    if (
+      encoded.length % 4 !== 0 ||
+      paddingLength > 2 ||
+      paddingLength !== (4 - (dataLength % 4)) % 4
+    ) {
+      return;
+    }
+  }
+  if (dataLength % 4 === 1) return;
+  const result = IdInternal.create(Math.floor((dataLength * 6) / 8));
+  let accumulator = 0;
+  let bits = 0;
+  let offset = 0;
+  for (const character of encoded.slice(0, dataLength)) {
+    const value = sortableBase64Alphabet.indexOf(character);
+    if (value < 0) return;
+    accumulator = (accumulator << 6) | value;
+    bits += 6;
+    if (bits >= 8) {
+      bits -= 8;
+      result[offset++] = (accumulator >> bits) & 0xff;
+      accumulator &= (1 << bits) - 1;
+    }
+  }
+  if (accumulator !== 0) return;
+  return result;
+}
+
+const typeIdAlphabet = '0123456789abcdefghjkmnpqrstvwxyz';
+
+function isTypeIdPrefix(prefix: string): boolean {
+  return (
+    prefix.length <= 63 &&
+    (prefix === '' ||
+      (!/[^a-z_]/.test(prefix) &&
+        prefix[0] !== '_' &&
+        prefix[prefix.length - 1] !== '_'))
+  );
+}
+
+/** Encodes 16 supplied UUID bytes as TypeID 0.3, retaining a semantic prefix. */
+function toTypeId(id: Uint8Array, prefix: string = ''): string {
+  if (id.byteLength !== 16) {
+    throw new RangeError('TypeID requires exactly 16 UUID bytes');
+  }
+  if (!isTypeIdPrefix(prefix)) {
+    throw new TypeError('Invalid TypeID prefix');
+  }
+  let suffix = '';
+  let accumulator = 0;
+  // TypeID encodes two leading zero bits before the 128 UUID bits.
+  let bits = 2;
+  for (const byte of id) {
+    accumulator = (accumulator << 8) | byte;
+    bits += 8;
+    while (bits >= 5) {
+      bits -= 5;
+      suffix += typeIdAlphabet[(accumulator >> bits) & 0x1f];
+      accumulator &= (1 << bits) - 1;
+    }
+  }
+  return prefix === '' ? suffix : `${prefix}_${suffix}`;
+}
+
+/** Decodes a canonical TypeID without assuming a particular UUID version. */
+function fromTypeId(encoded: string): { prefix: string; id: Id } | undefined {
+  const separator = encoded.lastIndexOf('_');
+  const prefix = separator < 0 ? '' : encoded.slice(0, separator);
+  const suffix = encoded.slice(separator + 1);
+  if (
+    (separator >= 0 && prefix === '') ||
+    !isTypeIdPrefix(prefix) ||
+    suffix.length !== 26
+  ) {
+    return;
+  }
+  const id = IdInternal.create(16);
+  let accumulator = 0;
+  let bits = -2;
+  let offset = 0;
+  for (let i = 0; i < suffix.length; i++) {
+    const value = typeIdAlphabet.indexOf(suffix[i]);
+    if (value < 0 || (i === 0 && value > 7)) return;
+    accumulator = (accumulator << 5) | value;
+    bits += 5;
+    if (bits >= 8) {
+      bits -= 8;
+      id[offset++] = (accumulator >> bits) & 0xff;
+      accumulator &= (1 << bits) - 1;
+    }
+  }
+  return { prefix, id };
 }
 
 /**
@@ -199,6 +424,7 @@ function bytes2hex(bytes: Uint8Array): string {
   return [...bytes].map((n) => dec2hex(n, 2)).join('');
 }
 
+/** Converts pairs of hexadecimal characters to bytes without strict validation. */
 function hex2bytes(hex: string): Uint8Array {
   const numbers = strChunks(hex, 2).map((b) => parseInt(b, 16));
   return new Uint8Array(numbers);
@@ -325,12 +551,16 @@ function fromFixedPoint(
 }
 
 export {
+  isUint8Array,
   randomBytes,
   randomBits,
   nodeBits,
   timeSource,
   take,
   equals,
+  isUuidVersion,
+  readUint48BE,
+  writeUint48BE,
   toString,
   fromString,
   toJSON,
@@ -339,6 +569,11 @@ export {
   fromUUID,
   toMultibase,
   fromMultibase,
+  toSortableBase64,
+  toSortableBase64Padded,
+  fromSortableBase64,
+  toTypeId,
+  fromTypeId,
   toBuffer,
   fromBuffer,
   bytes2hex,

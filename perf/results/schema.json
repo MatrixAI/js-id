@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "evidenceClass", "authority", "provider", "executionProfile", "candidate", "scenario", "samplesMs", "sink"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "evidenceClass": { "enum": ["exploratory", "harness-health"] },
+    "authority": { "const": { "budget": "none", "regressionGate": "none", "correctness": "none" } },
+    "provider": { "const": "../provider.json" },
+    "executionProfile": { "const": "../execution-profile.json" },
+    "candidate": { "type": "object", "required": ["path", "sha256"], "properties": { "path": { "type": "string" }, "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" } }, "additionalProperties": false },
+    "scenario": { "type": "object", "required": ["iterations", "samples", "clockBatch"], "properties": { "iterations": { "type": "integer", "minimum": 1 }, "samples": { "type": "integer", "minimum": 0 }, "clockBatch": { "type": "integer", "const": 1024 } }, "additionalProperties": false },
+    "samplesMs": { "type": "object", "minProperties": 3, "additionalProperties": { "type": "array", "items": { "type": "number", "minimum": 0 } } },
+    "sink": { "type": "integer" }
+  }
+}

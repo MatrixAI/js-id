@@ -4,6 +4,7 @@
   lint,
   system,
   npmLibrary,
+  perfRunner,
 }:
 let
   unit-js = pkgs.stdenv.mkDerivation {
@@ -52,9 +53,20 @@ let
       inherit nodejs;
     };
   };
+  integration-browser = import ./browser.nix {
+    inherit
+      pkgs
+      nodejs
+      system
+      npmLibrary
+      ;
+  };
+  perf-bench-smoke = import ./perf-bench-smoke.nix {
+    inherit pkgs system perfRunner;
+  };
 in
 {
-  inherit unit-js;
+  inherit unit-js integration-browser perf-bench-smoke;
   lint = lintCheck;
   default = pkgs.runCommand "id-check-default" { } ''
     mkdir -p "$out/artifacts"

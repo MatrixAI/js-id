@@ -35,9 +35,12 @@
 
 - Require Node.js 24 or newer. Build one ES2022/NodeNext ESM package with
   declarations in [dist](dist); retain existing public import compatibility.
-- Preserve identifier encodings, generation behavior, parsing, and
-  serialization. Keep unrelated runtime dependency major upgrades out of
-  modernization work.
+- Preserve the binary-first identifier model and existing public import paths.
+  The authorized major-version hard cut replaces the old sortable layout with
+  RFC 9562 UUIDv7 and the deterministic SHA-1 profile with a documented SHA-256
+  UUIDv8 profile. Do not add legacy readers, format detection, adapters, or
+  migration machinery for the old sortable layout. Keep unrelated behavior and
+  dependency changes out of this semantic slice.
 - Source imports are relative. Tests use the package's compiled-output mapping
   and execute through the package test script after its build step.
 - As a project-specific exception to the library profile's Jest/SWC rule, use

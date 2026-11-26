@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "role": "non-normative-proposed-traceability",
+  "requirements": [
+    { "id": "REQ-ID-ENCODING-001", "cases": ["CASE-ID-ENCODING-UUID"], "gap": "Selected syntax examples do not establish profile provenance." },
+    { "id": "REQ-ID-ENCODING-002", "cases": ["CASE-ID-ENCODING-SORTABLE"], "gap": "Ordering examples do not cover external database collations." },
+    { "id": "REQ-ID-ENCODING-003", "cases": ["CASE-ID-ENCODING-TYPEID"], "gap": "Selected official vectors; generation policy and prefix allocation are caller-owned." },
+    { "id": "REQ-ID-ENCODING-004", "cases": ["CASE-ID-ENCODING-SUBTYPE"], "gap": "Selected subclass constructors and type checks only." }
+  ],
+  "cases": [
+    { "id": "CASE-ID-ENCODING-UUID", "assertions": [{ "path": "../../tests/compatibility.test.ts", "text": "rejects non-hex UUIDs and noncanonical separator placement" }, { "path": "../../tests/compatibility.test.ts", "text": "accepts canonical UUID syntax without restricting UUID bits" }], "evidence": ["EVID-ID-ENCODING-UNIT"], "limit": "Selected valid and malformed strings." },
+    { "id": "CASE-ID-ENCODING-SORTABLE", "assertions": [{ "path": "../../tests/utils.test.ts", "text": "sorts equal-length values in unsigned byte order" }, { "path": "../../tests/utils.test.ts", "text": "rejects invalid lengths, characters, and nonzero trailing bits" }, { "path": "../../tests/utils.test.ts", "text": "matches the Base64sort draft unpadded vectors" }], "evidence": ["EVID-ID-ENCODING-UNIT"], "limit": "Selected lengths, draft vectors and binary string ordering; external implementations and collations are not verified." },
+    { "id": "CASE-ID-ENCODING-TYPEID", "assertions": [{ "path": "../../tests/utils.test.ts", "text": "interoperates with the official valid UUID and prefix vectors" }, { "path": "../../tests/utils.test.ts", "text": "rejects the official invalid prefix and suffix cases" }], "evidence": ["EVID-ID-ENCODING-UNIT"], "limit": "Selected TypeID 0.3 vectors, not a separate implementation deployment." },
+    { "id": "CASE-ID-ENCODING-SUBTYPE", "assertions": [{ "path": "../../tests/Id.test.ts", "text": "factories and decoders construct the invoked subclass" }, { "path": "../../tests/Id.test-d.ts", "text": "identifier factories infer subclass and preserve opaque IDs" }, { "path": "../../tests/Id.test.ts", "text": "subclass buffer decoding remains zero copy and respects offsets" }], "evidence": ["EVID-ID-ENCODING-UNIT"], "limit": "Type and runtime examples do not validate arbitrary user subclasses." }
+  ],
+  "evidence": [{ "id": "EVID-ID-ENCODING-UNIT", "kind": "execution-binding", "path": "../../nix/checks/default.nix", "outcome": "not-recorded", "limit": "The unit-js binding only; no immutable execution receipt is attached." }]
+}

@@ -45,4 +45,32 @@ describe('public compatibility vectors', () => {
     expect(IdInternal.fromMultibase('!invalid')).toBeUndefined();
     expect(() => utils.toUUID(new Uint8Array(15))).toThrow(RangeError);
   });
+
+  test('accepts canonical UUID syntax without restricting UUID bits', () => {
+    for (const uuid of [
+      '00000000-0000-0000-0000-000000000000',
+      'FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF',
+      '01234567-89AB-cdef-0123-456789ABCDEF',
+    ]) {
+      expect(utils.fromUUID(uuid)?.toUUID()).toBe(uuid.toLowerCase());
+      expect(IdInternal.fromUUID(uuid)?.toUUID()).toBe(uuid.toLowerCase());
+    }
+  });
+
+  test('rejects non-hex UUIDs and noncanonical separator placement', () => {
+    for (const uuid of [
+      'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
+      '1g000000-0000-0000-0000-000000000000',
+      '0000000000000000-0000-0000-00000000',
+      '00000000000000000000000000000000',
+      '00000000--0000-0000-0000-000000000000',
+      '00000000-0000-0000-0000-00000000000',
+      '00000000-0000-0000-0000-0000000000000',
+      ' 00000000-0000-0000-0000-000000000000',
+      '00000000-0000-0000-0000-000000000000\n',
+    ]) {
+      expect(utils.fromUUID(uuid)).toBeUndefined();
+      expect(IdInternal.fromUUID(uuid)).toBeUndefined();
+    }
+  });
 });

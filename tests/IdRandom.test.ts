@@ -4,6 +4,16 @@ import IdRandom from '#IdRandom.js';
 import * as utils from '#utils.js';
 
 describe('IdRandom', () => {
+  test('sets the UUIDv4 version and variant bits on the random source', () => {
+    const random = new Uint8Array(16);
+    const id = new IdRandom({ randomSource: () => random }).get();
+    expect(id.toUUID()).toBe('00000000-0000-4000-8000-000000000000');
+    expect(random[6]).toBe(0x40);
+    expect(random[8]).toBe(0x80);
+    expect(() =>
+      new IdRandom({ randomSource: () => new Uint8Array(15) }).get(),
+    ).toThrow();
+  });
   test('ids are Uint8Array', () => {
     const idGen = new IdRandom();
     const id = idGen.get();

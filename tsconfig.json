@@ -26,6 +26,7 @@
     "./src/**/*",
     "./src/**/*.json",
     "./tests/**/*",
-    "./scripts/**/*"
+    "./scripts/**/*",
+    "./perf/**/*.mjs"
   ]
 }

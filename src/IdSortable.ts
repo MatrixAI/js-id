@@ -2,153 +2,149 @@ import type { Id } from './Id.js';
 import IdInternal from './Id.js';
 import * as utils from './utils.js';
 
-/**
- * Constants for UUIDv7 with millisecond precision
- *   0                   1                   2                   3
- *   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
- *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *  |                            unixts                             |
- *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *  |unixts |         msec          |  ver  |          seq          |
- *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *  |var|                         rand                              |
- *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *  |                             rand                              |
- *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- */
-const unixtsSize = 36;
-const msecSize = 12;
-const seqSize = 12;
-const randSize = 62;
-const msecPrecision = 3;
-const variantBits = '10';
-const versionBits = '0111';
+const maxTimestamp = 2 ** 48 - 1;
+const maxCounter = 2 ** 12 - 1;
 
+function assertUuidV7(idBytes: Uint8Array): void {
+  if (!utils.isUuidVersion(idBytes, 7)) {
+    throw new RangeError('Expected a 16-byte UUIDv7');
+  }
+}
+
+/** Extracts the Unix timestamp in milliseconds from a UUIDv7. */
 function extractTs(idBytes: Uint8Array): number {
-  // Decode the timestamp from the last id
-  // the timestamp bits is 48 bits or 6 bytes
-  // this creates a new zero-copy view
-  const idTsBytes = idBytes.subarray(0, (unixtsSize + msecSize) / 8);
-  const idTsBits = utils.bytes2bits(idTsBytes);
-  const unixtsBits = idTsBits.substr(0, unixtsSize);
-  const msecBits = idTsBits.substr(unixtsSize, unixtsSize + msecSize);
-  const unixts = parseInt(unixtsBits, 2);
-  const msec = parseInt(msecBits, 2);
-  // Converting from second and subseconds
-  return utils.fromFixedPoint([unixts, msec], msecSize, msecPrecision);
+  assertUuidV7(idBytes);
+  return utils.readUint48BE(idBytes);
 }
 
+/** Extracts this generator's 12-bit counter from a UUIDv7. */
 function extractSeq(idBytes: Uint8Array): number {
-  const idSeqBytes = idBytes.subarray(
-    (unixtsSize + msecSize) / 8,
-    (unixtsSize + msecSize + 4 + seqSize) / 8,
-  );
-  const idSeqBits = utils.bytes2bits(idSeqBytes).substr(4, seqSize);
-  const seq = parseInt(idSeqBits, 2);
-  return seq;
+  assertUuidV7(idBytes);
+  return ((idBytes[6] & 0x0f) << 8) | idBytes[7];
 }
 
+/** Extracts this generator's 62 random bits from a UUIDv7. */
 function extractRand(idBytes: Uint8Array): string {
-  const idRandBytes = idBytes.subarray(
-    (unixtsSize + msecSize + 4 + seqSize) / 8,
-  );
-  const idRandBits = utils.bytes2bits(idRandBytes).substr(2);
-  return idRandBits;
+  assertUuidV7(idBytes);
+  return utils.bytes2bits(idBytes.subarray(8)).slice(2);
 }
 
 /**
- * Sortable ID generator based on UUIDv7 with millisecond resolution
- * 36 bits of unixts enables timestamps of 2177.59 years from 1970
- * (2**36)/(1*60*60*24*365.25) ~= 2177.59 years
- * Which means it will work until the year 4147
- * 12 bits seq enables 4096 ids per millisecond
- * After 4096, it rolls over
+ * Generates RFC 9562 UUIDv7 identifiers with per-generator monotonic order.
+ *
+ * Use for interoperable, time-oriented IDs and byte-sorted database locality
+ * without allocating node IDs. Use IdRandom when timestamp disclosure or time
+ * ordering is undesirable, or IdFlake when an explicitly coordinated node
+ * prefix and configurable UUIDv8 layout are required. Ordering is not global
+ * across independent generators, and these IDs are not authentication secrets.
+ *
+ * UUIDv7 bit layout, in network byte order:
+ *
+ *     0                   1                   2                   3
+ *     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ *    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *    |                         unix_ts_ms                            |
+ *    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *    |          unix_ts_ms           |  0111 |      sequence         |
+ *    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *    |1 0|                       random tail                         |
+ *    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *    |                          random tail                          |
+ *    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *
+ * The timestamp is 48 bits, the sequence is 12 bits, and the random tail is
+ * 62 bits. The two bits marked 1 0 are the RFC variant.
+ *
+ * Each new millisecond seeds an 11-bit random counter with a leading guard bit.
+ * On a stalled or backwards clock the previous timestamp is held and the
+ * counter is incremented. Exhaustion throws without changing generator state.
+ * Restart ordering requires the caller to supply the last UUID from this
+ * profile and to own any durable state and cross-process coordination.
+ * The type parameter is a compile-time brand, not a runtime subclass factory.
  */
 class IdSortable<T extends Id = Id> implements IterableIterator<T> {
   protected randomSource: (size: number) => Uint8Array;
   protected clock: () => number;
-  protected nodeBits?: string;
-  protected lastTs?: [number, number];
+  protected lastTimestamp?: number;
+  protected seqCounter?: number;
   protected _lastId?: T;
-  protected seqCounter: number;
 
-  public constructor({
-    lastId,
-    nodeId,
-    timeSource = utils.timeSource,
-    randomSource = utils.randomBytes,
-  }: {
-    lastId?: Uint8Array;
-    nodeId?: Uint8Array;
-    timeSource?: (lastTs?: number) => () => number;
-    randomSource?: (size: number) => Uint8Array;
-  } = {}) {
-    this.randomSource = randomSource;
-    if (lastId == null) {
-      this.clock = timeSource();
-    } else {
-      // Decode the timestamp from the last id
-      const lastIdTs = extractTs(lastId);
-      // TimeSource requires millisecond precision
-      this.clock = timeSource(lastIdTs * 10 ** msecPrecision);
+  /** Configures the clock, random source, and optional copied restart state. */
+  public constructor(
+    options: {
+      lastId?: Uint8Array;
+      timeSource?: (lastTs?: number) => () => number;
+      randomSource?: (size: number) => Uint8Array;
+    } = {},
+  ) {
+    if ('nodeId' in options) {
+      throw new TypeError('UUIDv7 does not support embedded node IDs');
     }
-    if (nodeId != null) {
-      this.nodeBits = utils.nodeBits(nodeId, randSize);
+    const {
+      lastId,
+      timeSource = utils.timeSource,
+      randomSource = utils.randomBytes,
+    } = options;
+    this.randomSource = randomSource;
+    this.clock = timeSource();
+    if (lastId != null) {
+      this.lastTimestamp = extractTs(lastId);
+      this.seqCounter = extractSeq(lastId);
     }
   }
 
+  /** Returns a copy of the last ID generated by this instance, if any. */
   get lastId(): T {
     if (this._lastId == null) {
       throw new ReferenceError('lastId has not yet been generated');
     }
-    return this._lastId;
+    return IdInternal.create<T>(this._lastId);
   }
 
+  /** Generates the next per-instance monotonic UUIDv7. */
   public get(): T {
     return this.next().value as T;
   }
 
+  /** Generates an ID or throws RangeError for invalid input or exhaustion. */
   public next(): IteratorResult<T, void> {
-    // Clock returns millisecond precision
-    const ts = this.clock() / 10 ** msecPrecision;
-    // Converting to seconds and subseconds
-    const [unixts, msec] = utils.toFixedPoint(ts, msecSize, msecPrecision);
-    const unixtsBits = utils.dec2bits(unixts, unixtsSize);
-    const msecBits = utils.dec2bits(msec, msecSize);
-    if (
-      this.lastTs != null &&
-      this.lastTs[0] >= unixts &&
-      this.lastTs[1] >= msec
-    ) {
-      this.seqCounter += 1;
-    } else {
-      this.seqCounter = 0;
+    const now = this.clock();
+    if (!Number.isFinite(now) || now < 0 || now > maxTimestamp) {
+      throw new RangeError('UUIDv7 timestamp is outside the 48-bit range');
     }
-    const seqBits = utils.dec2bits(this.seqCounter, seqSize);
-    // NodeBits can be written to the most significant rand portion
-    let randBits: string;
-    if (this.nodeBits != null) {
-      const randSize_ = randSize - this.nodeBits.length;
-      randBits = this.nodeBits;
-      if (randSize_ > 0) {
-        randBits += utils.randomBits(this.randomSource, randSize_);
-      }
-    } else {
-      randBits = utils.randomBits(this.randomSource, randSize);
+    const observedTimestamp = Math.floor(now);
+    const timestamp = Math.max(observedTimestamp, this.lastTimestamp ?? 0);
+    const sameTimestamp =
+      this.lastTimestamp != null && timestamp === this.lastTimestamp;
+    if (sameTimestamp && this.seqCounter === maxCounter) {
+      throw new RangeError(
+        'UUIDv7 counter exhausted; wait for the clock to advance',
+      );
     }
-    const idBits =
-      unixtsBits + msecBits + versionBits + seqBits + variantBits + randBits;
-    const idBytes = utils.bits2bytes(idBits);
-    const id = IdInternal.create<T>(idBytes.buffer);
-    // Save the fixed point timestamp
-    this.lastTs = [unixts, msec];
-    this._lastId = id;
-    return {
-      value: id,
-      done: false,
-    };
+
+    const random = this.randomSource(10);
+    if (!utils.isUint8Array(random) || random.byteLength !== 10) {
+      throw new RangeError('Random source must return exactly 10 bytes');
+    }
+    const seq = sameTimestamp
+      ? this.seqCounter! + 1
+      : ((random[0] & 0x07) << 8) | random[1];
+
+    const id = IdInternal.create<T>(16);
+    utils.writeUint48BE(id, timestamp);
+    id[6] = 0x70 | (seq >> 8);
+    id[7] = seq & 0xff;
+    id.set(random.subarray(2), 8);
+    id[8] = (id[8] & 0x3f) | 0x80;
+
+    const savedId = IdInternal.create<T>(id);
+    this.lastTimestamp = timestamp;
+    this.seqCounter = seq;
+    this._lastId = savedId;
+    return { value: id, done: false };
   }
 
+  /** Returns this generator as an unbounded synchronous iterator. */
   public [Symbol.iterator](): IterableIterator<T> {
     return this;
   }

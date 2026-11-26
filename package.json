@@ -1,6 +1,6 @@
 {
   "name": "@matrixai/id",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "author": "Roger Qiu",
   "description": "ID generation for JavaScript & TypeScript Applications",
   "license": "Apache-2.0",
@@ -39,12 +39,13 @@
     "postversion": "npm install --package-lock-only --ignore-scripts --silent",
     "tsx": "tsx",
     "test": "node ./scripts/test.mjs",
+    "specs:assurance": "node ./scripts/validate-assurance.mjs",
     "lint": "matrixai-lint --check",
     "lintfix": "matrixai-lint --fix"
   },
   "dependencies": {
-    "multiformats": "^13.3.2",
-    "uuid": "^8.3.2"
+    "@noble/hashes": "2.4.0",
+    "multiformats": "14.0.8"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

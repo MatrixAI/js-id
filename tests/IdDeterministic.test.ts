@@ -1,9 +1,48 @@
 import type { Id } from '#index.js';
+import { createHash } from 'node:crypto';
 import { describe, expect, test } from 'vitest';
 import IdDeterministic from '#IdDeterministic.js';
 import * as utils from '#utils.js';
 
 describe('IdDeterministic', () => {
+  test('matches the RFC 9562 Appendix B.2 SHA-256 UUIDv8 vector', () => {
+    const namespace = utils.fromUUID('6ba7b810-9dad-11d1-80b4-00c04fd430c8')!;
+    const generator = new IdDeterministic({ namespace });
+    expect(generator.get('www.example.com').toUUID()).toBe(
+      '5c146b14-3c52-8afd-938a-375d0df1fbf6',
+    );
+  });
+  test('matches independent SHA-256 results over varied UTF-8 input lengths', () => {
+    const namespace = Uint8Array.from({ length: 16 }, (_, index) => index);
+    const generator = new IdDeterministic({ namespace });
+    for (const length of [
+      0, 1, 39, 40, 47, 48, 55, 56, 63, 64, 65, 128, 1024,
+    ]) {
+      const name = 'x'.repeat(length) + '\u00e9';
+      const digest = createHash('sha256')
+        .update(namespace)
+        .update(name, 'utf8')
+        .digest();
+      const expected = Uint8Array.from(digest.subarray(0, 16));
+      expected[6] = (expected[6] & 0x0f) | 0x80;
+      expected[8] = (expected[8] & 0x3f) | 0x80;
+      expect([...generator.get(name)], name).toEqual([...expected]);
+    }
+  });
+  test('copies byte namespaces and does not normalize strings', () => {
+    const namespace = new Uint8Array(16);
+    const generator = new IdDeterministic({ namespace });
+    const first = generator.get('name');
+    namespace[0] = 1;
+    expect(generator.get('name').equals(first)).toBe(true);
+    expect(generator.get('\u00e9').equals(generator.get('e\u0301'))).toBe(
+      false,
+    );
+    expect(generator.get('\ud800').equals(generator.get('\ufffd'))).toBe(true);
+    expect(
+      () => new IdDeterministic({ namespace: new Uint8Array(15) }),
+    ).toThrow(RangeError);
+  });
   test('ids are Uint8Array', () => {
     const idGen = new IdDeterministic();
     const id = idGen.get();

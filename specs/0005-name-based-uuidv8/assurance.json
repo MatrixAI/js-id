@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "role": "non-normative-proposed-traceability",
+  "requirements": [
+    { "id": "REQ-ID-NAME-001", "cases": ["CASE-ID-NAME-VECTOR", "CASE-ID-NAME-HASH", "CASE-ID-NAME-BROWSER"], "gap": "Selected inputs and runtimes only; UUIDv8 bits do not identify this profile." },
+    { "id": "REQ-ID-NAME-002", "cases": ["CASE-ID-NAME-UNICODE", "CASE-ID-NAME-HASH"], "gap": "Consumers must define any normalization policy and validate its consistency." },
+    { "id": "REQ-ID-NAME-003", "cases": [], "gap": "Security interpretation and persisted-ID cutover are consumer responsibilities." }
+  ],
+  "cases": [
+    { "id": "CASE-ID-NAME-VECTOR", "assertions": [{ "path": "../../tests/IdDeterministic.test.ts", "text": "matches the RFC 9562 Appendix B.2 SHA-256 UUIDv8 vector" }], "evidence": ["EVID-ID-NAME-UNIT"], "limit": "One standard illustrative byte-namespace vector." },
+    { "id": "CASE-ID-NAME-HASH", "assertions": [{ "path": "../../tests/IdDeterministic.test.ts", "text": "matches independent SHA-256 results over varied UTF-8 input lengths" }], "evidence": ["EVID-ID-NAME-UNIT"], "limit": "Selected strings compared with the Node hash implementation." },
+    { "id": "CASE-ID-NAME-UNICODE", "assertions": [{ "path": "../../tests/IdDeterministic.test.ts", "text": "copies byte namespaces and does not normalize strings" }], "evidence": ["EVID-ID-NAME-UNIT"], "limit": "Selected namespace ownership and normalization examples." },
+    { "id": "CASE-ID-NAME-BROWSER", "assertions": [{ "path": "../../tests/browser/scenarios.ts", "text": "RFC 9562 name-based UUIDv8 vector" }], "evidence": ["EVID-ID-NAME-BROWSER"], "limit": "One vector in Chromium document and dedicated worker." }
+  ],
+  "evidence": [
+    { "id": "EVID-ID-NAME-UNIT", "kind": "execution-binding", "path": "../../nix/checks/default.nix", "outcome": "not-recorded", "limit": "The unit-js binding only; no immutable execution receipt is attached." },
+    { "id": "EVID-ID-NAME-BROWSER", "kind": "execution-binding", "path": "../../nix/checks/browser.nix", "outcome": "not-recorded", "limit": "Chromium binding, not deployed Worker evidence." }
+  ]
+}
