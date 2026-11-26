@@ -7,7 +7,7 @@ tags:
   - encoding
   - types
   - interoperability
-status: proposed
+status: accepted
 created: 2026-11-26
 updated: 2026-11-26
 author: 'Matrix AI'
@@ -18,8 +18,7 @@ project: 'js-id'
 
 ## Status
 
-Proposed. Local codec and subtype cases exist; full conformance and release
-remain subject to review.
+Accepted. Full conformance and release remain separate from this decision.
 
 ## Context
 
@@ -76,13 +75,13 @@ codes.
 
 ## Decision
 
-Propose option 1, with explicit subtype and domain-prefix boundaries.
+Adopt option 1, with explicit subtype and domain-prefix boundaries.
 
 <a id="REQ-ID-ENCODING-001"></a>
 
 ### REQ-ID-ENCODING-001 - Strict UUID syntax
 
-Status: target<br> Normative Level: MUST<br> Verification Class: parsing<br>
+Status: active<br> Normative Level: MUST<br> Verification Class: parsing<br>
 Evidence Status: partial
 
 UUID text parsing MUST accept exactly 32 hexadecimal digits in the canonical
@@ -94,11 +93,22 @@ The encoder emits lowercase canonical text and requires 16 bytes. The parser
 returns no value for invalid text; accepting valid syntax does not establish a
 generator profile, provenance, or semantic identifier type.
 
+The following encoding view is informative; text formats and their prefixes are
+separate, not interchangeable:
+
+```mermaid
+flowchart LR
+    Bytes["Identifier bytes"] --> UUID["UUID text: 16 bytes"]
+    Bytes --> TypeID["TypeID text: 16 bytes and optional type prefix"]
+    Bytes --> Sortable["Base64sort: unprefixed"]
+    Bytes --> Multi["Multibase: base encoding prefix"]
+```
+
 <a id="REQ-ID-ENCODING-002"></a>
 
 ### REQ-ID-ENCODING-002 - Sortable base64
 
-Status: target<br> Normative Level: MUST<br> Verification Class:
+Status: active<br> Normative Level: MUST<br> Verification Class:
 ordering-and-roundtrip<br> Evidence Status: unevidenced
 
 The compact sortable base64 codec MUST use the ASCII-ordered alphabet
@@ -127,7 +137,7 @@ does not list Base64sort; it lists base32hex as experimental.
 
 ### REQ-ID-ENCODING-003 - TypeID interoperability
 
-Status: target<br> Normative Level: MUST<br> Verification Class:
+Status: active<br> Normative Level: MUST<br> Verification Class:
 external-vectors<br> Evidence Status: unevidenced
 
 Any TypeID-compatible profile MUST follow TypeID specification 0.3 prefix,
@@ -146,7 +156,7 @@ not generate UUIDs or allocate semantic prefixes.
 
 ### REQ-ID-ENCODING-004 - Subtype construction
 
-Status: target<br> Normative Level: MUST<br> Verification Class:
+Status: active<br> Normative Level: MUST<br> Verification Class:
 runtime-and-types<br> Evidence Status: unevidenced
 
 Supported identifier subclass factories and decoders MUST construct the invoked
@@ -270,3 +280,21 @@ unpadded-only target to optional padded forms. The expired individual draft and
 multibase registry do not prove deployed protocol interoperability.
 
 **Action Required:** Review actual consumer collations and protocol boundaries.
+
+### 2026-11-26
+
+**Status:** Partial
+
+**Findings:**
+
+| Finding                                 | Files                             | Lines | Assessment |
+| --------------------------------------- | --------------------------------- | ----- | ---------- |
+| Decision accepted; requirements active  | [Record](adr.md)                  | -     | partial    |
+| Evidence gaps remain separately tracked | [Assurance graph](assurance.json) | -     | partial    |
+
+**Summary:** The owner accepted this decision. Acceptance does not establish
+conformance, deployment, or an immutable execution receipt. Previous audit
+entries remain historical.
+
+**Action Required:** Review remaining evidence gaps and attach execution
+receipts when available.

@@ -8,7 +8,7 @@ tags:
   - identifiers
   - bytes
   - compatibility
-status: proposed
+status: accepted
 created: 2026-11-26
 updated: 2026-11-26
 author: 'Matrix AI'
@@ -19,7 +19,7 @@ project: 'js-id'
 
 ## Status
 
-Proposed. This is a target contract, not a claim of release or conformance.
+Accepted. This contract does not itself claim release or verified conformance.
 
 ## Context
 
@@ -76,13 +76,13 @@ layout.
 
 ## Decision
 
-Propose option 1 and a major-version hard cut for obsolete generator semantics.
+Adopt option 1 and a major-version hard cut for obsolete generator semantics.
 
 <a id="REQ-ID-VALUE-001"></a>
 
 ### REQ-ID-VALUE-001 - Byte values and profiles
 
-Status: target<br> Normative Level: MUST<br> Verification Class: byte-model<br>
+Status: active<br> Normative Level: MUST<br> Verification Class: byte-model<br>
 Evidence Status: partial
 
 An identifier value MUST support arbitrary-length bytes independently of whether
@@ -108,6 +108,17 @@ The random UUIDv4 generator uses this network-order layout:
 The random fields contain 48, 12, and 62 bits respectively. The fixed bits are
 UUID version 4 and the RFC variant.
 
+The following representation view is informative; only 16-byte values can be
+rendered as UUID text.
+
+```mermaid
+flowchart LR
+    Bytes["Mutable identifier bytes"] --> UUID["UUID text: 16 bytes only"]
+    Bytes --> Base["Multibase text"]
+    Bytes --> Binary["Binary string for coercion"]
+    Bytes --> Buffer["Node Buffer view: shared storage"]
+```
+
 The value is a mutable byte sequence, not a UUID string or a JavaScript number.
 Its binary-string representation contains one code unit per byte in byte order;
 it is not a UTF-8 encoding of the raw bytes. Primitive coercion uses that string
@@ -124,7 +135,7 @@ bytes satisfy a domain type. A brand alone MUST NOT be treated as validation.
 
 ### REQ-ID-VALUE-002 - Ownership
 
-Status: target<br> Normative Level: MUST<br> Verification Class: ownership<br>
+Status: active<br> Normative Level: MUST<br> Verification Class: ownership<br>
 Evidence Status: partial
 
 Every byte conversion MUST specify whether it copies or shares mutable storage.
@@ -142,7 +153,7 @@ typed-array conversion and is not a general Unicode text decoder.
 
 ### REQ-ID-VALUE-003 - Authority
 
-Status: target<br> Normative Level: MUST NOT<br> Verification Class:
+Status: active<br> Normative Level: MUST NOT<br> Verification Class:
 security-boundary<br> Evidence Status: unevidenced
 
 Identifier bytes, text prefixes, and successful parsing MUST NOT by themselves
@@ -152,7 +163,7 @@ be treated as credentials, proof of identity, or authorization capabilities.
 
 ### REQ-ID-VALUE-004 - Hard cut
 
-Status: target<br> Normative Level: MUST NOT<br> Verification Class:
+Status: active<br> Normative Level: MUST NOT<br> Verification Class:
 release-boundary<br> Evidence Status: partial
 
 The new sortable generator MUST NOT implement an older-layout fallback or
@@ -235,3 +246,21 @@ downstream use.
 
 **Action Required:** Review the target and consumer-specific cutovers before
 release.
+
+### 2026-11-26
+
+**Status:** Partial
+
+**Findings:**
+
+| Finding                                 | Files                             | Lines | Assessment |
+| --------------------------------------- | --------------------------------- | ----- | ---------- |
+| Decision accepted; requirements active  | [Record](adr.md)                  | -     | partial    |
+| Evidence gaps remain separately tracked | [Assurance graph](assurance.json) | -     | partial    |
+
+**Summary:** The owner accepted this decision. Acceptance does not establish
+conformance, deployment, or an immutable execution receipt. Previous audit
+entries remain historical.
+
+**Action Required:** Review remaining evidence gaps and attach execution
+receipts when available.

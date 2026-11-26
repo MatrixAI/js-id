@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "role": "non-normative-proposed-traceability",
+  "role": "non-normative-traceability",
   "requirements": [
     { "id": "REQ-ID-FLAKE-001", "cases": ["CASE-ID-FLAKE-LAYOUT", "CASE-ID-FLAKE-BROWSER"], "gap": "Selected bit allocations and one browser scenario, not universal UUIDv8 interoperability." },
     { "id": "REQ-ID-FLAKE-002", "cases": ["CASE-ID-FLAKE-INVALID", "CASE-ID-FLAKE-NODES"], "gap": "Exclusive allocation, reservation, and crash-safe persistence are caller-owned and unverified." },
@@ -12,7 +12,7 @@
     { "id": "CASE-ID-FLAKE-INVALID", "assertions": [{ "path": "../../tests/IdFlake.test.ts", "text": "rejects invalid allocation, node, timestamps, randomness, and restart state" }], "evidence": ["EVID-ID-FLAKE-UNIT"], "limit": "Local validation does not establish allocation exclusivity or profile provenance." },
     { "id": "CASE-ID-FLAKE-NODES", "assertions": [{ "path": "../../tests/IdFlake.test.ts", "text": "separates different equal-width nodes for the same timestamp and sequence" }], "evidence": ["EVID-ID-FLAKE-UNIT"], "limit": "One equal-width example; mixed allocations may overlap." },
     { "id": "CASE-ID-FLAKE-CLOCK", "assertions": [{ "path": "../../tests/IdFlake.test.ts", "text": "holds time during rollback and resumes from copied restart state" }], "evidence": ["EVID-ID-FLAKE-UNIT"], "limit": "Selected rollback and copied-state examples." },
-    { "id": "CASE-ID-FLAKE-EXHAUST", "assertions": [{ "path": "../../tests/IdFlake.test.ts", "text": "rejects exhausted sequences including a 74-bit restart and recovers" }], "evidence": ["EVID-ID-FLAKE-UNIT"], "limit": "Selected exhausted restart widths, not enumeration of the full counter space." },
+    { "id": "CASE-ID-FLAKE-EXHAUST", "assertions": [{ "path": "../../tests/IdFlake.test.ts", "text": "rejects exhausted sequences including a 74-bit restart and recovers" }, { "path": "../../tests/IdFlake.test.ts", "text": "reports flake exhaustion without hiding clock or random failures" }], "evidence": ["EVID-ID-FLAKE-UNIT"], "limit": "Selected exhausted restart widths, not enumeration of the full counter space." },
     { "id": "CASE-ID-FLAKE-FAILURE", "assertions": [{ "path": "../../tests/IdFlake.test.ts", "text": "leaves committed state unchanged when random generation fails" }, { "path": "../../tests/IdFlake.test.ts", "text": "leaves committed state unchanged when the random result has the wrong size" }], "evidence": ["EVID-ID-FLAKE-UNIT"], "limit": "Selected source failures, not every runtime failure." },
     { "id": "CASE-ID-FLAKE-BROWSER", "assertions": [{ "path": "../../tests/browser/scenarios.ts", "text": "flake node prefix" }, { "path": "../../tests/browser/scenarios.ts", "text": "flake frozen clock must not wrap" }], "evidence": ["EVID-ID-FLAKE-BROWSER"], "limit": "One configuration in Chromium document and dedicated worker; not a deployed Worker." }
   ],

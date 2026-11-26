@@ -46,9 +46,9 @@ for (const entry of bundles) {
   const adr = readRelative(bundle, 'adr.md');
   const graph = JSON.parse(readRelative(bundle, 'assurance.json'));
   assert(graph.version === 1, `${entry.name}: unsupported graph version`);
+  const status = /^status: (proposed|accepted)$/m.exec(adr)?.[1];
   assert(
-    graph.role === 'non-normative-proposed-traceability' &&
-      /^status: proposed$/m.test(adr),
+    graph.role === 'non-normative-traceability' && status != null,
     `${entry.name}: graph role and record status must agree`,
   );
   assert(
@@ -74,6 +74,14 @@ for (const entry of bundles) {
     assert(
       anchors.includes(requirement.id),
       `Missing anchor: ${requirement.id}`,
+    );
+    const section = adr
+      .split(`### ${requirement.id} - `)[1]
+      ?.split('\n### ')[0];
+    const expectedStatus = status === 'accepted' ? 'active' : 'target';
+    assert(
+      section != null && section.includes(`Status: ${expectedStatus}<br>`),
+      `${requirement.id}: lifecycle status does not match its decision`,
     );
     assert(
       Array.isArray(requirement.cases),
@@ -141,5 +149,5 @@ for (const entry of bundles) {
 }
 
 process.stdout.write(
-  `Checked ${bundles.length} proposed bundles, ${requirementCount} requirement anchors, and ${caseCount} cases. No execution or semantic coverage was verified.\n`,
+  `Checked ${bundles.length} bundles, ${requirementCount} requirement anchors, and ${caseCount} cases. No execution or semantic coverage was verified.\n`,
 );

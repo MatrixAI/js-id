@@ -7,7 +7,7 @@ tags:
   - uuid
   - ordering
   - time
-status: proposed
+status: accepted
 created: 2026-11-26
 updated: 2026-11-26
 author: 'Matrix AI'
@@ -18,7 +18,7 @@ project: 'js-id'
 
 ## Status
 
-Proposed. Local implementation and evidence remain subject to review.
+Accepted. Evidence and deployment coverage remain separate from this decision.
 
 ## Context
 
@@ -74,7 +74,7 @@ semantics.
 
 ## Decision
 
-Propose option 1 with no old-layout reader, adapter, or automatic detection.
+Adopt option 1 with no old-layout reader, adapter, or automatic detection.
 Rejecting the previous node-prefix option is a project profile choice, not a
 claim that RFC 9562 requires a separate flake class. The historical option
 placed caller-provided leading bits in the random tail. An injected random
@@ -85,7 +85,7 @@ supply a coordinated uniqueness guarantee.
 
 ### REQ-ID-UUID7-001 - Layout
 
-Status: target<br> Normative Level: MUST<br> Verification Class:
+Status: active<br> Normative Level: MUST<br> Verification Class:
 interoperability<br> Evidence Status: partial
 
 The sortable generator MUST encode a 48-bit big-endian Unix millisecond
@@ -118,7 +118,7 @@ first two bytes seed the counter and its remaining bytes provide the tail.
 
 ### REQ-ID-UUID7-002 - Counter and clock
 
-Status: target<br> Normative Level: MUST<br> Verification Class:
+Status: active<br> Normative Level: MUST<br> Verification Class:
 monotonicity<br> Evidence Status: partial
 
 For each later millisecond the generator MUST seed its counter from 11 random
@@ -134,11 +134,30 @@ source, invalid source result, or exhaustion MUST leave the last committed
 generation state unchanged. Waiting or retrying is caller policy; generation
 does not block until the clock advances.
 
+The non-throwing attempt MUST return an ID on success and no value only on
+counter exhaustion. It MUST propagate clock and random-source failures; invalid
+clock values and invalid random results MUST still throw. The throwing API MUST
+continue to raise RangeError on exhaustion. Neither attempt may partially commit
+state. The following view is informative:
+
+```mermaid
+flowchart TD
+    Attempt["Attempt generation"] --> Clock{"Clock valid?"}
+    Clock -- No --> Error["Throw; state unchanged"]
+    Clock -- Yes --> Full{"Counter exhausted at held timestamp?"}
+    Full -- Yes --> Exhausted["No ID; state unchanged"]
+    Full -- No --> Random{"Random source valid?"}
+    Random -- No --> Error
+    Random -- Yes --> Commit["Commit state and return ID"]
+    Exhausted --> Policy["Caller: bounded wait or reject"]
+    Policy -- Retry --> Attempt
+```
+
 <a id="REQ-ID-UUID7-003"></a>
 
 ### REQ-ID-UUID7-003 - Restart and scope
 
-Status: target<br> Normative Level: MUST<br> Verification Class: ownership<br>
+Status: active<br> Normative Level: MUST<br> Verification Class: ownership<br>
 Evidence Status: partial
 
 Restart state MUST be a caller-supplied UUID from this profile. The generator
@@ -158,7 +177,7 @@ held ahead of the observed clock after rollback.
 
 ### REQ-ID-UUID7-004 - Node boundary
 
-Status: target<br> Normative Level: MUST NOT<br> Verification Class:
+Status: active<br> Normative Level: MUST NOT<br> Verification Class:
 profile-boundary<br> Evidence Status: partial
 
 The UUIDv7 generator MUST NOT embed a fixed node ID. A separately specified
@@ -254,3 +273,21 @@ do not establish global ordering, a deployment guarantee, or a performance
 budget.
 
 **Action Required:** Review profile provenance and downstream persisted state.
+
+### 2026-11-26
+
+**Status:** Partial
+
+**Findings:**
+
+| Finding                                 | Files                             | Lines | Assessment |
+| --------------------------------------- | --------------------------------- | ----- | ---------- |
+| Decision accepted; requirements active  | [Record](adr.md)                  | -     | partial    |
+| Evidence gaps remain separately tracked | [Assurance graph](assurance.json) | -     | partial    |
+
+**Summary:** The owner accepted this decision. Acceptance does not establish
+conformance, deployment, or an immutable execution receipt. Previous audit
+entries remain historical.
+
+**Action Required:** Review remaining evidence gaps and attach execution
+receipts when available.

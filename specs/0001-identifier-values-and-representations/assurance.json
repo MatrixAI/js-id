@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "role": "non-normative-proposed-traceability",
+  "role": "non-normative-traceability",
   "requirements": [
     { "id": "REQ-ID-VALUE-001", "cases": ["CASE-ID-VALUE-BYTES", "CASE-ID-VALUE-KEYS"], "gap": "Selected byte lengths and key uses only; brands do not validate domain meaning." },
     { "id": "REQ-ID-VALUE-002", "cases": ["CASE-ID-VALUE-VIEWS", "CASE-ID-VALUE-STATE"], "gap": "Selected conversion and generator ownership paths only." },

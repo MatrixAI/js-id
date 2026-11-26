@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "role": "non-normative-proposed-traceability",
+  "role": "non-normative-traceability",
   "requirements": [
     { "id": "REQ-ID-ENCODING-001", "cases": ["CASE-ID-ENCODING-UUID"], "gap": "Selected syntax examples do not establish profile provenance." },
     { "id": "REQ-ID-ENCODING-002", "cases": ["CASE-ID-ENCODING-SORTABLE"], "gap": "Ordering examples do not cover external database collations." },

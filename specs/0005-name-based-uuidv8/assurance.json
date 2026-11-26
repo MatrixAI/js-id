@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "role": "non-normative-proposed-traceability",
+  "role": "non-normative-traceability",
   "requirements": [
     { "id": "REQ-ID-NAME-001", "cases": ["CASE-ID-NAME-VECTOR", "CASE-ID-NAME-HASH", "CASE-ID-NAME-BROWSER"], "gap": "Selected inputs and runtimes only; UUIDv8 bits do not identify this profile." },
     { "id": "REQ-ID-NAME-002", "cases": ["CASE-ID-NAME-UNICODE", "CASE-ID-NAME-HASH"], "gap": "Consumers must define any normalization policy and validate its consistency." },

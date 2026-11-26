@@ -7,7 +7,7 @@ tags:
   - uuid
   - flake
   - workers
-status: proposed
+status: accepted
 created: 2026-11-26
 updated: 2026-11-26
 author: 'Matrix AI'
@@ -18,7 +18,7 @@ project: 'js-id'
 
 ## Status
 
-Proposed. The profile is project-specific and does not imply a universal UUIDv8
+Accepted. The profile is project-specific and does not imply a universal UUIDv8
 format.
 
 ## Context
@@ -109,7 +109,7 @@ collisions, and a large counter does not eliminate allocation or restart risks.
 
 ## Decision
 
-Propose option 1 as an explicit alternative to the default UUIDv7 generator. RFC
+Adopt option 1 as an explicit alternative to the default UUIDv7 generator. RFC
 9562 recommends UUIDv8 for embedded node IDs but does not require a separate
 class. This proposal preserves the former variable-width node-prefix capability
 without retaining the old nonstandard timestamp layout. It replaces the earlier
@@ -120,7 +120,7 @@ interpretation.
 
 ### REQ-ID-FLAKE-001 - Layout
 
-Status: target<br> Normative Level: MUST<br> Verification Class:
+Status: active<br> Normative Level: MUST<br> Verification Class:
 binary-profile<br> Evidence Status: partial
 
 The profile MUST encode a 48-bit big-endian Unix millisecond timestamp and a
@@ -166,7 +166,7 @@ signals a custom layout; another UUIDv8 is not thereby this flake profile.
 
 ### REQ-ID-FLAKE-002 - Allocation and state
 
-Status: target<br> Normative Level: MUST<br> Verification Class:
+Status: active<br> Normative Level: MUST<br> Verification Class:
 coordination<br> Evidence Status: partial
 
 The caller MUST establish a shared allocation, allocate non-overlapping node
@@ -185,7 +185,7 @@ allocated, the generator MUST NOT require or call the random source.
 
 ### REQ-ID-FLAKE-003 - Counter exhaustion
 
-Status: target<br> Normative Level: MUST<br> Verification Class:
+Status: active<br> Normative Level: MUST<br> Verification Class:
 monotonicity<br> Evidence Status: partial
 
 The generator MUST reset the sequence only when its timestamp advances, hold the
@@ -200,11 +200,29 @@ generator state. Returned and supplied mutable values MUST NOT change its state.
 Sequence extraction MUST preserve precision for widths above 53 bits. The
 last-generated accessor is unavailable before this instance produces an ID.
 
+The non-throwing attempt MUST return an ID on success and no value only on
+exhaustion; invalid clocks, invalid random results, and source failures MUST
+remain distinct from that outcome. The throwing API MUST continue to raise
+RangeError on exhaustion. Waiting and retry remain application-owned.
+
+```mermaid
+flowchart TD
+    Attempt["Attempt generation"] --> Clock{"Clock valid?"}
+    Clock -- No --> Error["Throw; state unchanged"]
+    Clock -- Yes --> Full{"Sequence exhausted at held timestamp?"}
+    Full -- Yes --> Exhausted["No ID; state unchanged"]
+    Full -- No --> Random{"Required random source valid?"}
+    Random -- No --> Error
+    Random -- Yes or not needed --> Commit["Commit state and return ID"]
+    Exhausted --> Policy["Caller: bounded wait or reject"]
+    Policy -- Retry --> Attempt
+```
+
 <a id="REQ-ID-FLAKE-004"></a>
 
 ### REQ-ID-FLAKE-004 - Provenance and secrecy
 
-Status: target<br> Normative Level: MUST<br> Verification Class:
+Status: active<br> Normative Level: MUST<br> Verification Class:
 profile-boundary<br> Evidence Status: unevidenced
 
 Consumers MUST establish profile provenance outside UUIDv8 version bits and MUST
@@ -317,3 +335,21 @@ the current configurable target. Local tests cannot prove distributed ownership.
 
 **Action Required:** Review allocation policy, profile provenance, performance,
 and deployed runtimes before release.
+
+### 2026-11-26
+
+**Status:** Partial
+
+**Findings:**
+
+| Finding                                 | Files                             | Lines | Assessment |
+| --------------------------------------- | --------------------------------- | ----- | ---------- |
+| Decision accepted; requirements active  | [Record](adr.md)                  | -     | partial    |
+| Evidence gaps remain separately tracked | [Assurance graph](assurance.json) | -     | partial    |
+
+**Summary:** The owner accepted this decision. Acceptance does not establish
+conformance, deployment, or an immutable execution receipt. Previous audit
+entries remain historical.
+
+**Action Required:** Review remaining evidence gaps and attach execution
+receipts when available.

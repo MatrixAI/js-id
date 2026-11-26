@@ -200,6 +200,21 @@ class IdFlake<T extends Id = Id> implements IterableIterator<T> {
 
   /** Generates an ID or throws before invalid input or exhaustion changes state. */
   public next(): IteratorResult<T, void> {
+    const id = this.tryGet();
+    if (id == null) {
+      throw new RangeError(
+        'UUIDv8 flake counter exhausted; wait for the clock to advance',
+      );
+    }
+    return { value: id, done: false };
+  }
+
+  /**
+   * Attempts generation, returning undefined only when the counter is exhausted.
+   * Invalid clocks, invalid randomness, and collaborator failures still throw.
+   * A failed attempt does not advance the saved generator state.
+   */
+  public tryGet(): T | undefined {
     const now = this.clock();
     if (!Number.isFinite(now) || now < 0 || now > maxTimestamp) {
       throw new RangeError('UUIDv8 timestamp is outside the 48-bit range');
@@ -208,9 +223,7 @@ class IdFlake<T extends Id = Id> implements IterableIterator<T> {
     const sameTimestamp =
       this.lastTimestamp != null && timestamp === this.lastTimestamp;
     if (sameTimestamp && this.seqCounter === this.maxSequence) {
-      throw new RangeError(
-        'UUIDv8 flake counter exhausted; wait for the clock to advance',
-      );
+      return;
     }
     const sequence = sameTimestamp ? this.seqCounter! + 1n : 0n;
     let randomValue = 0n;
@@ -242,7 +255,7 @@ class IdFlake<T extends Id = Id> implements IterableIterator<T> {
     this.lastTimestamp = timestamp;
     this.seqCounter = sequence;
     this._lastId = savedId;
-    return { value: id, done: false };
+    return id;
   }
 
   /** Returns this generator as an unbounded synchronous iterator. */

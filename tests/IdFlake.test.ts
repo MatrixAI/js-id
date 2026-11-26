@@ -168,12 +168,52 @@ describe('IdFlake', () => {
       expect(extractSeq(lastId, sequenceBits)).toBe(
         (1n << BigInt(sequenceBits)) - 1n,
       );
+      expect(generator.tryGet()).toBeUndefined();
+      expect(() => generator.lastId).toThrow(ReferenceError);
       expect(() => generator.get()).toThrow(RangeError);
       now = 999;
+      expect(generator.tryGet()).toBeUndefined();
       expect(() => generator.get()).toThrow('counter exhausted');
       now = 1001;
-      expect(extractSeq(generator.get(), sequenceBits)).toBe(0n);
+      expect(extractSeq(generator.tryGet()!, sequenceBits)).toBe(0n);
     }
+  });
+
+  test('reports flake exhaustion without hiding clock or random failures', () => {
+    let now = 1000;
+    let invalidRandom = false;
+    let randomFailure = false;
+    let calls = 0;
+    const generator = new IdFlake({
+      sequenceBits: 1,
+      timeSource: () => () => now,
+      randomSource: (size) => {
+        calls++;
+        if (randomFailure) throw new Error('random failure');
+        return new Uint8Array(invalidRandom ? size - 1 : size);
+      },
+    });
+    const first = generator.tryGet()!;
+    const last = generator.tryGet()!;
+    expect(first < last).toBe(true);
+    expect(generator.tryGet()).toBeUndefined();
+    expect(generator.tryGet()).toBeUndefined();
+    expect(calls).toBe(2);
+    expect(generator.lastId.equals(last)).toBe(true);
+    now = Infinity;
+    expect(() => generator.tryGet()).toThrow(RangeError);
+    now = 1001;
+    invalidRandom = true;
+    expect(() => generator.tryGet()).toThrow(RangeError);
+    expect(generator.lastId.equals(last)).toBe(true);
+    invalidRandom = false;
+    randomFailure = true;
+    expect(() => generator.tryGet()).toThrow('random failure');
+    expect(generator.lastId.equals(last)).toBe(true);
+    randomFailure = false;
+    const resumed = generator.tryGet()!;
+    expect(last < resumed).toBe(true);
+    expect(extractSeq(resumed, 1)).toBe(0n);
   });
 
   test('leaves committed state unchanged when random generation fails', () => {

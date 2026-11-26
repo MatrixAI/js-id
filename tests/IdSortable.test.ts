@@ -257,6 +257,42 @@ describe('IdSortable', () => {
     expect(extractTs(resumed)).toBe(1001);
     expect(extractSeq(resumed)).toBe(0);
   });
+  test('reports exhaustion without throwing and propagates unrelated failures', () => {
+    const lastId = utils.fromUUID('00000000-03e8-7fff-8000-000000000000')!;
+    let now = 999;
+    let calls = 0;
+    let invalidRandom = false;
+    let randomFailure = false;
+    const generator = new IdSortable({
+      lastId,
+      timeSource: () => () => now,
+      randomSource: (size) => {
+        calls++;
+        if (randomFailure) throw new Error('random failure');
+        return new Uint8Array(invalidRandom ? size - 1 : size);
+      },
+    });
+    expect(generator.tryGet()).toBeUndefined();
+    expect(generator.tryGet()).toBeUndefined();
+    expect(calls).toBe(0);
+    expect(() => generator.lastId).toThrow(ReferenceError);
+    now = 1000;
+    expect(generator.tryGet()).toBeUndefined();
+    now = NaN;
+    expect(() => generator.tryGet()).toThrow(RangeError);
+    now = 1001;
+    invalidRandom = true;
+    expect(() => generator.tryGet()).toThrow(RangeError);
+    invalidRandom = false;
+    randomFailure = true;
+    expect(() => generator.tryGet()).toThrow('random failure');
+    randomFailure = false;
+    const resumed = generator.tryGet()!;
+    expect(lastId < resumed).toBe(true);
+    expect(extractTs(resumed)).toBe(1001);
+    expect(extractSeq(resumed)).toBe(0);
+    expect(generator.lastId.equals(resumed)).toBe(true);
+  });
   test('accepts random byte arrays from another realm but rejects other views', () => {
     const foreignBytes = runInNewContext('new Uint8Array(10)') as Uint8Array;
     expect(foreignBytes).not.toBeInstanceOf(Uint8Array);

@@ -134,6 +134,50 @@ are not supported by the new generator. Do not mix them as restart state or rely
 on their combined chronological ordering. Embedded node IDs are not part of the
 UUIDv7 generator.
 
+#### Exhaustion and backpressure
+
+Both sortable generators expose `tryGet()`: it returns a new ID, or `undefined`
+only when the sequence is exhausted at the held timestamp. An invalid clock,
+invalid random result, or exception from a collaborator still throws. The
+existing `get()` and iterator methods continue to throw `RangeError` on
+exhaustion. Neither failure advances committed generator state.
+
+Applications that need to retry can apply backpressure and retain the same
+generator. For example, a service may supply its own cancellable, delayed wait:
+
+```ts
+import { IdSortable } from '@matrixai/id';
+
+async function issueWithBackpressure(
+  generator: IdSortable,
+  waitForRetry: (signal: AbortSignal) => Promise<void>,
+  signal: AbortSignal,
+) {
+  for (;;) {
+    signal.throwIfAborted();
+    const id = generator.tryGet();
+    if (id !== undefined) return id;
+    await waitForRetry(signal);
+  }
+}
+```
+
+The application must supply a wait that yields, delays repeated attempts, and
+honors cancellation, as well as a request deadline or other bound. A timer
+firing does not ensure that the generator's clock advanced: a stalled or
+rolled-back clock may require many retries or never recover. Bound the queue and
+propagate timeout or cancellation rather than busy-looping or waiting
+indefinitely. Do not catch every `RangeError` as exhaustion, inspect
+error-message text, reset the generator, or switch profiles to evade the limit.
+The same pattern applies to `IdFlake`.
+
+For UUIDv7, a fresh millisecond has 2,049 to 4,096 available values, depending
+on its random counter seed; restored state may have fewer. A flake's configured
+sequence width provides up to 2^sequenceBits values per fresh timestamp. A wider
+sequence consumes bits otherwise available for the node prefix or random tail;
+it does not solve clock stalls indefinitely or replace coordination and durable
+state ownership. Independent generators do not provide one global order.
+
 ### Node-aware flake identifiers
 
 `IdFlake` generates a separate, configurable UUIDv8 profile. It stores a 48-bit
@@ -272,8 +316,8 @@ the relevant ecosystem libraries. See the
 
 ### Breaking major adoption
 
-This working tree changes identifier generation contracts and must not be
-released as a compatible update to the existing major version:
+This major version changes identifier generation contracts and is not a
+compatible update to the previous major version:
 
 - Old sortable values and RFC UUIDv7 values share version bits but encode their
   timestamps differently. Do not infer their origin from those bits, mix them in
@@ -292,6 +336,41 @@ Inventory database keys, sort ranges, cursors, persisted restart state, and
 external references before adopting the new major version. No old-layout reader,
 automatic detection, or data migration is supplied. Database and production
 changes require their own reviewed plan.
+
+### Exploratory performance
+
+One local Node 24.21.0 run on Linux x86-64 measured the median of eight samples,
+each generating 100,000 identifiers after a warmup. The synthetic clock advanced
+once per 1,024 IDs. These are whole-batch times, not latency for a single ID:
+
+| Scenario                                             | Candidate median | Adapted old sortable median |
+| ---------------------------------------------------- | ---------------: | --------------------------: |
+| Sortable UUIDv7, zero-filled random source           |          78.8 ms |                    184.6 ms |
+| Sortable UUIDv7, Web Crypto                          |         133.2 ms |                    307.6 ms |
+| Name-based SHA-256 UUIDv8                            |         236.9 ms |                not measured |
+| Flake, 12 sequence and 62 node bits, no random tail  |          19.6 ms |                not measured |
+| Flake, 42 sequence and 32 node bits, no random tail  |          25.0 ms |                not measured |
+| Flake, 12 sequence and 32 node bits, Web Crypto tail |         151.0 ms |                not measured |
+
+For example, 133.2 ms per 100,000 IDs corresponds to about 750,000 IDs per
+second as a batch average in this run. It is not an individual latency
+distribution or a sustained-rate guarantee. The candidate batch medians were
+about 2.3 times faster than the adapted old sortable source in each comparison,
+but the implementations have different layouts, random-byte counts, state
+ownership, and shared helpers. The baseline is not a full historical build. The
+no-random-tail flake profiles require coordinated node and state ownership;
+their timings are not equivalent to generation with a cryptographic random tail.
+
+The run used an uncontrolled Intel Core i9-13900KF, with no CPU isolation or
+frequency policy. Its candidate bundle SHA-256 was
+`d1c9ffdfd0db3e9ba86704a056822abbcd0952fd6f5ee57513c6f61b4c0dd2b1`; the adapted
+baseline source revision is recorded in the
+[baseline provider](perf/baselines/sortable-git.provider.json). The
+[retained observation](perf/results/2026-11-26-exploratory.md) includes the
+individual samples and provenance. These are exploratory microbenchmarks, not
+correctness evidence, a performance budget, a regression gate, or a database,
+browser, or deployed Worker measurement. See the
+[performance evidence guide](perf/README.md) to reproduce and interpret them.
 
 ## Installation
 
@@ -382,12 +461,11 @@ derived from that checkout's profile and ecosystem collections. Private
 acquisition failures are blockers, not permission to bypass checks.
 
 Documentation is handwritten Markdown; generated API documentation is not
-maintained. Proposed identifier contracts are recorded in [specs](specs). Unit
+maintained. Accepted identifier contracts are recorded in [specs](specs). Unit
 and hermetic checks provide the executable validation gates.
 
 ## Release policy
 
-There is no automatic npm publication workflow. Existing published releases
-remain available, but this modernization does not publish a new one. Family
-integration uses released dependencies with exact lockfile resolutions.
-Committing, tagging, and publishing require separate approval.
+There is no automatic npm publication workflow. A Git tag alone does not publish
+the package. Family integration uses released dependencies with exact lockfile
+resolutions. Committing, tagging, and publishing require separate approval.

@@ -1,6 +1,7 @@
 import type { Id } from '#Id.js';
 import { expectTypeOf, test } from 'vitest';
 import IdFlake, { extractNodeId, extractSeq } from '#IdFlake.js';
+import IdSortable from '#IdSortable.js';
 
 test('configurable flake keeps branded IDs and lossless sequence types', () => {
   type EntityId = Id & { readonly entityId: unique symbol };
@@ -12,6 +13,10 @@ test('configurable flake keeps branded IDs and lossless sequence types', () => {
   });
   const id = generator.get();
   expectTypeOf(id).toEqualTypeOf<EntityId>();
+  expectTypeOf(generator.tryGet()).toEqualTypeOf<EntityId | undefined>();
+  expectTypeOf(new IdSortable<EntityId>().tryGet()).toEqualTypeOf<
+    EntityId | undefined
+  >();
   expectTypeOf(extractSeq(id, 74)).toEqualTypeOf<bigint>();
   expectTypeOf(
     extractNodeId(id, { sequenceBits: 12, nodeBits: 62 }),

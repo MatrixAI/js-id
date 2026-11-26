@@ -27,19 +27,20 @@ Crypto tail. Flake cases are candidate-only, not historical comparisons. This is
 a microbenchmark, not a correctness test or a database, browser, or deployed
 Worker benchmark.
 
-The Nix-built runner is shared by the operator app and the non-default
-harness-health check. Run the app from this repository, choosing a fresh output
-directory under `tmp/perf/runs/`:
+The Nix-built runner is shared by the development environment and the
+non-default harness-health check. Run it through the npm script in the active
+development environment, choosing a fresh output directory under
+`tmp/perf/runs/`:
 
 ```sh
-nix run '.#perf-id' -- --output tmp/perf/runs/local
+npm run perf:bench -- --output tmp/perf/runs/local
 ```
 
 To compare with the pinned pre-hard-cut sortable source, adapted to the current
 ID constructor and utilities, run:
 
 ```sh
-nix run '.#perf-id' -- --output tmp/perf/runs/pinned --baseline-pinned
+npm run perf:bench -- --output tmp/perf/runs/pinned --baseline-pinned
 ```
 
 The pinned provider records the Git revision and Nix source hash. It is not a
@@ -52,7 +53,7 @@ export is a compatible sortable generator constructor. For example, after
 preparing such a module under the temporary directory:
 
 ```sh
-nix run '.#perf-id' -- --output tmp/perf/runs/comparison --baseline tmp/baseline/IdSortable.mjs
+npm run perf:bench -- --output tmp/perf/runs/comparison --baseline tmp/baseline/IdSortable.mjs
 ```
 
 The baseline file is hashed and recorded, but its imports and dependencies are

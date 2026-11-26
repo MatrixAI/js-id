@@ -108,6 +108,21 @@ class IdSortable<T extends Id = Id> implements IterableIterator<T> {
 
   /** Generates an ID or throws RangeError for invalid input or exhaustion. */
   public next(): IteratorResult<T, void> {
+    const id = this.tryGet();
+    if (id == null) {
+      throw new RangeError(
+        'UUIDv7 counter exhausted; wait for the clock to advance',
+      );
+    }
+    return { value: id, done: false };
+  }
+
+  /**
+   * Attempts generation, returning undefined only when the counter is exhausted.
+   * Invalid clocks, invalid randomness, and collaborator failures still throw.
+   * A failed attempt does not advance the saved generator state.
+   */
+  public tryGet(): T | undefined {
     const now = this.clock();
     if (!Number.isFinite(now) || now < 0 || now > maxTimestamp) {
       throw new RangeError('UUIDv7 timestamp is outside the 48-bit range');
@@ -117,9 +132,7 @@ class IdSortable<T extends Id = Id> implements IterableIterator<T> {
     const sameTimestamp =
       this.lastTimestamp != null && timestamp === this.lastTimestamp;
     if (sameTimestamp && this.seqCounter === maxCounter) {
-      throw new RangeError(
-        'UUIDv7 counter exhausted; wait for the clock to advance',
-      );
+      return;
     }
 
     const random = this.randomSource(10);
@@ -141,7 +154,7 @@ class IdSortable<T extends Id = Id> implements IterableIterator<T> {
     this.lastTimestamp = timestamp;
     this.seqCounter = seq;
     this._lastId = savedId;
-    return { value: id, done: false };
+    return id;
   }
 
   /** Returns this generator as an unbounded synchronous iterator. */

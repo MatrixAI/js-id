@@ -8,7 +8,7 @@ tags:
   - uuid
   - hashing
   - deterministic
-status: proposed
+status: accepted
 created: 2026-11-26
 updated: 2026-11-26
 author: 'Matrix AI'
@@ -19,8 +19,8 @@ project: 'js-id'
 
 ## Status
 
-Proposed. This custom UUIDv8 profile has local implementation and selected test
-evidence, but is not accepted or released.
+Accepted. This custom UUIDv8 profile has selected local test evidence;
+acceptance does not itself establish a release or conformance.
 
 ## Context
 
@@ -76,13 +76,13 @@ identity.
 
 ## Decision
 
-Propose option 1 with an explicitly documented project profile.
+Adopt option 1 with an explicitly documented project profile.
 
 <a id="REQ-ID-NAME-001"></a>
 
 ### REQ-ID-NAME-001 - Hash profile
 
-Status: target<br> Normative Level: MUST<br> Verification Class:
+Status: active<br> Normative Level: MUST<br> Verification Class:
 hash-vectors<br> Evidence Status: unevidenced
 
 The SHA-256 name-based profile MUST hash the 16 namespace UUID bytes in network
@@ -108,6 +108,18 @@ hash algorithm or namespace policy.
 The fixed version and variant replace digest bits 48 through 51 and 64 through
 65, respectively. The remaining bits are taken from the first 128 digest bits.
 
+For the byte-namespace case, the derivation is:
+
+```mermaid
+flowchart LR
+    Namespace["16 namespace bytes"] --> Input["Concatenate"]
+    Name["UTF-8 name bytes"] --> Input
+    Input --> Hash["SHA-256"]
+    Hash --> Truncate["First 128 digest bits"]
+    Truncate --> Version["Replace version and variant bits"]
+    Version --> UUID["Name-based UUIDv8"]
+```
+
 For a byte namespace, the input MUST contain exactly 16 bytes and the generator
 MUST copy it. A string namespace is first encoded as a name under the all-zero
 UUID namespace using this same profile. For example, the RFC Appendix B.2 DNS
@@ -119,7 +131,7 @@ string-namespace derivation rule.
 
 ### REQ-ID-NAME-002 - Name canonicalization
 
-Status: target<br> Normative Level: MUST<br> Verification Class:
+Status: active<br> Normative Level: MUST<br> Verification Class:
 cross-runtime<br> Evidence Status: unevidenced
 
 String names MUST use documented UTF-8 conversion. The API MUST specify whether
@@ -135,7 +147,7 @@ do so explicitly and consistently before invoking the generator.
 
 ### REQ-ID-NAME-003 - Security boundary
 
-Status: target<br> Normative Level: MUST NOT<br> Verification Class:
+Status: active<br> Normative Level: MUST NOT<br> Verification Class:
 security-boundary<br> Evidence Status: unevidenced
 
 The name-based UUID MUST NOT be presented as a credential, secret, password
@@ -227,3 +239,21 @@ hard-cut decisions for persisted deterministic IDs.
 entries record historical implementation and verification state.
 
 **Action Required:** Review cutover and verify any additional claimed runtime.
+
+### 2026-11-26
+
+**Status:** Partial
+
+**Findings:**
+
+| Finding                                 | Files                             | Lines | Assessment |
+| --------------------------------------- | --------------------------------- | ----- | ---------- |
+| Decision accepted; requirements active  | [Record](adr.md)                  | -     | partial    |
+| Evidence gaps remain separately tracked | [Assurance graph](assurance.json) | -     | partial    |
+
+**Summary:** The owner accepted this decision. Acceptance does not establish
+conformance, deployment, or an immutable execution receipt. Previous audit
+entries remain historical.
+
+**Action Required:** Review remaining evidence gaps and attach execution
+receipts when available.

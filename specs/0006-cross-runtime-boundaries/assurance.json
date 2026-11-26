@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "role": "non-normative-proposed-traceability",
+  "role": "non-normative-traceability",
   "requirements": [
     { "id": "REQ-ID-RUNTIME-001", "cases": ["CASE-ID-RUNTIME-CHROMIUM", "CASE-ID-RUNTIME-BUFFER"], "gap": "Other engines, deployed Cloudflare, and every bundler are not verified." },
     { "id": "REQ-ID-RUNTIME-002", "cases": ["CASE-ID-RUNTIME-RANDOM", "CASE-ID-RUNTIME-CHROMIUM"], "gap": "Injected-source quality and all unavailable-crypto environments are not established." },

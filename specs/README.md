@@ -1,9 +1,9 @@
 # Identifier specifications
 
-These records describe proposed identifier contracts. A proposed record is not
-an assertion that its requirements are implemented, released, or verified.
-Records are read latest-first, with changes made through explicit amendments or
-successors rather than silent historical rewrites.
+These records describe accepted identifier contracts. Acceptance is not an
+assertion that their requirements are released or verified. Records are read
+latest-first, with changes made through explicit amendments or successors rather
+than silent historical rewrites.
 
 - [Identifier values and representations](0001-identifier-values-and-representations/adr.md).
 - [UUIDv7 sortable generation](0002-uuidv7-sortable-generation/adr.md).
@@ -14,19 +14,18 @@ successors rather than silent historical rewrites.
 
 Requirements live in the records. Tests and other evidence demonstrate
 implementation behavior but do not replace the requirements. A major release,
-publication, production data changes, and downstream cutovers require separate
-approval.
+publication, production data changes, and downstream cutovers remain separate
+decisions.
 
 ## Current-state reduction
 
 Read accepted records latest-first, applying explicit record and requirement
 supersession or amendment edges before treating an earlier requirement as
 active. Proposed records express targets only; deprecated and superseded
-requirements are not independently active. No record in this directory is
-currently accepted, and there are no supersession edges, so this directory
-currently asserts no binding requirements. Acceptance is separate from
-implementation and release. Keep historical audit entries intact when recording
-later observations.
+requirements are not independently active. The six records are accepted and
+their requirements are active; there are currently no supersession edges.
+Acceptance is separate from implementation, evidence, and release. Keep
+historical audit entries intact when recording later observations.
 
 ## Assurance graph
 

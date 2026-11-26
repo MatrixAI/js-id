@@ -8,7 +8,7 @@ tags:
   - runtime
   - browser
   - worker
-status: proposed
+status: accepted
 created: 2026-11-26
 updated: 2026-11-26
 author: 'Matrix AI'
@@ -19,7 +19,7 @@ project: 'js-id'
 
 ## Status
 
-Proposed. Selected Node, Chromium document, and dedicated-worker executions
+Accepted. Selected Node, Chromium document, and dedicated-worker executions
 exist; a deployed Cloudflare Worker and other browser engines remain unverified.
 
 ## Context
@@ -77,13 +77,13 @@ implementations.
 
 ## Decision
 
-Propose option 1 with explicit runtime evidence and no insecure fallback.
+Adopt option 1 with explicit runtime evidence and no insecure fallback.
 
 <a id="REQ-ID-RUNTIME-001"></a>
 
 ### REQ-ID-RUNTIME-001 - Neutral import graph
 
-Status: target<br> Normative Level: MUST<br> Verification Class:
+Status: active<br> Normative Level: MUST<br> Verification Class:
 runtime-imports<br> Evidence Status: unevidenced
 
 The shared identifier entrypoint MUST import and execute in supported Node,
@@ -96,11 +96,23 @@ Buffer conversion is a Node-specific operation, not a prerequisite for importing
 the shared API. Its views share memory and preserve offsets. Browser bundling is
 an integration binding, not evidence for every possible bundler or deployment.
 
+The runtime boundary below is informative, not a claim that every browser or
+deployed Worker has been tested:
+
+```mermaid
+flowchart LR
+    Node["Node runtime"] --> Shared["Shared identifier API"]
+    Browser["Browser document or worker"] --> Shared
+    Shared --> Crypto["Web Crypto randomness"]
+    Shared --> Clock["Performance clock or injected clock"]
+    Node --> Buffer["Explicit Buffer adapter"]
+```
+
 <a id="REQ-ID-RUNTIME-002"></a>
 
 ### REQ-ID-RUNTIME-002 - Secure randomness
 
-Status: target<br> Normative Level: MUST<br> Verification Class: randomness<br>
+Status: active<br> Normative Level: MUST<br> Verification Class: randomness<br>
 Evidence Status: unevidenced
 
 Default random generation MUST use a runtime cryptographically suitable source
@@ -117,7 +129,7 @@ caller is responsible for the quality and availability of injected sources.
 
 ### REQ-ID-RUNTIME-003 - Runtime evidence
 
-Status: target<br> Normative Level: MUST<br> Verification Class: integration<br>
+Status: active<br> Normative Level: MUST<br> Verification Class: integration<br>
 Evidence Status: unevidenced
 
 Runtime support MUST be demonstrated using the compiled package and its actual
@@ -217,3 +229,21 @@ Buffer polyfill; this does not establish deployed-platform behavior.
 
 **Action Required:** Gather platform-specific evidence before broader support
 claims.
+
+### 2026-11-26
+
+**Status:** Partial
+
+**Findings:**
+
+| Finding                                 | Files                             | Lines | Assessment |
+| --------------------------------------- | --------------------------------- | ----- | ---------- |
+| Decision accepted; requirements active  | [Record](adr.md)                  | -     | partial    |
+| Evidence gaps remain separately tracked | [Assurance graph](assurance.json) | -     | partial    |
+
+**Summary:** The owner accepted this decision. Acceptance does not establish
+conformance, deployment, or an immutable execution receipt. Previous audit
+entries remain historical.
+
+**Action Required:** Review remaining evidence gaps and attach execution
+receipts when available.

@@ -44,6 +44,10 @@ export function verifyRuntime() {
     randomSource: (size) => new Uint8Array(size),
   });
   for (let i = 0; i < 4096; i++) frozen.get();
+  assert(
+    frozen.tryGet() === undefined,
+    'UUIDv7 signals exhaustion without throwing',
+  );
   let exhausted = false;
   try {
     frozen.get();
@@ -54,7 +58,11 @@ export function verifyRuntime() {
   }
   assert(exhausted, 'frozen clock must not wrap the UUIDv7 counter');
   clock++;
-  assert(frozen.get()[6] >> 4 === 7, 'generation resumes after clock advances');
+  const resumed = frozen.tryGet();
+  assert(
+    resumed != null && resumed[6] >> 4 === 7,
+    'generation resumes after clock advances',
+  );
   let flakeClock = 100;
   const node = Uint8Array.of(1, 2, 3, 4, 5, 6, 7, 0xff);
   const flake = new IdFlake({
@@ -79,6 +87,10 @@ export function verifyRuntime() {
   );
   flake.get();
   flake.get();
+  assert(
+    flake.tryGet() === undefined,
+    'flake signals exhaustion without throwing',
+  );
   let flakeExhausted = false;
   try {
     flake.get();
@@ -87,7 +99,10 @@ export function verifyRuntime() {
   }
   assert(flakeExhausted, 'flake frozen clock must not wrap');
   flakeClock++;
-  assert(extractSeq(flake.get(), 2) === 0n, 'flake resumes on clock advance');
+  assert(
+    extractSeq(flake.tryGet()!, 2) === 0n,
+    'flake resumes on clock advance',
+  );
   assert(utils.fromUUID(first.toUUID())?.equals(first), 'UUID roundtrip');
   assert(
     utils.fromMultibase(first.toMultibase('base32hex'))?.equals(first),

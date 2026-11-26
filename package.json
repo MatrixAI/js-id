@@ -37,6 +37,7 @@
     "prepare": "tsc -p ./tsconfig.build.json",
     "build": "node ./scripts/build.mjs",
     "postversion": "npm install --package-lock-only --ignore-scripts --silent",
+    "perf:bench": "id-perf",
     "tsx": "tsx",
     "test": "node ./scripts/test.mjs",
     "specs:assurance": "node ./scripts/validate-assurance.mjs",
